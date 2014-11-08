@@ -389,8 +389,8 @@
 				this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
 				this.specular = specular || [0.9,0.9,0.9,1.0];
 				this.intensity = intensity || 0.8;
-				this.range = range || 500.0;
-				this.spotAngle = spotAngle || 180.0;
+				this.range = range || 100.0;
+				this.spotAngle = spotAngle || 30.0;
 				this.spotExponent = spotExponent || 1.0;
 
 				Object.defineProperty(this, 'direction',{
@@ -550,9 +550,9 @@
 				l1.type = 1;
 				ol1.addComponent(l1);
 				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
-				l1.spotAngle = 10;
-				l1.range = 500;
-//				light.intensity = 2;				
+				l1.spotAngle = 30;
+				l1.range = 100;
+				l1.intensity = 2;				
 				Scene.addLight(l1);
 				Scene.addObject(ol1);
 
@@ -563,7 +563,7 @@
 				l2.lookAt([70,60,0],[70,0,0],[0,0,1]);
 				l2.spotAngle = 10;
 				l2.range = 500;
-//				light.intensity = 6;				
+				l2.intensity = 2;
 				Scene.addLight(l2);
 				Scene.addObject(ol2);
 				
