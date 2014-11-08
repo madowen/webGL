@@ -15,21 +15,7 @@
 
 		</style>
 		<script type="text/javascript">
-		
-		function FileHelper()
-			{}
-			{
-				FileHelper.readStringFromFileAtPath = function(pathOfFileToReadFrom)
-				{
-					var request = new XMLHttpRequest();
-					request.open("GET", pathOfFileToReadFrom, false);
-					request.send(null);
-					returnValue = request.responseText;
-					return returnValue;
-				}
-			}
-
-		
+				
 			var Scene = {};
 			Scene.objects = [];
 			Scene.cameras = [];
@@ -51,16 +37,16 @@
 				var cam = this.cameras[this.activeCamera];
 				//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
 				//create modelview and projection matrices
+				gl.disable(gl.BLEND);
 				for (var i in this.objects){
 					if (this.objects[i].renderer){
-						var first = true;
-//						for (var l in this.lights){
-/*
-							if(first == false){
+						for (var l in this.lights){
+							if(l > 0){
 								gl.enable( gl.BLEND );
 								gl.blendFunc( gl.ONE, gl.ONE );
+							}else{
+								gl.disable(gl.BLEND);
 							}
-*/
 							first = false;
 							var modelt = mat4.create();
 							var temp = mat4.create();
@@ -74,53 +60,28 @@
 							//compute rotation matrix for normals
 							mat4.toRotationMat4(modelt, this.objects[i].transform.model);
 						    //render mesh using the shader
-						/*
-			this.objects[i].renderer.shader.uniforms({
-										m:this.objects[i].transform.model,
-										v:cam.view,
-										p:cam.projection,
-										umodelt:modelt,
-										v_inv:mat4.invert(mat4.create(),cam.view),
-										uTexture: 0,
-										uLPosition: this.lights[0].position,
-										uLDirection: this.lights[0].direction,
-										uLType: this.lights[0].type,
-										uLRange: this.lights[0].range,
-										uLIntensity: this.lights[0].intensity,
-										uLSpotAngle: this.lights[0].spotAngle,
-										uLSpotExponent: this.lights[0].spotExponent,
-										uLAmbient: this.lights[0].ambient,
-										uLDiffuse: this.lights[0].diffuse,
-										uLSpecular: this.lights[0].specular
-									}).draw(this.objects[i].renderer.mesh);
-								gl.enable( gl.BLEND );
-								gl.blendFunc( gl.ONE, gl.ONE );
-
-*/
-									this.objects[i].renderer.shader.uniforms({
-										m:this.objects[i].transform.model,
-										v:cam.view,
-										p:cam.projection,
-										umodelt:modelt,
-										v_inv:mat4.invert(mat4.create(),cam.view),
-										uTexture: 0,
-										uLPosition: this.lights[1].position,
-										uLDirection: this.lights[1].direction,
-										uLType: this.lights[1].type,
-										uLRange: this.lights[1].range,
-										uLIntensity: this.lights[1].intensity,
-										uLSpotAngle: this.lights[1].spotAngle,
-										uLSpotExponent: this.lights[1].spotExponent,
-										uLAmbient: this.lights[1].ambient,
-										uLDiffuse: this.lights[1].diffuse,
-										uLSpecular: this.lights[1].specular
-									}).draw(this.objects[i].renderer.mesh);
-								gl.disable(gl.BLEND);
-//						}
+							this.objects[i].renderer.shader.uniforms({
+								m:this.objects[i].transform.model,
+								v:cam.view,
+								p:cam.projection,
+								umodelt:modelt,
+								v_inv:mat4.invert(mat4.create(),cam.view),
+								uTexture: 0,
+								uLPosition: this.lights[l].position,
+								uLDirection: this.lights[l].direction,
+								uLType: this.lights[l].type,
+								uLRange: this.lights[l].range,
+								uLIntensity: this.lights[l].intensity,
+								uLSpotAngle: this.lights[l].spotAngle,
+								uLSpotExponent: this.lights[l].spotExponent,
+								uLAmbient: this.lights[l].ambient,
+								uLDiffuse: this.lights[l].diffuse,
+								uLSpecular: this.lights[l].specular
+							}).draw(this.objects[i].renderer.mesh);
+	
+						}
 					}
-//					gl.disable(gl.BLEND);
 				}
-
 			}
 			Scene.update = function(dt){
 				for (var i in this.objects){					
@@ -540,8 +501,16 @@
 				//var shader = new Shader(,);
 				
 				
-			
+				var obj = new GameObject("terrain");
+				var ren = new Renderer();
+				ren.mesh = GL.Mesh.fromURL("assets/terrain/terrain.ASE");
+				ren.shader = GL.Shader.fromURL("light.vs","light.fs");;
+				ren.texture = GL.Texture.fromURL("assets/terrain/terrain.png");
+				obj.addComponent(ren);
+				Scene.addObject(obj);
+		
 				
+/*
 				var obj = new GameObject("player");
 				obj.transform.position = [0,40,0];
 				var ren = new Renderer();
@@ -562,13 +531,7 @@
 				ren.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 				Scene.addObject(obj);
 				
-				obj = new GameObject("terrain");
-				ren = new Renderer();
-				ren.mesh = GL.Mesh.fromURL("assets/terrain/terrain.ase");
-				ren.shader = GL.Shader.fromURL("light.vs","light.fs");;
-				ren.texture = GL.Texture.fromURL("assets/terrain/terrain.png");
-				obj.addComponent(ren);
-				Scene.addObject(obj);
+*/
 							
 				
 				obj = new GameObject("camera");
@@ -582,27 +545,27 @@
 				Scene.addObject(obj);
 
 
-				obj = new GameObject("lightLeft");
-				light = new Light();
-				light.type = 1;
-				obj.addComponent(light);
-				light.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
-				light.spotAngle = 10;
-				light.range = 500;
+				var ol1 = new GameObject("lightLeft");
+				var l1 = new Light();
+				l1.type = 1;
+				ol1.addComponent(l1);
+				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
+				l1.spotAngle = 10;
+				l1.range = 500;
 //				light.intensity = 2;				
-				Scene.addLight(light);
-				Scene.addObject(obj);
+				Scene.addLight(l1);
+				Scene.addObject(ol1);
 
-				obj = new GameObject("lightRight");
-				light = new Light();
-				light.type = 1;
-				obj.addComponent(light);
-				light.lookAt([70,60,0],[70,0,0],[0,0,1]);
-				light.spotAngle = 10;
-				light.range = 500;
+				var ol2 = new GameObject("lightRight");
+				var l2 = new Light();
+				l2.type = 1;
+				ol2.addComponent(l2);
+				l2.lookAt([70,60,0],[70,0,0],[0,0,1]);
+				l2.spotAngle = 10;
+				l2.range = 500;
 //				light.intensity = 6;				
-				Scene.addLight(light);
-				Scene.addObject(obj);
+				Scene.addLight(l2);
+				Scene.addObject(ol2);
 				
 				console.log(Scene.objects);
 
