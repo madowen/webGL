@@ -44,8 +44,11 @@
 							if(l > 0){
 								gl.enable( gl.BLEND );
 								gl.blendFunc( gl.ONE, gl.ONE );
+								gl.depthMask(false);
+								gl.depthFunc(gl.LEQUAL);
 							}else{
 								gl.disable(gl.BLEND);
+								gl.depthMask(true);
 							}
 							first = false;
 							var modelt = mat4.create();
@@ -562,7 +565,7 @@
 				ol2.addComponent(l2);
 				l2.lookAt([70,60,0],[70,0,0],[0,0,1]);
 				l2.spotAngle = 10;
-				l2.range = 500;
+				l2.range = 100;
 				l2.intensity = 2;
 				Scene.addLight(l2);
 				Scene.addObject(ol2);
