@@ -21,6 +21,7 @@
 			Scene.cameras = [];
 			Scene.lights = [];
 			Scene.activeCamera = 0;
+			Scene.ambientLight = [0.1, 0.1, 0.1, 1.0];
 
 			Scene.addObject = function(object){
 					this.objects.push(object);
@@ -39,9 +40,10 @@
 				//create modelview and projection matrices
 				gl.disable(gl.BLEND);
 				for (var i in this.objects){
+					var firstLight = true;
 					if (this.objects[i].renderer){
 						for (var l in this.lights){
-							if(l > 0){
+							if(!firstLight){
 								gl.enable( gl.BLEND );
 								gl.blendFunc( gl.ONE, gl.ONE );
 								gl.depthMask(false);
@@ -57,7 +59,8 @@
 							mat4.multiply(temp,cam.view,this.objects[i].transform.model); //modelview
 							mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 					
-							this.objects[i].renderer.texture.bind(0);
+							if (this.objects[i].renderer.texture)
+								this.objects[i].renderer.texture.bind(0);
 		
 		
 							//compute rotation matrix for normals
@@ -67,23 +70,30 @@
 								m:this.objects[i].transform.model,
 								v:cam.view,
 								p:cam.projection,
+								mvp:cam.mvp,
 								umodelt:modelt,
 								v_inv:mat4.invert(mat4.create(),cam.view),
 								uTexture: 0,
 								uLPosition: this.lights[l].position,
-								uLDirection: this.lights[l].direction,
+								uLDirection: vec3.subtract([0,0,0],[0,0,0],this.lights[l].direction),
 								uLType: this.lights[l].type,
 								uLRange: this.lights[l].range,
 								uLIntensity: this.lights[l].intensity,
 								uLSpotAngle: this.lights[l].spotAngle,
 								uLSpotExponent: this.lights[l].spotExponent,
-								uLAmbient: this.lights[l].ambient,
 								uLDiffuse: this.lights[l].diffuse,
-								uLSpecular: this.lights[l].specular
+								uLSpecular: this.lights[l].specular,
+								uSceneAmbient: !firstLight ? Scene.ambientLight : [0,0,0,0],
+								uOColor: this.objects[i].color
 							}).draw(this.objects[i].renderer.mesh);
-	
+
+							// if next object do not have texture, it won't get it from the buffer
+							if (this.objects[i].renderer.texture)
+								this.objects[i].renderer.texture.unbind(0);
+							firstLight = false;
 						}
 					}
+					firstLight = true;
 				}
 			}
 			Scene.update = function(dt){
@@ -224,58 +234,15 @@
 					}
 				});
 
-/*
-				Transform.prototype.getPosition = function(){
-					//return vec3.clone(this.position);
-					return vec3.fromValues(this.model[12],this.model[13],this.model[14]);
-				}
-				Transform.prototype.getRotation = function(){
-					//return vec4.clone(this.rotation);
-					var m3 = mat3.create();
-					mat3.fromMat4(m3,this.model);
-					var q = quat.create();
-					quat.fromMat3(q,m3);
-					return q;
-				}
-				Transform.prototype.getScale = function(){
-					return vec3.clone(this.scale);
-				}
 
-				Transform.prototype.getModel = function(){
-					//this.updateModel();
-					return mat4.clone(this.model);
-				}
-				Transform.prototype.setPosition = function(p){
-					this.position = p;
-					mat4.translate(this.model,this.model,this.position);
-				}
-				Transform.prototype.setRotation = function(r){
-					this.rotation = r;
-					this.updateModel();
-				}
-				Transform.prototype.setScale = function(s){
-					this.scale = s;
-					this.updateModel();
-				}
-				Transform.prototype.setModel = function(m){
-					// TODO: get the scale from the model and update it.
-					this.model = m;
-					this.position = vec3.fromValues(m[12],m[13],m[14]);
-					var m3 = mat3.create();
-					mat3.fromMat4(m3,m);
-					quat.fromMat3(this.rotation,m3);
-				}
-				*/
 				// MISC.
 				Transform.prototype.updateModel = function(){
 					mat4.fromRotationTranslation( this._model , this._rotation, this._position );
 					mat4.scale(this._model, this._model, this._scale);
 				}
 				Transform.prototype.lookAt = function(pos,target,up){
-					var temp = mat4.create();
-					mat4.lookAt(temp,pos,target,up);
-					mat4.invert(temp,temp);
-					this._model = temp;
+					mat4.lookAt(this._model,pos,target,up);
+					mat4.invert(this._model,this._model);
 				}
 				
 				Object.defineProperty(this, 'right',{
@@ -293,17 +260,7 @@
 						return vec3.fromValues(this._model[8],this._model[9],this._model[10]);
 					}
 				});
-/*
-				Transform.prototype.right = function(){
-					return vec3.fromValues(this._model[0],this._model[1],this._model[2]);
-				}
-				Transform.prototype.top = function(){
-					return vec3.fromValues(this._model[4],this._model[5],this._model[6]);
-				}
-				Transform.prototype.front = function(){
-					return vec3.fromValues(this._model[8],this._model[9],this._model[10]);
-				}
-*/
+
 				// UPDATE
 				Transform.prototype.update = function(dt){
 				}
@@ -314,9 +271,9 @@
 			
 			function Renderer(mesh,texture,shader){
 				this.name = "renderer";
-				this.mesh = mesh || {};
-				this.texture = texture || {};
-				this.shader = shader || {};
+				this.mesh = mesh;
+				this.texture = texture;
+				this.shader = shader;
 				
 
 			}
@@ -324,13 +281,7 @@
 			function Camera(eye,center,up,fov,aspect,near,far){
 			//[0,10,50],[0,0,0],[0,1,0],45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.1,1000
 				this.name = "camera";
-				
-/*
-				this.eye = eye || [0,10,50]; //position
-				this.center = center || [0,0,0]; //looking at this point
-				this.up = up || [0,1,0]; //top vector
-*/
-				
+								
 				this.fov = fov || 45 * DEG2RAD;
 				this.aspect = aspect || gl.canvas.width/gl.canvas.height;
 				this.near = near || 0.1;
@@ -387,7 +338,7 @@
 			function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExponent){
 				this.name = "light";
 				
-				this.type = type || 0 //direction = 0|| point = 1 ||spot = 2
+				this.type = type || 0 //directional = 0|| point = 1 ||spot = 2
 				this.ambient = ambient || [0.5,0.5,0.5,1.0];
 				this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
 				this.specular = specular || [0.9,0.9,0.9,1.0];
@@ -467,6 +418,7 @@
 			
 			
 			
+/*
 			function resizeCanvas() {
 				console.log(gl.canvas.clientWidth);
 				console.log(gl.canvas.clientHeight);
@@ -489,6 +441,7 @@
 						Scene.cameras[i].updateViewMatrix();
 					}
 			}
+*/
 
 			
 			function init(){
@@ -521,6 +474,7 @@
 				//obj.transform.lookAt([0,0,0],[0,0,1],[0,1,0]);
 				ren.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
 				ren.shader = GL.Shader.fromURL("light.vs","light.fs");
+
 				ren.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 				Scene.addObject(obj);
 /*
@@ -540,8 +494,8 @@
 				obj = new GameObject("camera");
 				var cam = new Camera();
 				obj.addComponent(cam);
-				cam.lookAt([0,200,50],[0,0,0],[0,1,0]);
-				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.1,10000);
+				cam.lookAt([0,120,30],[0,0,0],[0,1,0]);
+				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,5000);
 				Scene.addCamera(cam);
 				var kc = new KeyController();
 				obj.addComponent(kc);
@@ -550,10 +504,11 @@
 
 				var ol1 = new GameObject("lightLeft");
 				var l1 = new Light();
-				l1.type = 1;
+				l1.type = 2;
 				ol1.addComponent(l1);
 				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
-				l1.spotAngle = 30;
+				l1.spotAngle = 60;
+				l1.spotExponent = 3;
 				l1.range = 100;
 				l1.intensity = 2;				
 				Scene.addLight(l1);

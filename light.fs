@@ -14,9 +14,14 @@ uniform float	uLRange;
 uniform float	uLIntensity;
 uniform float	uLSpotAngle;
 uniform float	uLSpotExponent;
-uniform vec4 	uLAmbient;
 uniform vec4 	uLDiffuse;
 uniform vec4 	uLSpecular;
+
+uniform vec4 	uSceneAmbient;
+
+//object//
+uniform vec4 uOColor;
+
 /*
 uniform float uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 */
@@ -27,7 +32,7 @@ struct lightSource
   vec4 diffuse;
   vec4 specular;
   float constantAttenuation, linearAttenuation, quadraticAttenuation; 	// ????????????
-  float spotCutoff, spotExponent;										// uLSpotAngle, ????????????
+  float spotCutoff, spotExponent;										// uLSpotAngle, uLSpotExponent
   vec3 spotDirection;		//uLDirection
 };
 lightSource light0 = lightSource(
@@ -38,7 +43,6 @@ lightSource light0 = lightSource(
   180.0, 0.0,
   vec3(0.0, 0.0, 0.0)
 );
-vec4 scene_ambient = vec4(0.5, 0.5, 0.5, 1.0);
  
 struct material
 {
@@ -83,7 +87,7 @@ void main(){
 
 	}
 	
-	vec3 ambientLighting = vec3(scene_ambient) * vec3(frontMaterial.ambient);
+	vec3 ambientLighting = vec3(uSceneAmbient) * vec3(frontMaterial.ambient);
 	
 	vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
 	
