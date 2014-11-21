@@ -1,8 +1,17 @@
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
 		<script type="text/javascript" src="gl-matrix.js"></script>
 		<script type="text/javascript" src="litegl.js"></script>
+
+		<script type="text/javascript" src="GameObject.js"></script>
+		<script type="text/javascript" src="Transform.js"></script>
+		<script type="text/javascript" src="Renderer.js"></script>
+		<script type="text/javascript" src="Camera.js"></script>
+		<script type="text/javascript" src="Light.js"></script>
+		<script type="text/javascript" src="Scene.js"></script>
+
 		<style type="text/css">
 		body {
 			display: block;
@@ -15,457 +24,70 @@
 
 		</style>
 		<script type="text/javascript">
-				
-			var Scene = {};
-			Scene.objects = [];
-			Scene.cameras = [];
-			Scene.lights = [];
-			Scene.activeCamera = 0;
-			Scene.ambientLight = [0.1, 0.1, 0.1, 1.0];
-
-			Scene.addObject = function(object){
-					this.objects.push(object);
-			}
-			Scene.addCamera = function(camera){
-					this.cameras.push(camera);
-			}
-			Scene.addLight = function(light){
-					this.lights.push(light);
-			}
-			Scene.draw = function(){
-				gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-				var L = vec3.normalize(vec3.create(),[1.5,1.1,1.4]); //light vector
-				var cam = this.cameras[this.activeCamera];
-				//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
-				//create modelview and projection matrices
-				gl.disable(gl.BLEND);
-				for (var i in this.objects){
-					var firstLight = true;
-					if (this.objects[i].renderer){
-						for (var l in this.lights){
-							if(!firstLight){
-								gl.enable( gl.BLEND );
-								gl.blendFunc( gl.ONE, gl.ONE );
-								gl.depthMask(false);
-								gl.depthFunc(gl.LEQUAL);
-							}else{
-								gl.disable(gl.BLEND);
-								gl.depthMask(true);
-							}
-							first = false;
-							var modelt = mat4.create();
-							var temp = mat4.create();
 					
-							mat4.multiply(temp,cam.view,this.objects[i].transform.model); //modelview
-							mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
-					
-							if (this.objects[i].renderer.texture)
-								this.objects[i].renderer.texture.bind(0);
-		
-		
-							//compute rotation matrix for normals
-							mat4.toRotationMat4(modelt, this.objects[i].transform.model);
-						    //render mesh using the shader
-							this.objects[i].renderer.shader.uniforms({
-								m:this.objects[i].transform.model,
-								v:cam.view,
-								p:cam.projection,
-								mvp:cam.mvp,
-								umodelt:modelt,
-								v_inv:mat4.invert(mat4.create(),cam.view),
-								uTexture: 0,
-								uLPosition: this.lights[l].position,
-								uLDirection: vec3.subtract([0,0,0],[0,0,0],this.lights[l].direction),
-								uLType: this.lights[l].type,
-								uLRange: this.lights[l].range,
-								uLIntensity: this.lights[l].intensity,
-								uLSpotAngle: this.lights[l].spotAngle,
-								uLSpotExponent: this.lights[l].spotExponent,
-								uLDiffuse: this.lights[l].diffuse,
-								uLSpecular: this.lights[l].specular,
-								uSceneAmbient: !firstLight ? Scene.ambientLight : [0,0,0,0],
-								uOColor: this.objects[i].color
-							}).draw(this.objects[i].renderer.mesh);
-
-							// if next object do not have texture, it won't get it from the buffer
-							if (this.objects[i].renderer.texture)
-								this.objects[i].renderer.texture.unbind(0);
-							firstLight = false;
-						}
-					}
-					firstLight = true;
-				}
-			}
-			Scene.update = function(dt){
-				for (var i in this.objects){					
-						this.objects[i].update(dt)
-				}
-				
-			}
-			
-			
-			function GameObject(name,position,rotation,scale){
-				this.name = name || "GameObject";
-				this.color = [1,1,1,1];
-				this.components = [];
-				this.children = [];
-				this.parent = null;
-
-				
-				//GETTERS & SETTERS				
-				GameObject.prototype.getComponents = function(){
-					return this.components || [];
-				}
-				GameObject.prototype.getChildren = function(){
-					return this.children || [];
-				}
-				
-				GameObject.prototype.setComponents = function(c){
-					this.components = c;
-				}
-				GameObject.prototype.setChildren = function(c){
-					this.children = c;
-				}
-				
-				//ADDERS & REMOVERS (to arrays)
-				GameObject.prototype.addComponent = function(component){
-					if (this[component.name] == null){
-						component.owner = this;
-						this.components.push(component.name);
-						this[component.name] = component;
-					}else
-						console.log("A "+component.name+" component already exists in the object "+this.name);
-					
-				}				
-				GameObject.prototype.addChild = function(child){
-					child.parent = this;
-					this.children[child.name] = child;
-				}
-				GameObject.prototype.removeComponent = function (component){
-					if (component.name)
-						var index = this.components.indexOf(component.name);
-					else
-						var index = this.components.indexOf(component);
-					
-					if (index > -1){
-						this.components.splice(index, 1);
-						this[component.name] = null;
-					}else{
-						console.log("The "+component.name+" component does not exist in the object "+this.name);			
-					}						
-				}
-				
-				// UPDATE
-				GameObject.prototype.update = function(dt){
-
-					for (var i in this.components){
-						if (this[this.components[i]].update)
-							this[this.components[i]].update(dt);
-					}
-
-				}
-				
-
-				this.addComponent(new Transform(position,rotation,scale));
-
-
-			}
-//////////////////////////////////////////////////////////////
-//////////////////////////COMPONENTS//////////////////////////
-
-			function Transform(position,rotation,scale){
-				this._name = "transform";
-				this._position = position || vec3.create();
-				this._rotation = rotation || quat.create();
-				this._scale = scale || vec3.fromValues(1,1,1);
-				this._model = mat4.create();
-				
-				
-				//GETTERS & SETTERS
-				Object.defineProperty(this, 'name',{
-					get: function() {
-						return this._name;
-					}
-				});
-				Object.defineProperty(this, 'position',{
-					get: function() {
-						return vec3.fromValues(this._model[12],this._model[13],this._model[14]);
-					},
-					set: function(pos) {
-						this._position = pos;
-						//mat4.translate(this.model,this.model,this.position);
-						this.updateModel();
-					}
-				});
-				Object.defineProperty(this, 'rotation',{
-					get: function() {
-						//return vec4.clone(this.rotation);
-						var m3 = mat3.create();
-						mat3.fromMat4(m3,this._model);
-						var q = quat.create();
-						quat.fromMat3(q,m3);
-						return q;
-					},
-					set: function(rot) {
-						this._rotation = rot;
-						this.updateModel();
-					}
-				});
-				Object.defineProperty(this, 'scale',{
-					get: function() {
-						return vec3.clone(this._scale);
-					},
-					set: function(sca) {
-						this._scale = sca;
-						//updateModel();
-					}
-				});
-				Object.defineProperty(this, 'model',{
-					get: function() {
-						return mat4.clone(this._model);
-					},
-					set: function(mod) {
-						// TODO: get the scale from the model and update it.
-						this._model = mod;
-						this._position = vec3.fromValues(mod[12],mod[13],mod[14]);
-						var m3 = mat3.create();
-						mat3.fromMat4(m3,mod);
-						quat.fromMat3(this._rotation,m3);
-					}
-				});
-
-
-				// MISC.
-				Transform.prototype.updateModel = function(){
-					mat4.fromRotationTranslation( this._model , this._rotation, this._position );
-					mat4.scale(this._model, this._model, this._scale);
-				}
-				Transform.prototype.lookAt = function(pos,target,up){
-					mat4.lookAt(this._model,pos,target,up);
-					mat4.invert(this._model,this._model);
-				}
-				
-				Object.defineProperty(this, 'right',{
-					get: function() {
-						return vec3.fromValues(this._model[0],this._model[1],this._model[2]);
-					}
-				});
-				Object.defineProperty(this, 'top',{
-					get: function() {
-						return vec3.fromValues(this._model[4],this._model[5],this._model[6]);
-					}
-				});
-				Object.defineProperty(this, 'front',{
-					get: function() {
-						return vec3.fromValues(this._model[8],this._model[9],this._model[10]);
-					}
-				});
-
-				// UPDATE
-				Transform.prototype.update = function(dt){
-				}
-
-				//this.updateModel();
-				
-			}
-			
-			function Renderer(mesh,texture,shader){
-				this.name = "renderer";
-				this.mesh = mesh;
-				this.texture = texture;
-				this.shader = shader;
-				
-
-			}
-			
-			function Camera(eye,center,up,fov,aspect,near,far){
-			//[0,10,50],[0,0,0],[0,1,0],45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.1,1000
-				this.name = "camera";
-								
-				this.fov = fov || 45 * DEG2RAD;
-				this.aspect = aspect || gl.canvas.width/gl.canvas.height;
-				this.near = near || 0.1;
-				this.far = far || 1000;
-				
-				this.projection = window.persp = mat4.create();
-				this.view = window.view = mat4.create();
-				this.mvp = window.mvp = mat4.create();
-				
-				//GETTERS & SETTERS
-
-								
-				//MISC.
-				Camera.prototype.lookAt = function(eye,center,up){
-					if (this.owner){
-						this.owner.transform.lookAt(eye,center,up);
-						this.updateViewMatrix();
-					}else{
-						alert("Attach the camera to a GameObject");
-					}
-				}
-
-				Camera.prototype.setPerspective = function(fov,aspect,near,far){
-					this.fov = fov;
-					this.aspect = aspect;
-					this.near = near;
-					this.far = far;
-					this.updatePerpectiveMatrix();
-				}
-				Camera.prototype.updateViewMatrix = function(){
-					if (this.owner){
-						var eye = this.owner.transform.position;
-						var up = this.owner.transform.top;
-						var front = this.owner.transform.front;
-						var center = vec3.create();
-						vec3.subtract(center,eye,front);
-						mat4.lookAt(this.view,eye,center,up);
-						//this.view = this.owner.transform.model;
-					}else{
-						alert("Attach the camera to a GameObject");
-					}
-				}
-				Camera.prototype.updatePerpectiveMatrix = function(){
-					//set the camera perspective
-					mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);	
-				}
-				
-				Camera.prototype.update = function(dt){
-					this.updateViewMatrix();
-					this.updatePerpectiveMatrix();
-				}
-			}
-			
-			function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExponent){
-				this.name = "light";
-				
-				this.type = type || 0 //directional = 0|| point = 1 ||spot = 2
-				this.ambient = ambient || [0.5,0.5,0.5,1.0];
-				this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
-				this.specular = specular || [0.9,0.9,0.9,1.0];
-				this.intensity = intensity || 0.8;
-				this.range = range || 100.0;
-				this.spotAngle = spotAngle || 30.0;
-				this.spotExponent = spotExponent || 1.0;
-
-				Object.defineProperty(this, 'direction',{
-					get: function() {
-						return this.owner.transform.front;
-					},
-				});
-				Object.defineProperty(this, 'position',{
-					get: function() {
-						return this.owner.transform.position;
-					}
-				});
-				
-				Light.prototype.lookAt = function(eye,center,up){
-					if (this.owner){
-						this.owner.transform.lookAt(eye,center,up);
-					}else{
-						alert("Attach the light to an GameObject");
-					}
-				}
-								
-			}
-			
-			function KeyController(){
+			function KeyController(front,right){
 				this.name = "keycontroller"
+				this.front = front 	|| [0,0,1];
+				this.right = right 	|| [1,0,0];
+				this.speed = 50;
+				//KeyController.prototype.onkeydown = function(){}
 				KeyController.prototype.update = function(dt){
-					var model = this.owner.transform.model;
-					if (gl.keys[65]) {
-						// A
-						mat4.translate(model,model,vec3.fromValues(-10*dt,0,0));
-					//	this.owner.transform.position[0] += 10*elapsed/1000;
-					}
-					if (gl.keys[68]) {
-						// D
-						mat4.translate(model,model,vec3.fromValues(+10*dt,0,0));
-					//	this.owner.transform.position[0] += 10*elapsed/1000;
-					}
-					if (gl.keys[87]) {
-						// W
-						mat4.translate(model,model,vec3.fromValues(0,0,-10*dt));
-					//	this.owner.transform.position[2] -= 10*elapsed/1000;
-					}
-					if (gl.keys[83]) {
-						// S
-						mat4.translate(model,model,vec3.fromValues(0,0,+10*dt));
-					//	this.owner.transform.position[2] += 10*elapsed/1000;
-					}
-					if (gl.keys[84]) {
-						// T
-						mat4.rotate(model,model,-1*dt,[1,0,0]);
-						//this.owner.transform.rotation[0] -= 10*elapsed/1000;
-					}
-					if (gl.keys[71]) {
-						// G
-						mat4.rotate(model,model,1*dt,[1,0,0]);
-						//this.owner.transform.rotation[0] += 10*elapsed/1000;
-					}
-					if (gl.keys[70]) {
-						// F
-						mat4.rotate(model,model,1*dt,[0,1,0]);
-						//this.owner.transform.rotation[1] -= 10*elapsed/1000;
-					}
-					if (gl.keys[72]) {
-						// H
-						mat4.rotate(model,model,-1*dt,[0,1,0]);
-						//this.owner.transform.rotation[1] += 10*elapsed/1000;
-					}
-					this.owner.transform.model = model;
+					if (gl.keys[87])  //W
+						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.front,this.speed*dt));
+					if (gl.keys[83])  //S
+						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.front,-this.speed*dt));
+					if (gl.keys[65])  //A
+						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.right,this.speed*dt));
+					if (gl.keys[68])  //D
+						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.right,-this.speed*dt));
+					
 				}
 			}
-			
-			
-			
-/*
-			function resizeCanvas() {
-				console.log(gl.canvas.clientWidth);
-				console.log(gl.canvas.clientHeight);
-				console.log(gl.canvas.width);
-				console.log(gl.canvas.height);
-				// only change the size of the canvas if the size it's being displayed
-				// has changed.
-				var width = gl.canvas.clientWidth;
-				var height = gl.canvas.clientHeight;
-				if (gl.canvas.width != width || gl.canvas.height != height) {
-					// Change the size of the canvas to match the size it's being displayed
-					gl.canvas.width = width;
-					gl.canvas.height = height;
-				}
-					gl.viewportWidth = gl.canvas.width;
-					gl.viewportHeight = gl.canvas.height;
-					for (var i in Scene.cameras){
-						Scene.cameras[i].aspect = gl.canvas.width / gl.canvas.height;
-						Scene.cameras[i].updatePerpectiveMatrix();
-						Scene.cameras[i].updateViewMatrix();
-					}
-			}
-*/
 
-			
+			function MouseController(horizontalMouseMoveToRotateVector,verticalMouseMoveToRotateVector){
+				this.name = "mousecontroller"
+				this.click_time = 0;
+				this.h = horizontalMouseMoveToRotateVector 	|| [0,1,0];
+				this.v = verticalMouseMoveToRotateVector 	|| [1,0,0];
+				this.dx = 0;
+				this.dy = 0;
+				this.speed = 10;
+
+				MouseController.prototype.onmousemove = function(e){
+					var evento = e['evento'];
+					if(evento.dragging){
+						this.dx = evento.deltax;
+						this.dy = evento.deltay;
+					}
+				}
+
+				MouseController.prototype.update = function(dt){
+					if (this.dx)
+						this.owner.transform.rotate     (this.dx*dt*this.speed,this.h);
+					if (this.dy)
+						this.owner.transform.rotateLocal(this.dy*dt*this.speed,this.v);
+					this.dx = 0;
+					this.dy = 0;
+
+				}
+			}
+				
 			function init(){
 				//create the rendering context
 				var canvas = document.getElementById("content");
 				var gl = GL.create({width:canvas.clientWidth,height:canvas.clientHeight});
 				canvas.appendChild(gl.canvas);
 				gl.animate();
-				//window.addEventListener('resize', resizeCanvas);
-
-
-				//basic phong shader
-				//var shader = new Shader(,);
 				
 				
 				var obj = new GameObject("terrain");
 				var ren = new Renderer();
 				ren.mesh = GL.Mesh.fromURL("assets/terrain/terrain.ASE");
-				ren.shader = GL.Shader.fromURL("light.vs","light.fs");;
+				ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 				ren.texture = GL.Texture.fromURL("assets/terrain/terrain.png");
 				obj.addComponent(ren);
 				Scene.addObject(obj);
 		
-				
 
 				var obj = new GameObject("player");
 				obj.transform.position = [0,40,0];
@@ -473,32 +95,21 @@
 				obj.addComponent(ren);
 				//obj.transform.lookAt([0,0,0],[0,0,1],[0,1,0]);
 				ren.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
-				ren.shader = GL.Shader.fromURL("light.vs","light.fs");
-
+				ren.shader = GL.Shader.fromURL("light.vert","light.frag");
 				ren.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 				Scene.addObject(obj);
-/*
-				var obj = new GameObject("player");
-				obj.transform.position = vec3.add(vec3.create(),Scene.objects[0].transform.position,vec3.scale(vec3.create(),Scene.objects[0].transform.front,10));
-				var ren = new Renderer();
-				obj.addComponent(ren);
-				//obj.transform.lookAt([10,40,10],[10,0,10],[0,0,1]);
-				ren.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
-				ren.shader = GL.Shader.fromURL("light.vs","light.fs");
-				ren.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				Scene.addObject(obj);
-				
-*/
 							
 				
 				obj = new GameObject("camera");
 				var cam = new Camera();
 				obj.addComponent(cam);
-				cam.lookAt([0,120,30],[0,0,0],[0,1,0]);
+				cam.lookAt([0,120,30],[0,0,0],[0,-1,0]);
 				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,5000);
 				Scene.addCamera(cam);
-				var kc = new KeyController();
+				var kc = new KeyController([0,0,-1],[-1,0,0]);
 				obj.addComponent(kc);
+				var mc = new MouseController([0,-1,0],[-1,0,0]);
+				obj.addComponent(mc);
 				Scene.addObject(obj);
 
 
@@ -507,8 +118,8 @@
 				l1.type = 2;
 				ol1.addComponent(l1);
 				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
-				l1.spotAngle = 60;
-				l1.spotExponent = 3;
+				l1.spotAngle = 30;
+				l1.spotExponent = 8;
 				l1.range = 100;
 				l1.intensity = 2;				
 				Scene.addLight(l1);
@@ -525,6 +136,7 @@
 				Scene.addLight(l2);
 				Scene.addObject(ol2);
 				
+				Scene.ambientLight = [0.5,0.5,0.5,1];
 				console.log(Scene.objects);
 
 				
@@ -534,26 +146,31 @@
 				gl.enable( gl.CULL_FACE );
 
 				//rendering loop
-				gl.ondraw = function()
-				{
+				gl.ondraw = function(){
 					Scene.draw();
-				};
+				}
 		
 				//update loop
-				gl.onupdate = function(dt)
-				{
+				gl.onupdate = function(dt){
 					Scene.update(dt);
-				};
-				gl.captureKeys();
-				//gl.fullscreen();
-/*
-				gl.onkeydown = function(e){
-					console.log(gl.keys);
-					
-					//alert(e.keyCode);
 				}
-*/
-				//resizeCanvas();
+
+				gl.captureMouse();
+				gl.captureKeys(true);
+
+				//controllers
+/*				gl.onmousedown 	= function(e){
+					Scene.onmousedown(e);
+				}
+				gl.onmouseup 	= function(e){
+					Scene.onmouseup(e);
+				}
+*/				gl.onkeydown 	= function(e){
+					Scene.onkeydown(e);
+				}
+				gl.onmousemove 	= function(e){
+					Scene.onmousemove(e);
+				}
 
 
 			}
