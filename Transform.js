@@ -4,6 +4,7 @@ function Transform(position,rotation,scale){
 	this._rotation = rotation || quat.create();
 	this._scale = scale || vec3.fromValues(1,1,1);
 	this._model = mat4.create();
+	this._globalModel = mat4.create();
 	this._needToUpdate = false;
 	
 	
@@ -23,11 +24,35 @@ function Transform(position,rotation,scale){
 			this._needToUpdate = true;
 		}
 	});
+	Object.defineProperty(this, 'globalPosition',{
+		get: function() {
+			if (this._needToUpdate) this.updateModel();
+			return vec3.fromValues(this._globalModel[12],this._globalModel[13],this._globalModel[14]);
+		},
+		set: function(pos) {
+			this._position = pos;
+			this._needToUpdate = true;
+		}
+	});	
 	Object.defineProperty(this, 'rotation',{
 		get: function() {
 			if (this._needToUpdate) this.updateModel();
 			var m3 = mat3.create();
 			mat3.fromMat4(m3,this._model);
+			var q = quat.create();
+			quat.fromMat3(q,m3);
+			return q;
+		},
+		set: function(rot) {
+			this._rotation = rot;
+			this._needToUpdate = true;
+		}
+	});
+	Object.defineProperty(this, 'globalRotation',{
+		get: function() {
+			if (this._needToUpdate) this.updateModel();
+			var m3 = mat3.create();
+			mat3.fromMat4(m3,this._globalModel);
 			var q = quat.create();
 			quat.fromMat3(q,m3);
 			return q;
@@ -62,7 +87,14 @@ function Transform(position,rotation,scale){
 			this._needToUpdate = true;
 		}
 	});
-	
+
+	Object.defineProperty(this, 'globalModel',{
+		get: function(){
+			if (this._needToUpdate) this.updateModel();
+			return this._globalModel;
+		}
+	});
+
 	Object.defineProperty(this, 'right',{
 		get: function() {
 			if (this._needToUpdate) this.updateModel();
@@ -122,6 +154,10 @@ function Transform(position,rotation,scale){
 	Transform.prototype.updateModel = function(){
 		mat4.fromRotationTranslation( this._model , this._rotation, this._position );
 		mat4.scale(this._model, this._model, this._scale);
+		if (this.owner.parent)
+			mat4.multiply(this._globalModel, this.owner.parent.transform.globalModel,this._model);
+		else
+			this._globalModel = this._model
 		this._needToUpdate = false;
 	}
 
@@ -134,6 +170,8 @@ function Transform(position,rotation,scale){
 		quat.fromMat3(this._rotation,m3);
 		this.updateModel();
 	}
+
+
 
 	// UPDATE
 	// Transform.prototype.update = function(dt){

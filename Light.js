@@ -17,7 +17,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	});
 	Object.defineProperty(this, 'position',{
 		get: function() {
-			return this.owner.transform.position;
+			return this.owner.transform.globalPosition;
 		}
 	});
 	

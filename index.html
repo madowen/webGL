@@ -90,7 +90,7 @@
 		
 
 				var obj = new GameObject("player");
-				obj.transform.position = [0,40,0];
+				obj.transform.position = [0,40,100];
 				var ren = new Renderer();
 				obj.addComponent(ren);
 				//obj.transform.lookAt([0,0,0],[0,0,1],[0,1,0]);
@@ -103,7 +103,7 @@
 				obj = new GameObject("camera");
 				var cam = new Camera();
 				obj.addComponent(cam);
-				cam.lookAt([0,120,30],[0,0,0],[0,-1,0]);
+				cam.lookAt([0,100,50],[0,40,0],[0,-1,0]);
 				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,5000);
 				Scene.addCamera(cam);
 				var kc = new KeyController([0,0,-1],[-1,0,0]);
@@ -129,7 +129,9 @@
 				var l2 = new Light();
 				l2.type = 1;
 				ol2.addComponent(l2);
-				l2.lookAt([70,60,0],[70,0,0],[0,0,1]);
+				ol2.parent = Scene.objects[1];
+				ol2.transform.updateModel();
+				// l2.lookAt([0,60,0],[70,0,0],[0,0,1]);
 				l2.spotAngle = 10;
 				l2.range = 100;
 				l2.intensity = 2;

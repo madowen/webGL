@@ -38,7 +38,7 @@ Scene.draw = function(){
 					var modelt = mat4.create();
 					var temp = mat4.create();
 
-					mat4.multiply(temp,cam.view,this.objects[i].transform.model); //modelview
+					mat4.multiply(temp,cam.view,this.objects[i].transform.globalModel); //modelview
 					mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 
 					if (this.objects[i].renderer.texture)
@@ -46,10 +46,10 @@ Scene.draw = function(){
 
 
 					//compute rotation matrix for normals
-					mat4.toRotationMat4(modelt, this.objects[i].transform.model);
+					mat4.toRotationMat4(modelt, this.objects[i].transform.globalModel);
 				    //render mesh using the shader
 				    this.objects[i].renderer.shader.uniforms({
-				    	m:this.objects[i].transform.model,
+				    	m:this.objects[i].transform.globalModel,
 				    	v:cam.view,
 				    	p:cam.projection,
 				    	mvp:cam.mvp,
