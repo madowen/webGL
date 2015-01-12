@@ -146,12 +146,12 @@
 
 				var sps = new Renderer();
 				obj1.addComponent(sps);
-				sps.mesh = GL.Mesh.fromURL("assets/x3_runner/x3_runner.ase");
+				sps.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
 				sps.shader = GL.Shader.fromURL("light.vert","light.frag");
-				sps.texture = GL.Texture.fromURL("assets/x3_runner/x3_runner.tga",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
+				sps.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.tga",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 
 				var cube = new Renderer();
-				cube.mesh = GL.Mesh.fromURL("assets/x3_runner/x3_runner.ase");
+				cube.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
 				cube.shader = GL.Shader.fromURL("light.vert","light.frag");
 				cube.texture = GL.Texture.fromURL("",{temp_color:[80,20,20,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
 				obj2.addComponent(cube);
