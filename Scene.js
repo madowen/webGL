@@ -38,7 +38,16 @@ Scene.draw = function(){
 					var modelt = mat4.create();
 					var temp = mat4.create();
 
-					mat4.multiply(temp,cam.view,this.objects[i].transform.globalModel); //modelview
+					////////fix front mesh/////////
+					// var R = quat.setAxisAngle(quat.create(), [0,1,0], 180 * 0.0174532925 );
+					// console.log(R);	
+					// var mrot = mat4.create();
+					// mat4.fromQuat(mrot,R);
+					// mat4.multiply(mrot,this.objects[i].transform.globalModel,mrot);
+					var mrot = this.objects[i].transform.globalModel;
+					///////////////////////////////
+
+					mat4.multiply(temp,cam.view,mrot); //modelview
 					mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 
 					if (this.objects[i].renderer.texture)
@@ -46,10 +55,11 @@ Scene.draw = function(){
 
 
 					//compute rotation matrix for normals
-					mat4.toRotationMat4(modelt, this.objects[i].transform.globalModel);
+					mat4.toRotationMat4(modelt, mrot);
+
 				    //render mesh using the shader
 				    this.objects[i].renderer.shader.uniforms({
-				    	m:this.objects[i].transform.globalModel,
+				    	m:mrot,
 				    	v:cam.view,
 				    	p:cam.projection,
 				    	mvp:cam.mvp,
@@ -57,7 +67,7 @@ Scene.draw = function(){
 				    	v_inv:mat4.invert(mat4.create(),cam.view),
 				    	uTexture: 0,
 				    	uLPosition: this.lights[l].position,
-				    	uLDirection: vec3.subtract([0,0,0],[0,0,0],this.lights[l].direction),
+				    	uLDirection: this.lights[l].direction,
 				    	uLType: this.lights[l].type,
 				    	uLRange: this.lights[l].range,
 				    	uLIntensity: this.lights[l].intensity,
@@ -65,6 +75,9 @@ Scene.draw = function(){
 				    	uLSpotExponent: this.lights[l].spotExponent,
 				    	uLDiffuse: this.lights[l].diffuse,
 				    	uLSpecular: this.lights[l].specular,
+				    	uLConstantAttenuation: this.lights[l].constantAttenuation,
+				    	uLLinearAttenuation: this.lights[l].linearAttenuation,
+				    	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
 				    	uSceneAmbient: !firstLight ? Scene.ambientLight : [0,0,0,0],
 				    	uOColor: this.objects[i].color
 				    }).draw(this.objects[i].renderer.mesh);

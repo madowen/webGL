@@ -16,33 +16,13 @@ uniform float	uLSpotAngle;
 uniform float	uLSpotExponent;
 uniform vec4 	uLDiffuse;
 uniform vec4 	uLSpecular;
+uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 
 uniform vec4 	uSceneAmbient;
 
 //object//
 uniform vec4 uOColor;
 
-/*
-uniform float uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
-*/
-
-struct lightSource
-{
-  vec4 position;			//uLPosition
-  vec4 diffuse;
-  vec4 specular;
-  float constantAttenuation, linearAttenuation, quadraticAttenuation; 	// ????????????
-  float spotCutoff, spotExponent;										// uLSpotAngle, uLSpotExponent
-  vec3 spotDirection;		//uLDirection
-};
-lightSource light0 = lightSource(
-  vec4(1.0,  10.0,  1.0, 1.0),
-  vec4(0.5,  0.5,  0.5, 1.0),
-  vec4(0.5,  0.5,  0.5, 1.0),
-  0.5, 0.4, 0.1,
-  180.0, 0.0,
-  vec3(0.0, 0.0, 0.0)
-);
  
 struct material
 {
@@ -71,14 +51,14 @@ void main(){
 		vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
 		float distance = length(positionToLightSource);
 		lightDirection = normalize(positionToLightSource);
-		attenuation = uLRange * 1.0 / (light0.constantAttenuation + light0.linearAttenuation * distance + light0.quadraticAttenuation * distance * distance);
+		attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
 	}else if(2 == uLType){
 		vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
 		float distance = length(positionToLightSource);
 		lightDirection = normalize(positionToLightSource);
-		attenuation = uLRange * 1.0 / (light0.constantAttenuation + light0.linearAttenuation * distance + light0.quadraticAttenuation * distance * distance);
+		attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
 
-		float clampedCosine = max(0.0, dot(-lightDirection, uLDirection));
+		float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
 		if (clampedCosine < cos(radians(uLSpotAngle))){ 								// outside of spotlight cone?
 			attenuation = 0.0;
 		}else{

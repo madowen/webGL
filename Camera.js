@@ -19,6 +19,7 @@ function Camera(fov,aspect,near,far){
 	//MISC.
 	Camera.prototype.lookAt = function(eye,center,up){
 		if (this.owner){
+			// vec3.subtract(center,[0,0,0],center);
 			this.owner.transform.lookAt(eye,center,up);
 			this.updateViewMatrix();
 		}else{
