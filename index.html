@@ -82,11 +82,12 @@
 				gl.animate();
 				
 				var obj = new GameObject("terrain");
+				obj.transform.position = [0,-10,0]
 				var ren = new Renderer();
-				ren.mesh = GL.Mesh.fromURL("assets/box.ase");
+				ren.mesh = GL.Mesh.fromURL("assets/box.ASE");
 				// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-				ren.texture = GL.Texture.fromURL("",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				obj.transform.scale = [20,0.001,20];
+				ren.texture = GL.Texture.fromURL("",{temp_color:[120,120,0,0], minFilter: gl.LINEAR_MIPMAP_LINEAR});
+				obj.transform.scale = [40,0.01,40];
 				obj.addComponent(ren);
 				Scene.addObject(obj);
 		
@@ -106,7 +107,7 @@
 				var cam = new Camera();
 				obj.addComponent(cam);
 				cam.lookAt([0,100,-50],[0,40,0],[0,1,0]);
-				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,5000);
+				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,10000);
 				Scene.addCamera(cam);
 				var kc = new KeyController([0,0,-1],[-1,0,0]);
 				obj.addComponent(kc);
@@ -122,14 +123,17 @@
 				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
 				l1.spotAngle = 10;
 				l1.spotExponent = 8;
-				l1.range = 30;
-				l1.intensity = 2;				
+				l1.range = 300;
+				l1.intensity = 1;
+				l1.diffuse = [0.9,0.1,0.9,1];
+				l1.specular = [0.9,0.1,0.9,1];
 				Scene.addLight(l1);
 				Scene.addObject(ol1);
 
-				var ol2 = new GameObject("lightRight",[20,40,0]);
+				var ol2 = new GameObject("lightRight",[20,20,0]);
 				var l2 = new Light();
 				l2.type = 1;
+				l2.range = 60;
 				ol2.addComponent(l2);
 				Scene.addLight(l2);
 				Scene.addObject(ol2);
@@ -228,13 +232,7 @@
 				gl.captureKeys(true);
 
 				//controllers
-/*				gl.onmousedown 	= function(e){
-					Scene.onmousedown(e);
-				}
-				gl.onmouseup 	= function(e){
-					Scene.onmouseup(e);
-				}
-*/				gl.onkeydown 	= function(e){
+				gl.onkeydown 	= function(e){
 					Scene.onkeydown(e);
 				}
 				gl.onmousemove 	= function(e){

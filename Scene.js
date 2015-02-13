@@ -5,6 +5,9 @@ Scene.lights = [];
 Scene.activeCamera = 0;
 Scene.ambientLight = [0.1, 0.1, 0.1, 1.0];
 Scene.renderingType = 0; //0 = forward, 1 = deferred
+Scene.shader = null;
+
+Scene.renderMode = 0;
 
 Scene.addObject = function(object){
 	this.objects.push(object);
@@ -19,7 +22,7 @@ Scene.draw = function(){
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	var L = vec3.normalize(vec3.create(),[1.5,1.1,1.4]); //light vector
 	var cam = this.cameras[this.activeCamera];
-	var shader = null;
+	this.shader = null;
 	//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
 
 	if (this.renderingType == 0){
@@ -41,29 +44,40 @@ Scene.draw = function(){
 					first = false;
 					var modelt = mat4.create();
 					var temp = mat4.create();
-
 					var mrot = this.objects[i].transform.globalModel;
-					///////////////////////////////
 
 					mat4.multiply(temp,cam.view,mrot); //modelview
 					mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+					//compute rotation matrix for normals
+					mat4.toRotationMat4(modelt, mrot);
 
 					if (this.objects[i].renderer.texture)
 						this.objects[i].renderer.texture.bind(0);
 
 
-					//compute rotation matrix for normals
-					mat4.toRotationMat4(modelt, mrot);
 					var t = this.lights[l].type;
 				    //render mesh using the shader
-					if (t == 0)
-						shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
-					if (t == 1)
-						shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
-					if (t == 2)
-						shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
-					if (shader)
-				    shader.uniforms({
+				    if (this.renderMode == 0){
+						if (t == 0)
+							this.shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
+						if (t == 1)
+							this.shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
+						if (t == 2)
+							this.shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
+					}
+				    if (this.renderMode == 1 ){
+						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+					}
+				    if (this.renderMode == 2){
+						this.shader = MicroShaderManager.getShader("position_deferred_rendering",["fulllight_vertex"],["position_deferred_fragment"],"microShaders.xml");
+				    }
+				    if (this.renderMode == 3){
+						this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
+				    }
+				    if (this.objects[i].name == "gizmo")
+						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+					if (this.shader)
+				    this.shader.uniforms({
 				    	m:mrot,
 				    	v:cam.view,
 				    	p:cam.projection,
@@ -97,9 +111,92 @@ Scene.draw = function(){
 		}
 	}else{
 		var diffuseTexture = new GL.Texture(0,0);
-		for (var i in this.objects){
-			
-		}
+		diffuseTexture.drawTo(function(){
+			for (var i in this.objects){
+				gl.enable( gl.BLEND );
+				gl.blendFunc( gl.ONE, gl.ONE );
+				gl.depthMask(false);
+				gl.depthFunc(gl.LEQUAL);
+
+				var modelt = mat4.create();
+				var temp = mat4.create();
+				var mrot = this.objects[i].transform.globalModel;
+
+				mat4.multiply(temp,cam.view,mrot); //modelview
+				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+				//compute rotation matrix for normals
+				mat4.toRotationMat4(modelt, mrot);
+
+				shader = MicroShaderManager.getShader("deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+				shader.uniforms({
+				    	m:mrot,
+				    	v:cam.view,
+				    	p:cam.projection,
+				    	mvp:cam.mvp,
+				    	umodelt:modelt,
+				    	v_inv:mat4.invert(mat4.create(),cam.view),
+				    	uTexture: 0,
+				}).draw(this.objects[i].renderer.mesh);
+			}
+		});
+		var positionTexture = new GL.Texture(0,0);
+		positionTexture.drawTo(function(){
+			for (var i in this.objects){
+				gl.enable( gl.BLEND );
+				gl.blendFunc( gl.ONE, gl.ONE );
+				gl.depthMask(false);
+				gl.depthFunc(gl.LEQUAL);
+
+				var modelt = mat4.create();
+				var temp = mat4.create();
+				var mrot = this.objects[i].transform.globalModel;
+
+				mat4.multiply(temp,cam.view,mrot); //modelview
+				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+				//compute rotation matrix for normals
+				mat4.toRotationMat4(modelt, mrot);
+
+				shader = MicroShaderManager.getShader("deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+				shader.uniforms({
+				    	m:mrot,
+				    	v:cam.view,
+				    	p:cam.projection,
+				    	mvp:cam.mvp,
+				    	umodelt:modelt,
+				    	v_inv:mat4.invert(mat4.create(),cam.view),
+				    	uTexture: 0,
+				}).draw(this.objects[i].renderer.mesh);
+			}
+		});
+		var normalsTexture = new GL.Texture(0,0);
+		normalsTexture.drawTo(function(){
+			for (var i in this.objects){
+				gl.enable( gl.BLEND );
+				gl.blendFunc( gl.ONE, gl.ONE );
+				gl.depthMask(false);
+				gl.depthFunc(gl.LEQUAL);
+
+				var modelt = mat4.create();
+				var temp = mat4.create();
+				var mrot = this.objects[i].transform.globalModel;
+
+				mat4.multiply(temp,cam.view,mrot); //modelview
+				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+				//compute rotation matrix for normals
+				mat4.toRotationMat4(modelt, mrot);
+
+				shader = MicroShaderManager.getShader("deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+				shader.uniforms({
+				    	m:mrot,
+				    	v:cam.view,
+				    	p:cam.projection,
+				    	mvp:cam.mvp,
+				    	umodelt:modelt,
+				    	v_inv:mat4.invert(mat4.create(),cam.view),
+				    	uTexture: 0,
+				}).draw(this.objects[i].renderer.mesh);
+			}
+		});
 		for (var l in this.lights){}
 
 	}
@@ -125,6 +222,10 @@ Scene.update = function(dt){
 }
 
 Scene.onkeydown = function(e){
+	if(gl.keys['U']) this.renderMode = 0;
+	if(gl.keys['I']) this.renderMode = 1;
+	if(gl.keys['O']) this.renderMode = 2;
+	if(gl.keys['P']) this.renderMode = 3;
 	for (var i in this.objects){
 		// console.log(e);
 		this.objects[i].callMethod("onkeydown",{evento: e});

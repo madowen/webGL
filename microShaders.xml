@@ -286,4 +286,38 @@
 			]]>
 		</maincode>
 	</micro_shader>
+	<micro_shader>
+		<name>albedo_deferred_fragment</name>
+		<header><![CDATA[
+			varying vec2 vTextureCoord;
+			uniform sampler2D uTexture;
+			]]>		
+		</header>
+		<maincode><![CDATA[
+			gl_FragColor = texture2D( uTexture, vTextureCoord);
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>position_deferred_fragment</name>
+		<header><![CDATA[
+			varying vec4 vPosition;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			gl_FragColor = vec4(vPosition.xyz,0.0);
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>normals_deferred_fragment</name>
+		<header><![CDATA[
+			varying vec3 vNormalDirection;
+			]]>
+		</header>
+		<maincode><![CDATA[
+				gl_FragColor = normalize(vec4(vNormalDirection.xyz,0));
+			]]>
+		</maincode>
+	</micro_shader>
 </micro_shader_library>

@@ -43,7 +43,9 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 			obj.addComponent(ren);
 			ren.mesh = GL.Mesh.fromURL("assets/box.ase");
 			ren.shader = GL.Shader.fromURL("light.vert","light.frag");
-			ren.texture = GL.Texture.fromURL("assets/white.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
+			var color = [];
+			vec4.scale(color,this.diffuse,255);
+			ren.texture = GL.Texture.fromURL("",{temp_color:color, minFilter: gl.LINEAR_MIPMAP_LINEAR});
 			Scene.addObject(obj);
 			this.gizmo = false;
 		}
