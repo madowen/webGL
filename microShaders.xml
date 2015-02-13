@@ -1,0 +1,289 @@
+<micro_shader_library>
+	<micro_shader>
+		<name>light_directional</name>
+		<header><![CDATA[
+			uniform vec3	uLDirection;
+			uniform float	uLIntensity;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			attenuation = 1.0;
+			lightDirection = normalize(-uLDirection);
+			lightIntensity = uLIntensity;
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>light_point</name>
+		<header><![CDATA[
+			uniform vec3	uLPosition;
+			uniform vec3	uLDirection;
+			uniform float	uLRange;
+			uniform float	uLIntensity;
+			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
+
+			vec3 	positionToLightSource;
+			float 	distance;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			float distance = length(positionToLightSource);
+			lightDirection = normalize(positionToLightSource);
+			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+			lightIntensity = uLIntensity;
+			]]>				
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>light_spot</name>
+		<header><![CDATA[
+			uniform vec3	uLPosition;
+			uniform vec3	uLDirection;
+			uniform float	uLRange;
+			uniform float	uLIntensity;
+			uniform float	uLSpotAngle;
+			uniform float	uLSpotExponent;
+			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
+
+			vec3  	positionToLightSource;
+			float 	distance;
+			float 	clampedCosine;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			float distance = length(positionToLightSource);
+			lightDirection = normalize(positionToLightSource);
+			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+
+			float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
+			if (clampedCosine < cos(radians(uLSpotAngle))){ 								// outside of spotlight cone?
+			attenuation = 0.0;
+			}else{
+			attenuation = attenuation * pow(clampedCosine, uLSpotExponent);   
+			}
+			lightIntensity = uLIntensity;
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>light_phong</name>
+		<header><![CDATA[
+			uniform vec4 	uLDiffuse;
+			uniform vec4 	uLSpecular;
+			uniform vec4	uSceneAmbient;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			lightDiffuse = vec3(uLDiffuse);
+			lightSpecular = vec3(uLSpecular);
+			sceneAmbient = vec3(uSceneAmbient);
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>phong</name>
+		<header><![CDATA[
+			varying vec3 vNormalDirection;  // surface normal vector in world space
+			varying vec4 vPosition;  // position of the vertex (and fragment) in world space
+			uniform mat4 v_inv;
+
+			vec3 	normalDirection;
+			vec3  	lightDirection;
+			vec3 	viewDirection;
+			float 	attenuation = 1.0;
+			vec3 	lightDiffuse = vec3(1.0,1.0,1.0);
+			vec3 	lightSpecular = vec3(1.0,1.0,1.0);
+			vec3 	sceneAmbient = vec3(1.0,1.0,1.0);
+
+			struct material
+			{
+			vec4 ambient;
+			vec4 diffuse;
+			vec4 specular;
+			float shininess;
+			};
+			material frontMaterial = material(
+			vec4(0.4, 0.4, 0.4, 1.0),
+			vec4(0.8, 0.8, 0.8, 1.0),
+			vec4(1.0, 1.0, 1.0, 1.0),
+			1.0
+			);
+			]]>
+		</header>
+		<maincode><![CDATA[
+			normalDirection = normalize(vNormalDirection);
+			viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
+			ambientLighting = sceneAmbient * vec3(frontMaterial.ambient);
+			
+			diffuseReflection = attenuation * lightDiffuse * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
+			
+			if (dot(normalDirection, lightDirection) < 0.0){ 	// light source on the wrong side?
+			specularReflection = vec3(0.0, 0.0, 0.0); 		// no specular reflection
+			}else{ 												// light source on the right side
+			specularReflection = attenuation * lightSpecular * vec3(frontMaterial.specular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
+			}
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>basic_fragment</name>
+		<header><![CDATA[
+			varying vec2 vTextureCoord;
+			uniform sampler2D uTexture;
+
+			vec3 	ambientLighting = vec3(1.0,1.0,1.0);
+			vec3 	diffuseReflection = vec3(1.0,1.0,1.0);
+			vec3 	specularReflection = vec3(1.0,1.0,1.0);
+			float	lightIntensity = 1.0;
+			vec4 	color;
+			]]>		
+		</header>
+		<maincode><![CDATA[
+			color = texture2D( uTexture, vTextureCoord);
+			gl_FragColor = color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * lightIntensity;
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>basic_vertex</name>
+		<header><![CDATA[
+			attribute vec3 a_vertex;
+			attribute vec3 a_normal;
+			attribute vec2 a_coord;
+
+			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
+			varying vec3 vNormalDirection;  // surface normal vector in world space
+			varying vec2 vTextureCoord;		
+
+			uniform mat4 m, v, p;			//model, view, projection
+			uniform mat4 mvp;
+			uniform mat4 umodelt; 	//inverse(transpose(model))
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vTextureCoord = a_coord;
+			vPosition = m * vec4(a_vertex,1.0);
+			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			
+			//mat4 mvp = p*v*m;
+			gl_Position = mvp * vec4(a_vertex,1.0);
+			]]>
+			
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>fulllight_fragment</name>
+		<header><![CDATA[
+			varying vec4 vPosition;  // position of the vertex (and fragment) in world space
+			varying vec3 vNormalDirection;  // surface normal vector in world space
+			varying vec2 vTextureCoord;
+			uniform mat4 m, v, p;
+			uniform mat4 v_inv;
+			uniform sampler2D uTexture;
+
+			//light//
+			uniform vec3	uLPosition;
+			uniform vec3	uLDirection;
+			uniform int		uLType;
+			uniform float	uLRange;
+			uniform float	uLSpotAngle;
+			uniform float	uLSpotExponent;
+			uniform vec4 	uLDiffuse;
+			uniform vec4 	uLSpecular;
+			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
+
+			uniform vec4 	uSceneAmbient;
+
+			//object//
+			uniform vec4 uOColor;
+
+			
+			struct material
+			{
+			vec4 ambient;
+			vec4 diffuse;
+			vec4 specular;
+			float shininess;
+			};
+			material frontMaterial = material(
+			vec4(0.4, 0.4, 0.4, 1.0),
+			vec4(1.0, 0.8, 0.8, 1.0),
+			vec4(1.0, 1.0, 1.0, 1.0),
+			1.0
+			);
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vec3 normalDirection = normalize(vNormalDirection);
+			vec3 viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
+			vec3 lightDirection;
+			float attenuation;
+			
+			if (0 == uLType){																// directional light?
+			attenuation = 1.0; 																		// no attenuation
+			lightDirection = normalize(-uLDirection);
+			}else if(1 == uLType){ 																						// point light or spotlight (or other kind of light)
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			float distance = length(positionToLightSource);
+			lightDirection = normalize(positionToLightSource);
+			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+			}else if(2 == uLType){
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			float distance = length(positionToLightSource);
+			lightDirection = normalize(positionToLightSource);
+			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+
+			float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
+			if (clampedCosine < cos(radians(uLSpotAngle))){ 								// outside of spotlight cone?
+			attenuation = 0.0;
+			}else{
+			attenuation = attenuation * pow(clampedCosine, uLSpotExponent);   
+			}
+
+			}
+			
+			vec3 ambientLighting = vec3(uSceneAmbient) * vec3(frontMaterial.ambient);
+			
+			vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
+			
+			vec3 specularReflection;
+			if (dot(normalDirection, lightDirection) < 0.0){ // light source on the wrong side?
+			specularReflection = vec3(0.0, 0.0, 0.0); // no specular reflection
+			}else{ // light source on the right side
+			specularReflection = attenuation * vec3(uLSpecular) * vec3(frontMaterial.specular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
+			}
+			
+			vec4 color = texture2D( uTexture, vTextureCoord);
+			gl_FragColor = color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>fulllight_vertex</name>
+		<header><![CDATA[
+			attribute vec3 a_vertex;
+			attribute vec3 a_normal;
+			attribute vec2 a_coord;
+
+			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
+			varying vec3 vNormalDirection;  // surface normal vector in world space
+			varying vec2 vTextureCoord;		
+
+			uniform mat4 m, v, p;			//model, view, projection
+			uniform mat4 mvp;
+			uniform mat4 umodelt; 	//inverse(transpose(model))
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vTextureCoord = a_coord;
+			vPosition = m * vec4(a_vertex,1.0);
+			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			
+			//mat4 mvp = p*v*m;
+			gl_Position = mvp * vec4(a_vertex,1.0);
+			]]>
+		</maincode>
+	</micro_shader>
+</micro_shader_library>
