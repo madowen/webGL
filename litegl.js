@@ -3287,7 +3287,49 @@ function Shader(vertexSource, fragmentSource, macros)
 	this.samplers = {};
 
 	//extract info about the shader to speed up future processes
-	this.extractShaderInfo();
+	//this.extractShaderInfo();
+    //extract uniforms info
+  for(var i = 0, l = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS); i < l; ++i)
+  {
+    var data = gl.getActiveUniform( this.program, i);
+    if(!data) break;
+
+    var uniformName = data.name;
+
+    //arrays have uniformName[0], strip the [] (also data.size tells you if it is an array)
+    var pos = uniformName.indexOf("["); 
+    if(pos != -1)
+    {
+      var pos2 = uniformName.indexOf("]."); //leave array of structs though
+      if(pos2 == -1)
+        uniformName = uniformName.substr(0,pos);
+    }
+
+    //store texture samplers
+    if(data.type == gl.SAMPLER_2D || data.type == gl.SAMPLER_CUBE)
+      this.samplers[ uniformName ] = data.type;
+    
+    //get which function to call when uploading this uniform
+    var func = Shader.getUniformFunc(data);
+    var is_matrix = false;
+    if(data.type == gl.FLOAT_MAT2 || data.type == gl.FLOAT_MAT3 || data.type == gl.FLOAT_MAT4)
+      is_matrix = true;
+
+
+    //save the info so I the user doesnt have to specify types when uploading data to the shader
+    this.uniformInfo[ uniformName ] = { type: data.type, func: func, size: data.size, is_matrix: is_matrix, loc: gl.getUniformLocation(this.program, uniformName) };
+  }
+
+  //extract attributes info
+  for(var i = 0, l = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES); i < l; ++i)
+  {
+    var data = gl.getActiveAttrib( this.program, i);
+    if(!data) break;
+    var func = Shader.getUniformFunc(data);
+    //this.uniformInfo[ data.name ] = { type: data.gl.getUniformLocation(this.program, data.name) };
+    this.uniformInfo[ data.name ] = { type: data.type, func: func, size: data.size, loc: gl.getUniformLocation(this.program, data.name ) };
+    this.attributes[ data.name ] = gl.getAttribLocation(this.program, data.name );  
+  }
 }
 
 Shader.compileSource = function(type, source)

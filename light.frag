@@ -44,10 +44,10 @@ void main(){
 	vec3 lightDirection;
 	float attenuation;
 	
-	if (0 == uLType){																// directional light?
-		attenuation = 1.0; 																		// no attenuation
+	if (0 == uLType){					// directional light?
+		attenuation = 1.0; 				// no attenuation
 		lightDirection = normalize(-uLDirection);
-	}else if(1 == uLType){ 																						// point light or spotlight (or other kind of light)
+	}else if(1 == uLType){ 				// point light or spotlight (or other kind of light)
 		vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
 		float distance = length(positionToLightSource);
 		lightDirection = normalize(positionToLightSource);

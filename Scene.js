@@ -4,6 +4,7 @@ Scene.cameras = [];
 Scene.lights = [];
 Scene.activeCamera = 0;
 Scene.ambientLight = [0.1, 0.1, 0.1, 1.0];
+Scene.renderingType = 0; //0 = forward, 1 = deferred
 
 Scene.addObject = function(object){
 	this.objects.push(object);
@@ -16,9 +17,12 @@ Scene.addLight = function(light){
 }
 Scene.draw = function(){
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-		var L = vec3.normalize(vec3.create(),[1.5,1.1,1.4]); //light vector
-		var cam = this.cameras[this.activeCamera];
-		//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
+	var L = vec3.normalize(vec3.create(),[1.5,1.1,1.4]); //light vector
+	var cam = this.cameras[this.activeCamera];
+	var shader = null;
+	//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
+
+	if (this.renderingType == 0){
 		//create modelview and projection matrices
 		gl.disable(gl.BLEND);
 		for (var i in this.objects){
@@ -38,12 +42,6 @@ Scene.draw = function(){
 					var modelt = mat4.create();
 					var temp = mat4.create();
 
-					////////fix front mesh/////////
-					// var R = quat.setAxisAngle(quat.create(), [0,1,0], 180 * 0.0174532925 );
-					// console.log(R);	
-					// var mrot = mat4.create();
-					// mat4.fromQuat(mrot,R);
-					// mat4.multiply(mrot,this.objects[i].transform.globalModel,mrot);
 					var mrot = this.objects[i].transform.globalModel;
 					///////////////////////////////
 
@@ -56,9 +54,16 @@ Scene.draw = function(){
 
 					//compute rotation matrix for normals
 					mat4.toRotationMat4(modelt, mrot);
-
+					var t = this.lights[l].type;
 				    //render mesh using the shader
-				    this.objects[i].renderer.shader.uniforms({
+					if (t == 0)
+						shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
+					if (t == 1)
+						shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
+					if (t == 2)
+						shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
+					if (shader)
+				    shader.uniforms({
 				    	m:mrot,
 				    	v:cam.view,
 				    	p:cam.projection,
@@ -90,13 +95,15 @@ Scene.draw = function(){
 			}
 			firstLight = true;
 		}
-	}
-	Scene.update = function(dt){
-		for (var i in this.objects){					
-			if (this.objects[i].update)
-				this.objects[i].update(dt);
+	}else{
+		var diffuseTexture = new GL.Texture(0,0);
+		for (var i in this.objects){
+			
 		}
+		for (var l in this.lights){}
+
 	}
+}
 
 /*	Scene.onmousedown = function(e){
 		for (var i in this.objects){
@@ -110,15 +117,22 @@ Scene.draw = function(){
 				this.objects[i].onmouseup(e);
 		}
 	}*/
-	Scene.onkeydown = function(e){
-		for (var i in this.objects){
-			// console.log(e);
-			this.objects[i].callMethod("onkeydown",{evento: e});
-		}
+Scene.update = function(dt){
+	for (var i in this.objects){					
+		if (this.objects[i].update)
+			this.objects[i].update(dt);
 	}
-	Scene.onmousemove = function(e){
-		for (var i in this.objects){
-			// console.log(e);
-			this.objects[i].callMethod("onmousemove",{evento: e});
-		}
+}
+
+Scene.onkeydown = function(e){
+	for (var i in this.objects){
+		// console.log(e);
+		this.objects[i].callMethod("onkeydown",{evento: e});
 	}
+}
+Scene.onmousemove = function(e){
+	for (var i in this.objects){
+		// console.log(e);
+		this.objects[i].callMethod("onmousemove",{evento: e});
+	}
+}

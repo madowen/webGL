@@ -157,7 +157,6 @@ function Transform(position,rotation,scale){
 	}
 
 	Transform.prototype.updateModel = function(){
-
 		this._needToUpdate = false;
 		mat4.fromRotationTranslation( this._model , this._rotation, this._position );
 		mat4.scale(this._model, this._model, this._scale);
