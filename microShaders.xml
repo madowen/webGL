@@ -221,26 +221,26 @@
 			vec3 lightDirection;
 			float attenuation;
 			
-			if (0 == uLType){																// directional light?
-			attenuation = 1.0; 																		// no attenuation
-			lightDirection = normalize(-uLDirection);
-			}else if(1 == uLType){ 																						// point light or spotlight (or other kind of light)
-			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
-			float distance = length(positionToLightSource);
-			lightDirection = normalize(positionToLightSource);
-			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+			if (0 == uLType){										// directional light?
+				attenuation = 1.0; 									// no attenuation
+				lightDirection = normalize(-uLDirection);
+			}else if(1 == uLType){ 									// point light or spotlight (or other kind of light)
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				float distance = length(positionToLightSource);
+				lightDirection = normalize(positionToLightSource);
+				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
 			}else if(2 == uLType){
-			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
-			float distance = length(positionToLightSource);
-			lightDirection = normalize(positionToLightSource);
-			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				float distance = length(positionToLightSource);
+				lightDirection = normalize(positionToLightSource);
+				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
 
-			float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
-			if (clampedCosine < cos(radians(uLSpotAngle))){ 								// outside of spotlight cone?
-			attenuation = 0.0;
-			}else{
-			attenuation = attenuation * pow(clampedCosine, uLSpotExponent);   
-			}
+				float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
+				if (clampedCosine < cos(radians(uLSpotAngle))){ 	// outside of spotlight cone?
+					attenuation = 0.0;
+				}else{
+					attenuation = attenuation * pow(clampedCosine, uLSpotExponent);   
+				}
 
 			}
 			
@@ -250,9 +250,9 @@
 			
 			vec3 specularReflection;
 			if (dot(normalDirection, lightDirection) < 0.0){ // light source on the wrong side?
-			specularReflection = vec3(0.0, 0.0, 0.0); // no specular reflection
+				specularReflection = vec3(0.0, 0.0, 0.0); // no specular reflection
 			}else{ // light source on the right side
-			specularReflection = attenuation * vec3(uLSpecular) * vec3(frontMaterial.specular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
+				specularReflection = attenuation * vec3(uLSpecular) * vec3(frontMaterial.specular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
 			}
 			
 			vec4 color = texture2D( uTexture, vTextureCoord);
@@ -317,6 +317,86 @@
 		</header>
 		<maincode><![CDATA[
 				gl_FragColor = normalize(vec4(vNormalDirection.xyz,0));
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>gbuffer_fragment</name>
+		<header><![CDATA[
+			varying vec2 vTextureCoord;
+			varying vec4 vPosition;
+			varying vec3 vNormalDirection;
+			uniform sampler2D uTexture;
+			]]>
+		</header>
+		<maincode><![CDATA[
+				gl_FragData[0] = texture2D( uTexture, vTextureCoord);
+				gl_FragData[1] = vec4(vPosition.xyz,0.0);
+				gl_FragData[2] = normalize(vec4(vNormalDirection.xyz,0));
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>deferred_vertex</name>
+		<header><![CDATA[
+			attribute vec3 a_vertex;
+			attribute vec2 a_coord;
+
+			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
+			varying vec2 vTextureCoord;		
+
+			uniform mat4 m, v, p;			//model, view, projection
+			uniform mat4 mvp;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vTextureCoord = a_coord;
+			vPosition = m * vec4(a_vertex,1.0);
+			gl_Position = mvp * vec4(a_vertex,1.0);
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>deferred_fragment</name>
+		<header><![CDATA[
+			varying vec2 vTextureCoord;
+
+			uniform sampler2D tDiffuse; 
+			uniform sampler2D tPosition;
+			uniform sampler2D tNormals;
+			uniform vec3 cameraPosition;
+
+			//light//
+			uniform vec3	uLPosition;
+			uniform vec3	uLDirection;
+			uniform int		uLType;
+			uniform float	uLRange;
+			uniform float	uLSpotAngle;
+			uniform float	uLSpotExponent;
+			uniform vec4 	uLDiffuse;
+			uniform vec4 	uLSpecular;
+			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
+
+			uniform vec4 	uSceneAmbient;
+
+
+			]]>
+		</header>
+		<maincode><![CDATA[
+			vec4 image = texture2D( tDiffuse, vTextureCoord );
+			vec4 position = texture2D( tPosition, vTextureCoord );
+			vec4 normal = texture2D( tNormals, vTextureCoord );
+
+			vec3 lightDir = normalize(uLDirection);
+
+			vec3 normalizedNormal = normalize(normal.xyz);
+
+			vec3 eyeDir = normalize(cameraPosition-position.xyz);
+			vec3 vHalfVector = normalize(lightDir.xyz+eyeDir);
+
+			gl_FragColor = max(dot(normalizedNormal,lightDir),0.0) * image + pow(max(dot(normalizedNormal,vHalfVector),0.0), 100.0) * 1.5;
+
+
 			]]>
 		</maincode>
 	</micro_shader>
