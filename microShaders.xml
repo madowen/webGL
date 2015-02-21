@@ -299,13 +299,15 @@
 		</maincode>
 	</micro_shader>
 	<micro_shader>
-		<name>position_deferred_fragment</name>
+		<name>depth_deferred_fragment</name>
 		<header><![CDATA[
 			varying vec4 vPosition;
+			uniform vec3 cameraPosition;
 			]]>
 		</header>
 		<maincode><![CDATA[
-			gl_FragColor = vec4(vPosition.xyz,0.0);
+			float depth = 0.015 * length(cameraPosition - vPosition.xyz);
+			gl_FragColor = vec4(vec3(abs(depth)),1.0);
 			]]>
 		</maincode>
 	</micro_shader>
@@ -327,11 +329,12 @@
 			varying vec4 vPosition;
 			varying vec3 vNormalDirection;
 			uniform sampler2D uTexture;
+			uniform vec3 cameraPosition;
 			]]>
 		</header>
 		<maincode><![CDATA[
 				gl_FragData[0] = texture2D( uTexture, vTextureCoord);
-				gl_FragData[1] = vec4(vPosition.xyz,0.0);
+				gl_FragData[1] = 0.015 * length(cameraPosition - vPosition.xyz);
 				gl_FragData[2] = normalize(vec4(vNormalDirection.xyz,0));
 			]]>
 		</maincode>
@@ -395,6 +398,49 @@
 			gl_FragColor = max(dot(normalizedNormal,lightDir),0.0) * image + pow(max(dot(normalizedNormal,vHalfVector),0.0), 100.0) * 1.5;
 
 
+
+			/*vec3 normalDirection = normalize(vNormalDirection);
+			vec3 viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
+			vec3 lightDirection;
+			float attenuation;
+			
+			if (0 == uLType){										// directional light?
+				attenuation = 1.0; 									// no attenuation
+				lightDirection = normalize(-uLDirection);
+			}else if(1 == uLType){ 									// point light or spotlight (or other kind of light)
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				float distance = length(positionToLightSource);
+				lightDirection = normalize(positionToLightSource);
+				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+			}else if(2 == uLType){
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				float distance = length(positionToLightSource);
+				lightDirection = normalize(positionToLightSource);
+				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
+
+				float clampedCosine = max(0.0, dot(-lightDirection, normalize(uLDirection)));
+				if (clampedCosine < cos(radians(uLSpotAngle))){ 	// outside of spotlight cone?
+					attenuation = 0.0;
+				}else{
+					attenuation = attenuation * pow(clampedCosine, uLSpotExponent);   
+				}
+
+			}
+			
+			vec3 ambientLighting = vec3(uLAmbient) * vec3(frontMaterial.ambient);
+			
+			vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
+			
+			vec3 specularReflection;
+			if (dot(normalDirection, lightDirection) < 0.0){ // light source on the wrong side?
+				specularReflection = vec3(0.0, 0.0, 0.0); // no specular reflection
+			}else{ // light source on the right side
+				specularReflection = attenuation * vec3(uLSpecular) * vec3(frontMaterial.specular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), frontMaterial.shininess);
+			}
+			
+			vec4 color = texture2D( uTexture, vTextureCoord);
+			gl_FragColor = uOColor * color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+*/
 			]]>
 		</maincode>
 	</micro_shader>

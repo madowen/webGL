@@ -88,7 +88,7 @@ Scene.prototype.forwardRender = function(){
 						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
 					}
 				    if (this.renderMode == 2){
-						this.shader = MicroShaderManager.getShader("position_deferred_rendering",["fulllight_vertex"],["position_deferred_fragment"],"microShaders.xml");
+						this.shader = MicroShaderManager.getShader("depth_deferred_rendering",["fulllight_vertex"],["depth_deferred_fragment"],"microShaders.xml");
 				    }
 				    if (this.renderMode == 3){
 						this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
@@ -117,7 +117,8 @@ Scene.prototype.forwardRender = function(){
 				    	uLConstantAttenuation: this.lights[l].constantAttenuation,
 				    	uLLinearAttenuation: this.lights[l].linearAttenuation,
 				    	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
-				    	uOColor: [this.objects[i].color[0]/255,this.objects[i].color[1]/255,this.objects[i].color[2]/255,this.objects[i].color[3]]
+				    	uOColor: [this.objects[i].color[0]/255,this.objects[i].color[1]/255,this.objects[i].color[2]/255,this.objects[i].color[3]],
+				    	cameraPosition: cam.owner.transform.position
 				    }).draw(this.objects[i].renderer.mesh);
 
 					// if next object do not have texture, it won't get it from the buffer
@@ -135,11 +136,11 @@ Scene.prototype.forwardRender = function(){
 Scene.prototype.deferredRender = function(){
 	var cam = this.cameras[this.activeCamera];
 	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
-	var positionTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
 	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
 
 
-	Texture.drawTo([diffuseTexture,positionTexture,normalsTexture],function(){
+	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
 		for (var i in scene.objects){
 			if (scene.objects[i].renderer){
 				gl.enable( gl.BLEND );
@@ -174,9 +175,9 @@ Scene.prototype.deferredRender = function(){
 			}
 		}
 	});
-
-		gl.drawTexture(diffuseTexture, 	0,0, gl.canvas.width*0.5, gl.canvas.height*0.5);
-		gl.drawTexture(positionTexture, gl.canvas.width*0.5,0, gl.canvas.width*0.5, gl.canvas.height*0.5);
+		// depthTexture.toCanvas(gl.canvas);
+		gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
+		gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 
 
@@ -255,11 +256,16 @@ Scene.prototype.onmousemove = function(e){
 
 Scene.prototype.GUI = function(gui){
 	gui.add(this, 'deferred').name('Deferred Render').listen();
-	gui.add(this, 'renderMode',{'full':0,'albedo':1,'position':2,'normals':3}).name('Render Mode').listen();
+	gui.add(this, 'renderMode',{'full':0,'albedo':1,'depth':2,'normals':3}).name('Render Mode').listen();
 	gui.addColor(this.lights[0], 'ambient').name('Ambient Scene').listen();
 	// gui.add(this.lights[0],)
 	for (var o in this.objects){
 		this.objects[o].GUI(gui);
 	}
+	var guiLights = new dat.GUI();
+	for (var l in this.lights){
+		this.lights[l].GUI(guiLights,'parent');
+	}
+
 }
 };

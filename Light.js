@@ -7,7 +7,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.diffuse = diffuse || [220,220.9,220,1.0];
 	this.specular = specular || [220,220,220,1.0];
 	this.intensity = intensity || 0.8;
-	this.range = range || 100.0;
+	this.range = range || 2.0;
 	this.spotAngle = spotAngle || 30.0;
 	this.spotExponent = spotExponent || 1.0;
 	this.constantAttenuation = constantAttenuation || 0.5;
@@ -44,11 +44,11 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	Light.prototype.update = function(dt){
 		if (this.gizmo){
 			var obj = new GameObject("gizmo");
-			// obj.transform.scale = [0.1,0.1,0.1];
+			obj.transform.scale = [0.1,0.1,0.1];
 			obj.parent = this.owner;
 			var ren = new Renderer();
 			obj.addComponent(ren);
-			ren.mesh = GL.Mesh.cube();
+			ren.mesh = GL.Mesh.sphere();
 			ren.shader = GL.Shader.fromURL("light.vert","light.frag");
 
 			ren.texture = GL.Texture.fromURL("",{temp_color:this.diffuse, minFilter: gl.LINEAR_MIPMAP_LINEAR});
@@ -57,8 +57,9 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 		}
 	}
 
-	Light.prototype.GUI = function(gui){
-		var guiLight = gui.addFolder('Light');
+	Light.prototype.GUI = function(gui,name){
+
+		var guiLight = gui.addFolder(name == 'parent' ? this.owner.name : 'Light');
 		guiLight.add(this,'enabled').name('Enabled').listen();
 		guiLight.add(this,'type',{'Ambient':-1,'Directional':0,'Point':1,'Spot':2}).name('Type').listen();
 
