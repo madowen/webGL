@@ -3,7 +3,7 @@ function Camera(fov,aspect,near,far){
 	this.name = "camera";
 					
 	this.fov = fov || 45 * DEG2RAD;
-	this.aspect = aspect || gl.canvas.width/gl.canvas.height;
+	this.aspect = aspect || gl.canvas.width/gl.canvas.height; //1024/720;
 	this.near = near || 0.1;
 	this.far = far || 1000;
 	
@@ -54,5 +54,21 @@ function Camera(fov,aspect,near,far){
 	
 	Camera.prototype.update = function(dt){
 			this.updateViewMatrix();
+	}
+
+	Camera.prototype.GUI = function(gui){
+		var guiCamera = gui.addFolder('Camera');
+		var self = this;
+		guiCamera.add(this,'fov').name('Field of View').listen().onChange(function(value,self) {
+		// Fires on every change, drag, keypress, etc.
+		this.setPerspective(value,this.aspect,this.near,this.far);
+		});
+
+		guiCamera.add(this,'aspect').name('Aspect Ratio').listen().onChange(this.updatePerpectiveMatrix);
+		guiCamera.add(this,'near').name('Near Plane').listen().onChange(this.updatePerpectiveMatrix);
+		guiCamera.add(this,'far').name('Far Plane').listen().onChange(this.updatePerpectiveMatrix);
+	}
+	function updatePersp(camera){
+		camera.setPerspective(camera.fov,camera.aspect,camera.near,camera.far);
 	}
 }

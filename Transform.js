@@ -7,7 +7,6 @@ function Transform(position,rotation,scale){
 	this._globalModel = mat4.create();
 	this._needToUpdate = false;
 	
-	
 	//GETTERS & SETTERS
 	Object.defineProperty(this, 'name',{
 		get: function() {
@@ -150,12 +149,14 @@ function Transform(position,rotation,scale){
 	}
 	Transform.prototype.translateLocal = function(x,y,z){
 		if(arguments.length == 3)
-			vec3.add( this._position, this._position, vec3.transformQuat(vec3.create(), [x,y,z], this._rotation ));
+			vec3.add( this._position, this._position, this.transformVector([x,y,z] ));
 		else
-			vec3.add( this._position, this._position, vec3.transformQuat(vec3.create(), x, this._rotation ));
+			vec3.add( this._position, this._position, this.transformVector(x));
 		this._needToUpdate = true;
 	}
-
+	Transform.prototype.transformVector = function(vec, dest) {
+		return vec3.transformQuat(dest || vec3.create(), vec, this._rotation );
+	}
 	Transform.prototype.updateModel = function(){
 		this._needToUpdate = false;
 		mat4.fromRotationTranslation( this._model , this._rotation, this._position );
@@ -177,6 +178,22 @@ function Transform(position,rotation,scale){
 		this.updateModel();
 	}
 
+	Transform.prototype.GUI = function(gui){
+		var guiTransform = gui.addFolder('Transform');
+		var guiTransformPos = guiTransform.addFolder('Position');
+		{
+			guiTransformPos.add(this._position,[0]).name('x').listen();
+			guiTransformPos.add(this._position,[1]).name('y').listen();
+			guiTransformPos.add(this._position,[2]).name('z').listen();
+		}
+		var guiTransformPos = guiTransform.addFolder('Scale');
+		{
+			guiTransformPos.add(this._scale,[0]).name('x').listen();
+			guiTransformPos.add(this._scale,[1]).name('y').listen();
+			guiTransformPos.add(this._scale,[2]).name('z').listen();
+		}
+
+	}
 	//this.updateModel();
 	
 }

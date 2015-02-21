@@ -72,13 +72,13 @@
 		<header><![CDATA[
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4	uSceneAmbient;
+			uniform vec4 	uLAmbient;
 			]]>
 		</header>
 		<maincode><![CDATA[
 			lightDiffuse = vec3(uLDiffuse);
 			lightSpecular = vec3(uLSpecular);
-			sceneAmbient = vec3(uSceneAmbient);
+			lightAmbient = vec3(uLAmbient);
 			]]>
 		</maincode>
 	</micro_shader>
@@ -95,7 +95,7 @@
 			float 	attenuation = 1.0;
 			vec3 	lightDiffuse = vec3(1.0,1.0,1.0);
 			vec3 	lightSpecular = vec3(1.0,1.0,1.0);
-			vec3 	sceneAmbient = vec3(1.0,1.0,1.0);
+			vec3 	lightAmbient = vec3(1.0,1.0,1.0);
 
 			struct material
 			{
@@ -115,7 +115,7 @@
 		<maincode><![CDATA[
 			normalDirection = normalize(vNormalDirection);
 			viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
-			ambientLighting = sceneAmbient * vec3(frontMaterial.ambient);
+			ambientLighting = lightAmbient * vec3(frontMaterial.ambient);
 			
 			diffuseReflection = attenuation * lightDiffuse * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
 			
@@ -132,6 +132,7 @@
 		<header><![CDATA[
 			varying vec2 vTextureCoord;
 			uniform sampler2D uTexture;
+			uniform vec4 uOColor;
 
 			vec3 	ambientLighting = vec3(1.0,1.0,1.0);
 			vec3 	diffuseReflection = vec3(1.0,1.0,1.0);
@@ -142,7 +143,7 @@
 		</header>
 		<maincode><![CDATA[
 			color = texture2D( uTexture, vTextureCoord);
-			gl_FragColor = color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * lightIntensity;
+			gl_FragColor = uOColor * color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * lightIntensity;
 			]]>
 		</maincode>
 	</micro_shader>
@@ -192,9 +193,8 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
+			uniform vec4 	uLAmbient;
 			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
-
-			uniform vec4 	uSceneAmbient;
 
 			//object//
 			uniform vec4 uOColor;
@@ -244,7 +244,7 @@
 
 			}
 			
-			vec3 ambientLighting = vec3(uSceneAmbient) * vec3(frontMaterial.ambient);
+			vec3 ambientLighting = vec3(uLAmbient) * vec3(frontMaterial.ambient);
 			
 			vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * vec3(frontMaterial.diffuse) * max(0.0, dot(normalDirection, lightDirection));
 			
@@ -256,7 +256,7 @@
 			}
 			
 			vec4 color = texture2D( uTexture, vTextureCoord);
-			gl_FragColor = color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = uOColor * color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>
 		</maincode>
 	</micro_shader>
@@ -375,10 +375,8 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
+			uniform vec4 	uLAmbient;
 			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
-
-			uniform vec4 	uSceneAmbient;
-
 
 			]]>
 		</header>

@@ -1,6 +1,7 @@
 function GameObject(name,position,rotation,scale){
 	this.name = name || "GameObject";
-	this.color = [1,1,1,1];
+	this.enabled = true;
+	this.color = [255,255,255,1];
 	this.components = [];
 	this.children = [];
 	this.parent = null;
@@ -64,6 +65,15 @@ function GameObject(name,position,rotation,scale){
 		}
 	}
 	
+	GameObject.prototype.GUI = function(gui){
+		var guiObject = gui.addFolder(this.name);
+		guiObject.add(this, 'enabled').name('Enabled').listen();
+		guiObject.addColor(this, 'color').name('Color').listen();
+		for (var c in this.components){
+			if (this[this.components[c]].GUI)
+				this[this.components[c]].GUI(guiObject);
+		}
+	}
 
 	this.addComponent(new Transform(position,rotation,scale));
 

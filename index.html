@@ -13,6 +13,7 @@
 		<script type="text/javascript" src="Scene.js"></script>
 		<script type="text/javascript" src="MicroShaderManager.js"></script>
 		<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="dat.gui.js"></script>
 
 		<style type="text/css">
 		body {
@@ -26,6 +27,7 @@
 
 		</style>
 		<script type="text/javascript">
+			var scene = new Scene();
 			// THIS SHOULD BE PROGRAMMED 
 			function KeyController(front,right){
 				this.name = "keycontroller"
@@ -35,13 +37,13 @@
 				//KeyController.prototype.onkeydown = function(){}
 				KeyController.prototype.update = function(dt){
 					if (gl.keys[87])  //W
-						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.front,this.speed*dt));
+						this.owner.transform.translate(vec3.negate(this.owner.transform.front,this.owner.transform.front));
 					if (gl.keys[83])  //S
-						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.front,-this.speed*dt));
+						this.owner.transform.translate(this.owner.transform.front);
 					if (gl.keys[65])  //A
-						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.right,this.speed*dt));
+						this.owner.transform.translate(vec3.negate(this.owner.transform.right,this.owner.transform.right));
 					if (gl.keys[68])  //D
-						this.owner.transform.translateLocal(vec3.scale(vec3.create(),this.right,-this.speed*dt));
+						this.owner.transform.translate(this.owner.transform.right);
 					
 				}
 			}
@@ -65,7 +67,7 @@
 
 				MouseController.prototype.update = function(dt){
 					if (this.dx)
-						this.owner.transform.rotate(this.dx*dt*this.speed,this.h);
+						this.owner.transform.rotateLocal(this.dx*dt*this.speed,this.h);
 					if (this.dy)
 						this.owner.transform.rotate(this.dy*dt*this.speed,this.v);
 					this.dx = 0;
@@ -73,146 +75,90 @@
 
 				}
 			}
-				
+
 			function init(){
+				MicroShaderManager.loadXML();
 				//create the rendering context
 				var canvas = document.getElementById("content");
-				var gl = GL.create({width:canvas.clientWidth,height:canvas.clientHeight});
+				var gl = GL.create({width:window.innerWidth,height: window.innerHeight});
 				canvas.appendChild(gl.canvas);
 				gl.animate();
 				
 				var obj = new GameObject("terrain");
-				obj.transform.position = [0,-10,0]
+				obj.transform.position = [0,0,150]
 				var ren = new Renderer();
-				ren.mesh = GL.Mesh.fromURL("assets/box.ase");
+				ren.mesh = GL.Mesh.cube();
 				// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-				ren.texture = GL.Texture.fromURL("",{temp_color:[120,120,0,0], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				obj.transform.scale = [40,0.01,40];
+				ren.texture = GL.Texture.fromURL("assets/white.png");
+				obj.transform.scale = [400,0.01,400];
 				obj.addComponent(ren);
-				Scene.addObject(obj);
+				scene.addObject(obj);
 		
 
 				var obj = new GameObject("player");
-				obj.transform.position = [0,40,0];
+				obj.transform.position = [0,40,300];
 				var ren = new Renderer();
 				obj.addComponent(ren);
 				//obj.transform.lookAt([0,0,0],[0,0,1],[0,1,0]);
-				ren.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
+				ren.mesh = GL.Mesh.fromURL("assets/boy.obj");
 				// ren.shader = GL.Shader.fromURL("light.vert","light.frag");
-				ren.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				Scene.addObject(obj);
+				ren.texture = GL.Texture.fromURL("",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
+				scene.addObject(obj);
 							
 				
 				obj = new GameObject("camera");
 				var cam = new Camera();
 				obj.addComponent(cam);
-				cam.lookAt([0,100,-50],[0,40,0],[0,1,0]);
+				cam.lookAt([0,300,0],[0,40,300],[0,1,0]);
 				cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,10000);
-				Scene.addCamera(cam);
+				scene.addCamera(cam);
 				var kc = new KeyController([0,0,-1],[-1,0,0]);
 				obj.addComponent(kc);
 				var mc = new MouseController([0,-1,0],[-1,0,0]);
 				obj.addComponent(mc);
-				Scene.addObject(obj);
+				scene.addObject(obj);
 
 
 				var ol1 = new GameObject("lightLeft");
 				var l1 = new Light();
 				l1.type = 2;
 				ol1.addComponent(l1);
-				l1.lookAt([-70,60,0],[-70,0,0],[0,0,1]);
+				l1.lookAt([100,60,300],[50,0,200],[0,0,1]);
 				l1.spotAngle = 10;
 				l1.spotExponent = 8;
 				l1.range = 300;
 				l1.intensity = 1;
-				l1.diffuse = [0.9,0.1,0.9,1];
-				l1.specular = [0.9,0.1,0.9,1];
-				Scene.addLight(l1);
-				Scene.addObject(ol1);
+				l1.diffuse = [100,25,100,1];
+				l1.specular = [10,250,10,1];
+				scene.addLight(l1);
+				scene.addObject(ol1);
 
-				var ol2 = new GameObject("lightRight",[20,20,0]);
+				var ol2 = new GameObject("lightRight",[0,20,200]);
 				var l2 = new Light();
 				l2.type = 1;
 				l2.range = 60;
+				l2.intensity = 0.8;
+				l2.diffuse = [25,51,220,1];
+				l2.specular = [128,25,220,1];
 				ol2.addComponent(l2);
-				Scene.addLight(l2);
-				Scene.addObject(ol2);
-
-
-				// var obj1 = new GameObject("spaceship",[0,0,0]);
-				// var obj2 = new GameObject("cubeX",[30,0,0]);
-				// var obj3 = new GameObject("cubeY",[0,20,0]);
-				// var obj4 = new GameObject("cubeZ",[0,0,30]);
-				// var obj5 = new GameObject("camera");
-				// var obj6 = new GameObject("lightDir");
-				// var obj8 = new GameObject("lightPoint");
-				// var obj9 = new GameObject("lightSpot",[-30,0,30]);
-				// var obj7 = new GameObject("flat",[0,-10,0]);
-				// obj7.transform.scale = [10,0.01,10];
-
-				// var sps = new Renderer();
-				// obj1.addComponent(sps);
-				// sps.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
-				// sps.shader = GL.Shader.fromURL("light.vert","light.frag");
-				// sps.texture = GL.Texture.fromURL("assets/x3_fighter/x3_fighter.png",{temp_color:[80,120,40,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-
-				// var cube = new Renderer();
-				// cube.mesh = GL.Mesh.fromURL("assets/x3_fighter/x3_fighter.ase");
-				// cube.shader = GL.Shader.fromURL("light.vert","light.frag");
-				// cube.texture = GL.Texture.fromURL("",{temp_color:[80,20,20,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				// obj2.addComponent(cube);
-				// obj3.addComponent(cube);
-				// obj4.addComponent(cube);
+				scene.addLight(l2);
+				scene.addObject(ol2);
 				
-				// cube = new Renderer();
-				// cube.mesh = GL.Mesh.fromURL("assets/box.ase");
-				// cube.shader = GL.Shader.fromURL("light.vert","light.frag");
-				// cube.texture = GL.Texture.fromURL("",{temp_color:[110,40,180,255], minFilter: gl.LINEAR_MIPMAP_LINEAR});
-				// obj7.addComponent(cube);
+				var ol3 = new GameObject("globalLight",[20,20,0]);
+				var l3 = new Light();
+				ol3.addComponent(l3);
+				l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
+				l3.type = 0;
+				l3.intensity = 0.7;
+				l3.diffuse = [25,51,220,1];
+				l3.specular = [128,25,220,1];
+				scene.addLight(l3);
+				scene.addObject(ol3);
 
-				// var cam = new Camera();
-				// obj5.addComponent(cam);
-				// cam.lookAt([20,40,-70],[0,0,0],[0,1,0]);
-				// cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,5000);
-				// Scene.addCamera(cam);
 
-				// var light = new Light(0);
-				// light.intensity = 2;
-				// obj6.transform.lookAt([0,50,-50],[0,0,0],[0,1,0]);
-				// obj6.addComponent(light);
-				// Scene.addLight(light);
+				scene.ambientLight = [20,20,20,1];
+				console.log(scene.objects);
 
-				// light = new Light(1);
-				// obj8.addComponent(light);
-				// obj8.transform.position = [30,0,20];
-				// light.ambient = [0.2,0,0];
-				// light.diffuse = [0.8,0,0];
-				// light.specular = [0.8,0,0];
-				// light.intensity = 2;
-				// light.range = 200;
-				
-				
-				// light = new Light(2);
-				// obj9.addComponent(light);
-
-				// obj2.parent = obj1;
-				// obj3.parent = obj1;
-				// obj4.parent = obj1;
-				// Scene.addObject(obj1);
-				// // Scene.addObject(obj2);
-				// // Scene.addObject(obj3);
-				// // Scene.addObject(obj4);
-				// Scene.addObject(obj5);
-				// Scene.addObject(obj6);
-				// Scene.addObject(obj7);
-				// Scene.addObject(obj8);
-				// Scene.addObject(obj9);
-
-				
-				Scene.ambientLight = [0.5,0.5,0.5,1];
-				console.log(Scene.objects);
-
-				
 				//generic gl flags and settings
 				gl.clearColor(0.2,0.2,0.2,1);
 				gl.enable( gl.DEPTH_TEST );
@@ -220,32 +166,36 @@
 
 				//rendering loop
 				gl.ondraw = function(){
-					Scene.draw();
-				}
+					scene.draw();
+				};
 		
 				//update loop
 				gl.onupdate = function(dt){
-					Scene.update(dt);
-				}
+					scene.update(dt);
+				};
 
 				gl.captureMouse();
 				gl.captureKeys(true);
 
 				//controllers
 				gl.onkeydown 	= function(e){
-					Scene.onkeydown(e);
-				}
+					scene.onkeydown(e);
+				};
 				gl.onmousemove 	= function(e){
-					Scene.onmousemove(e);
-				}
+					scene.onmousemove(e);
+				};
+				var gui = new dat.GUI();
+				scene.GUI(gui);
 
-				// var s = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
-				// MicroShaderManager.getShader('lightDir',["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
+			}
+
+			function resize(){
+				alert("resize");
 			}
 		</script>
 	</head>
 	<body>
-		<div id="content"></div>
+		<div id="content" onresize="resize()"></div>
 		<script>init();</script>
 	
 	
