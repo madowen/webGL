@@ -8,7 +8,7 @@ this.activeCamera = 0;
 this.deferred = false; //0 = forward, 1 = deferred
 this.shader = null;
 
-var ambientLight = new Light(-1,[0, 0, 150, 1]);
+var ambientLight = new Light(-1,[0, 0, 0.6, 1]);
 ambientLight.owner = this;
 this.lights.push(ambientLight);
 
@@ -44,9 +44,12 @@ Scene.prototype.forwardRender = function(){
 			var firstLight = true;
 			if (this.objects[i].renderer){
 				for (var l in this.lights){
-					var Diffuse = [this.lights[l].diffuse[0]/255,this.lights[l].diffuse[1]/255,this.lights[l].diffuse[2]/255,this.lights[l].diffuse[3]];
-					var Specular = [this.lights[l].specular[0]/255,this.lights[l].specular[1]/255,this.lights[l].specular[2]/255,this.lights[l].specular[3]];
-					var Ambient = [this.lights[l].ambient[0]/255,this.lights[l].ambient[1]/255,this.lights[l].ambient[2]/255,this.lights[l].ambient[3]];
+					// var Diffuse = [this.lights[l].diffuse[0]/255,this.lights[l].diffuse[1]/255,this.lights[l].diffuse[2]/255,this.lights[l].diffuse[3]];
+					// var Specular = [this.lights[l].specular[0]/255,this.lights[l].specular[1]/255,this.lights[l].specular[2]/255,this.lights[l].specular[3]];
+					// var Ambient = [this.lights[l].ambient[0]/255,this.lights[l].ambient[1]/255,this.lights[l].ambient[2]/255,this.lights[l].ambient[3]];
+					var Diffuse = this.lights[l].diffuse;
+					var Specular = this.lights[l].specular;
+					var Ambient = this.lights[l].ambient;
 					if (!this.lights[l].enabled || !this.lights[l].owner.enabled){
 				    	Diffuse = [0,0,0,1];
 				    	Specular = [0,0,0,1];

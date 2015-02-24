@@ -3,9 +3,9 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.enabled = true;
 	
 	this.type = type || 0 //directional = 0|| point = 1 ||spot = 2
-	this.ambient = ambient || [10,10,10,1.0];
-	this.diffuse = diffuse || [220,220.9,220,1.0];
-	this.specular = specular || [220,220,220,1.0];
+	this.ambient = ambient || [0.1,0.1,0.1,1.0];
+	this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
+	this.specular = specular || [0.9,0.9,0.9,1.0];
 	this.intensity = intensity || 0.8;
 	this.range = range || 2.0;
 	this.spotAngle = spotAngle || 30.0;
@@ -50,8 +50,8 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 			obj.addComponent(ren);
 			ren.mesh = GL.Mesh.sphere();
 			ren.shader = GL.Shader.fromURL("light.vert","light.frag");
-
-			ren.texture = GL.Texture.fromURL("",{temp_color:this.diffuse, minFilter: gl.LINEAR_MIPMAP_LINEAR});
+			var temp_color = [this.diffuse[0]*255,this.diffuse[1]*255,this.diffuse[2]*255,this.diffuse[3]];
+			ren.texture = GL.Texture.fromURL("/assets/white.png",{temp_color:temp_color, minFilter: gl.LINEAR_MIPMAP_LINEAR});
 			scene.addObject(obj);
 			this.gizmo = false;
 		}
