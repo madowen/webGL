@@ -1,7 +1,7 @@
 function GameObject(name,position,rotation,scale){
 	this.name = name || "GameObject";
 	this.enabled = true;
-	this.color = [255,255,255,1];
+	this.color = [1.0,1.0,1.0,1.0];
 	this.components = [];
 	this.children = [];
 	this.parent = null;

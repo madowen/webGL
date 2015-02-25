@@ -1,8 +1,12 @@
+Light.DIRECTIONAL = 0
+Light.POINT = 1
+Light.SPOT = 2
+Light.AMBIENT = 3
 function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExponent,constantAttenuation,linearAttenuation,quadraticAttenuation,addGizmo){
 	this.name = "light";
 	this.enabled = true;
 	
-	this.type = type || 0 //directional = 0|| point = 1 ||spot = 2
+	this.type = type || Light.DIRECTIONAL //directional = 0|| point = 1 ||spot = 2
 	this.ambient = ambient || [0.1,0.1,0.1,1.0];
 	this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
 	this.specular = specular || [0.9,0.9,0.9,1.0];
@@ -49,10 +53,9 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 			var ren = new Renderer();
 			obj.addComponent(ren);
 			ren.mesh = GL.Mesh.sphere();
-			ren.shader = GL.Shader.fromURL("light.vert","light.frag");
 			var temp_color = [this.diffuse[0]*255,this.diffuse[1]*255,this.diffuse[2]*255,this.diffuse[3]];
-			ren.texture = GL.Texture.fromURL("/assets/white.png",{temp_color:temp_color, minFilter: gl.LINEAR_MIPMAP_LINEAR});
-			scene.addObject(obj);
+			ren.texture = GL.Texture.fromURL("assets/white.png",{temp_color:temp_color, minFilter: gl.LINEAR_MIPMAP_LINEAR});
+			Scene.addObject(obj);
 			this.gizmo = false;
 		}
 	}

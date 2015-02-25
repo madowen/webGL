@@ -1,4 +1,4 @@
-var scene = new Scene();
+// var Scene = new Scene();
 // THIS SHOULD BE PROGRAMMED 
 function KeyController(front,right){
 	this.name = "keycontroller"
@@ -66,80 +66,18 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-	var obj = new GameObject("floor");
-	obj.transform.position = [100,100,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [10,0.01,10];
-	obj.addComponent(ren);
-	scene.addObject(obj);
-
-	obj = new GameObject("leftWall");
-	obj.transform.position = [105,105,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.01,10,10];
-	obj.addComponent(ren);
-	scene.addObject(obj);
-				
-	obj = new GameObject("rightWall");
-	obj.transform.position = [95,105,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.01,10,10];
-	obj.addComponent(ren);
-	scene.addObject(obj);
-
-	obj = new GameObject("frontWall");
-	obj.transform.position = [100,105,105]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [10,10,0.01];
-	obj.addComponent(ren);
-	scene.addObject(obj);
-
-	obj = new GameObject("sphere");
-	obj.transform.position = [100,101,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.sphere();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [1,1,1];
-	obj.addComponent(ren);
-	scene.addObject(obj);
-	
-	obj = new GameObject("camera");
-	var cam = new Camera();
-	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,10000);
-	scene.addCamera(cam);
-	var kc = new KeyController([0,0,-1],[-1,0,0]);
-	obj.addComponent(kc);
-	var mc = new MouseController([0,-1,0],[-1,0,0]);
-	obj.addComponent(mc);
-	scene.addObject(obj);
-
 	var objlight = new GameObject("light1",[100,105,100]);
 	var light = new Light(1);
 	objlight.addComponent(light);
-	scene.addLight(light);
-	scene.addObject(objlight);
+	Scene.addLight(light);
+	Scene.addObject(objlight);
 	
 	var objlight = new GameObject("light2");
 	var light = new Light(2);
 	objlight.addComponent(light);
 	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
-	scene.addLight(light);
-	scene.addObject(objlight);
+	Scene.addLight(light);
+	Scene.addObject(objlight);
 
 	var ol3 = new GameObject("globalLight");
 	var l3 = new Light();
@@ -149,10 +87,74 @@ function init(){
 	l3.intensity = 0.7;
 	l3.diffuse = [0.05,0.1,0.9,1];
 	l3.specular = [0.5,0.1,0.9,1];
-	scene.addLight(l3);
-	scene.addObject(ol3);
+	Scene.addLight(l3);
+	Scene.addObject(ol3);
+	
+	var obj = new GameObject("floor");
+	obj.transform.position = [100,100,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.cube();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [10,0.01,10];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
 
-	console.log(scene.objects);
+	obj = new GameObject("leftWall");
+	obj.transform.position = [105,105,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.cube();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [0.01,10,10];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+				
+	obj = new GameObject("rightWall");
+	obj.transform.position = [95,105,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.cube();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [0.01,10,10];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	obj = new GameObject("frontWall");
+	obj.transform.position = [100,105,105]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.cube();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [10,10,0.01];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	obj = new GameObject("sphere");
+	obj.transform.position = [100,101,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.sphere();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [1,1,1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+	
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,10000);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+
+	
+
+	console.log(Scene.objects);
 
 	//generic gl flags and settings
 	gl.clearColor(0.2,0.2,0.2,1);
@@ -161,12 +163,12 @@ function init(){
 
 	//rendering loop
 	gl.ondraw = function(){
-		scene.draw();
+		Scene.draw();
 	};
 
 	//update loop
 	gl.onupdate = function(dt){
-		scene.update(dt);
+		Scene.update(dt);
 	};
 
 	gl.captureMouse();
@@ -174,10 +176,10 @@ function init(){
 
 	//controllers
 	gl.onkeydown 	= function(e){
-		scene.onkeydown(e);
+		Scene.onkeydown(e);
 	};
 	gl.onmousemove 	= function(e){
-		scene.onmousemove(e);
+		Scene.onmousemove(e);
 	};
 
 	GUI.init();

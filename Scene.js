@@ -1,41 +1,49 @@
-var Scene = function(){
-this.name = "Scene";
-this.enabled = true;
-this.objects = [];
-this.cameras = [];
-this.lights = [];
-this.activeCamera = 0;
-this.deferred = false; //0 = forward, 1 = deferred
-this.shader = null;
+var Scene = {}
+Scene.FORWARD = 0;
+Scene.DEFERRED = 1;
 
-var ambientLight = new Light(-1,[0, 0, 0.6, 1]);
-ambientLight.owner = this;
-this.lights.push(ambientLight);
+Scene.FULL = 0;
+Scene.ALBEDO = 1;
+Scene.DEPTH = 2;
+Scene.NORMAL = 3;
 
-this.renderMode = 0;
+Scene.name = "Scene";
+Scene.enabled = true;
+Scene.objects = [];
+Scene.cameras = [];
+Scene.lights = [];
+Scene.activeCamera = 0;
+Scene.render = Scene.FORWARD; //0 = forward, 1 = deferred
+Scene.shader = null;
 
-Scene.prototype.addObject = function(object){
+var ambientLight = new Light(Light.AMBIENT,[0, 0, 0.6, 1]);
+ambientLight.owner = Scene;
+Scene.lights.push(ambientLight);
+
+Scene.renderMode = 0;
+
+Scene.addObject = function(object){
 	this.objects.push(object);
 }
-Scene.prototype.addCamera = function(camera){
+Scene.addCamera = function(camera){
 	this.cameras.push(camera);
 }
-Scene.prototype.addLight = function(light){
+Scene.addLight = function(light){
 	this.lights.push(light);
 }
-Scene.prototype.draw = function(){
+Scene.draw = function(){
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	this.shader = null;
 	//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
 
-	if (!this.deferred){
+	if (this.render == Scene.FORWARD){
 		this.forwardRender();
 	}else{
 		this.deferredRender();
 	}
 }
 
-Scene.prototype.forwardRender = function(){
+Scene.forwardRender = function(){
 	var cam = this.cameras[this.activeCamera];
 	//create modelview and projection matrices
 	gl.disable(gl.BLEND);
@@ -44,9 +52,6 @@ Scene.prototype.forwardRender = function(){
 			var firstLight = true;
 			if (this.objects[i].renderer){
 				for (var l in this.lights){
-					// var Diffuse = [this.lights[l].diffuse[0]/255,this.lights[l].diffuse[1]/255,this.lights[l].diffuse[2]/255,this.lights[l].diffuse[3]];
-					// var Specular = [this.lights[l].specular[0]/255,this.lights[l].specular[1]/255,this.lights[l].specular[2]/255,this.lights[l].specular[3]];
-					// var Ambient = [this.lights[l].ambient[0]/255,this.lights[l].ambient[1]/255,this.lights[l].ambient[2]/255,this.lights[l].ambient[3]];
 					var Diffuse = this.lights[l].diffuse;
 					var Specular = this.lights[l].specular;
 					var Ambient = this.lights[l].ambient;
@@ -79,21 +84,21 @@ Scene.prototype.forwardRender = function(){
 
 					var t = this.lights[l].type;
 				    //render mesh using the shader
-				    if (this.renderMode == 0){
-						if (t == 0 || t == -1)
+				    if (this.renderMode == Scene.FULL){
+						if (t == Light.DIRECTIONAL || t == Light.AMBIENT)
 							this.shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
-						if (t == 1)
+						else if (t == Light.POINT)
 							this.shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
-						if (t == 2)
+						else if (t == Light.SPOT)
 							this.shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
 					}
-				    if (this.renderMode == 1 ){
+				    else if (this.renderMode == Scene.ALBEDO ){
 						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
 					}
-				    if (this.renderMode == 2){
+				    else if (this.renderMode == Scene.DEPTH){
 						this.shader = MicroShaderManager.getShader("depth_deferred_rendering",["fulllight_vertex"],["depth_deferred_fragment"],"microShaders.xml");
 				    }
-				    if (this.renderMode == 3){
+				    else if (this.renderMode == Scene.NORMAL){
 						this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
 				    }
 				    if (this.objects[i].name == "gizmo")
@@ -120,7 +125,7 @@ Scene.prototype.forwardRender = function(){
 				    	uLConstantAttenuation: this.lights[l].constantAttenuation,
 				    	uLLinearAttenuation: this.lights[l].linearAttenuation,
 				    	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
-				    	uOColor: [this.objects[i].color[0]/255,this.objects[i].color[1]/255,this.objects[i].color[2]/255,this.objects[i].color[3]],
+				    	uOColor: this.objects[i].color,
 				    	cameraPosition: cam.owner.transform.position
 				    }).draw(this.objects[i].renderer.mesh);
 
@@ -136,7 +141,7 @@ Scene.prototype.forwardRender = function(){
 	}
 }
 
-Scene.prototype.deferredRender = function(){
+Scene.deferredRender = function(){
 	var cam = this.cameras[this.activeCamera];
 	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
 	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
@@ -144,8 +149,8 @@ Scene.prototype.deferredRender = function(){
 
 
 	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
-		for (var i in scene.objects){
-			if (scene.objects[i].renderer){
+		for (var i in Scene.objects){
+			if (Scene.objects[i].renderer){
 				gl.enable( gl.BLEND );
 				gl.blendFunc( gl.ONE, gl.ONE );
 				gl.depthMask(false);
@@ -153,15 +158,15 @@ Scene.prototype.deferredRender = function(){
 
 				var modelt = mat4.create();
 				var temp = mat4.create();
-				var mrot = scene.objects[i].transform.globalModel;
+				var mrot = Scene.objects[i].transform.globalModel;
 
 				mat4.multiply(temp,cam.view,mrot); //modelview
 				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 				//compute rotation matrix for normals
 				mat4.toRotationMat4(modelt, mrot);
 
-				if (scene.objects[i].renderer.texture)
-					scene.objects[i].renderer.texture.bind(0);
+				if (Scene.objects[i].renderer.texture)
+					Scene.objects[i].renderer.texture.bind(0);
 
 				var uniforms = {
 			    	m:mrot,
@@ -172,9 +177,9 @@ Scene.prototype.deferredRender = function(){
 			    	uTexture: 0
 				};
 
-				scene.shader = MicroShaderManager.getShader("gbuffer",["fulllight_vertex"],["gbuffer_fragment"],"microShaders.xml");
-				if (scene.shader)
-					scene.shader.uniforms(uniforms).draw(scene.objects[i].renderer.mesh);
+				Scene.shader = MicroShaderManager.getShader("gbuffer",["fulllight_vertex"],["gbuffer_fragment"],"microShaders.xml");
+				if (Scene.shader)
+					Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
 			}
 		}
 	});
@@ -232,32 +237,32 @@ Scene.prototype.deferredRender = function(){
 	// }
 }
 
-Scene.prototype.update = function(dt){
+Scene.update = function(dt){
 	for (var i in this.objects){					
 		if (this.objects[i].update)
 			this.objects[i].update(dt);
 	}
 }
 
-Scene.prototype.onkeydown = function(e){
-	if(gl.keys['U']) this.renderMode = 0;
-	if(gl.keys['I']) this.renderMode = 1;
-	if(gl.keys['O']) this.renderMode = 2;
-	if(gl.keys['P']) this.renderMode = 3;
-	if(gl.keys['Y']) this.deferredRender = !this.deferredRender;
+Scene.onkeydown = function(e){
+	if(gl.keys['U']) this.renderMode = Scene.FULL;
+	if(gl.keys['I']) this.renderMode = Scene.ALBEDO;
+	if(gl.keys['O']) this.renderMode = Scene.DEPTH;
+	if(gl.keys['P']) this.renderMode = Scene.NORMAL;
+	if(gl.keys['Y']) this.render = !this.render;
 	for (var i in this.objects){
 		// console.log(e);
 		this.objects[i].callMethod("onkeydown",{evento: e});
 	}
 }
-Scene.prototype.onmousemove = function(e){
+Scene.onmousemove = function(e){
 	for (var i in this.objects){
 		// console.log(e);
 		this.objects[i].callMethod("onmousemove",{evento: e});
 	}
 }
 
-Scene.prototype.GUI = function(gui){
+Scene.GUI = function(gui){
 	gui.add(this, 'deferred').name('Deferred Render').listen();
 	gui.add(this, 'renderMode',{'full':0,'albedo':1,'depth':2,'normals':3}).name('Render Mode').listen();
 	gui.addColor(this.lights[0], 'ambient').name('Ambient Scene').listen();
@@ -271,4 +276,4 @@ Scene.prototype.GUI = function(gui){
 	}
 
 }
-};
+
