@@ -303,11 +303,14 @@
 		<header><![CDATA[
 			varying vec4 vPosition;
 			uniform vec3 cameraPosition;
+			uniform float nearPlane;
+			uniform float farPlane;
 			]]>
 		</header>
 		<maincode><![CDATA[
-			float depth = 0.015 * length(cameraPosition - vPosition.xyz);
-			gl_FragColor = vec4(vec3(abs(depth)),1.0);
+			float depth = abs(length(cameraPosition - vPosition.xyz));
+			depth = (depth-nearPlane)/(farPlane-nearPlane);
+			gl_FragColor = vec4(vec3(depth),1.0);
 			]]>
 		</maincode>
 	</micro_shader>

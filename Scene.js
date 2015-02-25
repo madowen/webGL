@@ -126,7 +126,9 @@ Scene.forwardRender = function(){
 				    	uLLinearAttenuation: this.lights[l].linearAttenuation,
 				    	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
 				    	uOColor: this.objects[i].color,
-				    	cameraPosition: cam.owner.transform.position
+				    	cameraPosition: cam.owner.transform.position,
+				    	nearPlane: cam.near,
+				    	farPlane: cam.far
 				    }).draw(this.objects[i].renderer.mesh);
 
 					// if next object do not have texture, it won't get it from the buffer

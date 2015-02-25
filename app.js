@@ -67,13 +67,13 @@ function init(){
 	gl.animate();
 	
 	var objlight = new GameObject("light1",[100,105,100]);
-	var light = new Light(1);
+	var light = new Light(Light.POINT);
 	objlight.addComponent(light);
 	Scene.addLight(light);
 	Scene.addObject(objlight);
 	
 	var objlight = new GameObject("light2");
-	var light = new Light(2);
+	var light = new Light(Light.SPOT);
 	objlight.addComponent(light);
 	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
 	Scene.addLight(light);
@@ -144,7 +144,7 @@ function init(){
 	var cam = new Camera();
 	obj.addComponent(cam);
 	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1,10000);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1.0,100.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
 	obj.addComponent(kc);

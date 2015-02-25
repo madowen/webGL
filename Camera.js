@@ -5,7 +5,7 @@ function Camera(fov,aspect,near,far){
 	this.fov = fov || 45 * DEG2RAD;
 	this.aspect = aspect || gl.canvas.width/gl.canvas.height; //1024/720;
 	this.near = near || 0.1;
-	this.far = far || 1000;
+	this.far = far || 1000.0;
 	
 	this.projection = window.persp = mat4.create();
 	this.view = window.view = mat4.create();
