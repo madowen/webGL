@@ -93,47 +93,50 @@ function init(){
 	var obj = new GameObject("floor");
 	obj.transform.position = [100,100,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
+	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [10,0.01,10];
+	obj.transform.scale = [10,1,10];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	obj = new GameObject("leftWall");
 	obj.transform.position = [105,105,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
+	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.01,10,10];
+	obj.transform.rotateLocal(90,[0,0,1]);
+	obj.transform.scale = [10,1,10];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 				
 	obj = new GameObject("rightWall");
 	obj.transform.position = [95,105,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
+	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.01,10,10];
+	obj.transform.scale = [10,1,10];
+	obj.transform.rotateLocal(-90,[0,0,1]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	obj = new GameObject("frontWall");
 	obj.transform.position = [100,105,105]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
+	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [10,10,0.01];
+	obj.transform.scale = [10,1,10];
+	obj.transform.rotateLocal(-90,[1,0,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	obj = new GameObject("sphere");
-	obj.transform.position = [100,101,100]
+	obj.transform.position = [100,102,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.sphere();
+	ren.mesh = GL.Mesh.cylinder();
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [1,1,1];

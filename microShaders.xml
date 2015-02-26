@@ -321,7 +321,8 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-				gl_FragColor = normalize(vec4(vNormalDirection.xyz,0));
+				gl_FragColor = normalize(vec4(abs(vNormalDirection.xyz),0));
+				//gl_FragColor = 0.5 * normalize(vec4(vNormalDirection.xyz,0) + 1.0);
 			]]>
 		</maincode>
 	</micro_shader>
