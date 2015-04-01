@@ -1,5 +1,7 @@
 // var Scene = new Scene();
-// THIS SHOULD BE PROGRAMMED 
+
+var gl = GL.create({width:window.innerWidth,height: window.innerHeight});
+
 function KeyController(front,right){
 	this.name = "keycontroller"
 	this.front = front 	|| [0,0,1];
@@ -62,7 +64,6 @@ function init(){
 	MicroShaderManager.loadXML();
 	//create the rendering context
 	var canvas = document.getElementById("content");
-	var gl = GL.create({width:window.innerWidth,height: window.innerHeight});
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
@@ -105,7 +106,7 @@ function init(){
 	var ren = new Renderer();
 	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.rotateLocal(90,[0,0,1]);
 	obj.transform.scale = [10,1,10];
 	obj.addComponent(ren);
@@ -131,12 +132,12 @@ function init(){
 	obj.transform.scale = [10,1,10];
 	obj.transform.rotateLocal(-90,[1,0,0]);
 	obj.addComponent(ren);
-	Scene.addObject(obj);
+	// Scene.addObject(obj);
 
 	obj = new GameObject("sphere");
 	obj.transform.position = [100,102,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cylinder();
+	ren.mesh = GL.Mesh.fromURL('assets/Dragon/Dargon posing2.obj');
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [1,1,1];
@@ -147,7 +148,7 @@ function init(){
 	var cam = new Camera();
 	obj.addComponent(cam);
 	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1.0,100.0);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1.0,10000.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
 	obj.addComponent(kc);

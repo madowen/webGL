@@ -79,6 +79,7 @@ function GUI(){
 				inrot[0] = value;
 				inrot = vec3.scale(inrot,inrot,Math.PI/180);
 				transform._rotation = quat.fromEuler(transform._rotation,inrot);
+				transform._needToUpdate = true;
 			});
 			guiTransformPos.add(rot,[1]).name('y').step(1).listen().onChange(function(value){
 				var inrot = quat.toEuler(vec3.create(),transform._rotation);

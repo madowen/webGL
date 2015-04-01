@@ -3,8 +3,8 @@ var MicroShaderManager = {
 	shaders: [],
 	xmlFile: 'microShaders.xml',
 	micros: null,
-	vertexShader: null,
-	fragmentShader: null,
+	vertexSource: null,
+	fragmentSource: null,
 
 	getShader: function(name,vertex,fragment,fromXMLFile){
 		if (this.microShaders == null){
@@ -14,9 +14,9 @@ var MicroShaderManager = {
 			});
 		}else{
 			if (this.shaders[name] == null){
-				var vertexSource = this.composeShader(vertex);
-				var fragmentSource = this.composeShader(fragment);
-				this.shaders[name] = new GL.Shader(vertexSource,fragmentSource);
+				this.vertexSource = this.composeShader(vertex);
+				this.fragmentSource = this.composeShader(fragment);
+				this.shaders[name] = new GL.Shader(this.vertexSource,this.fragmentSource);
 				return this.shaders[name];
 			}else{
 				return this.shaders[name];

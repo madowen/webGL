@@ -1,4 +1,5 @@
-var Scene = {}
+var Scene = {
+}
 Scene.FORWARD = 0;
 Scene.DEFERRED = 1;
 
@@ -13,7 +14,7 @@ Scene.objects = [];
 Scene.cameras = [];
 Scene.lights = [];
 Scene.activeCamera = 0;
-Scene.render = Scene.FORWARD; //0 = forward, 1 = deferred
+Scene.render = Scene.DEFERRED; //0 = forward, 1 = deferred
 Scene.shader = null;
 
 var ambientLight = new Light(Light.AMBIENT,[0, 0, 0.6, 1]);
@@ -143,100 +144,62 @@ Scene.forwardRender = function(){
 	}
 }
 
+	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
+	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
+
+	var temp = mat4.create();
+	var mrot;
+	var i;
+	var uniforms = {};
+	var cam;
+
 Scene.deferredRender = function(){
-	var cam = this.cameras[this.activeCamera];
-	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
-	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
-	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT});
-
-
+	i = 6;
+	cam = this.cameras[this.activeCamera];
 	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
-		for (var i in Scene.objects){
-			if (Scene.objects[i].renderer){
-				gl.enable( gl.BLEND );
-				gl.blendFunc( gl.ONE, gl.ONE );
-				gl.depthMask(false);
-				gl.depthFunc(gl.LEQUAL);
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.enable( gl.DEPTH_TEST );
+		
+		// for (var i in Scene.objects){
+		// 	if (Scene.objects[i].renderer){
+				// gl.enable( gl.BLEND );
+				// gl.blendFunc( gl.ONE, gl.ONE );
+				// gl.depthMask(false);
+				// gl.depthFunc(gl.LEQUAL);
 
-				var modelt = mat4.create();
-				var temp = mat4.create();
-				var mrot = Scene.objects[i].transform.globalModel;
+				mrot = Scene.objects[i].transform.globalModel;
 
 				mat4.multiply(temp,cam.view,mrot); //modelview
 				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 				//compute rotation matrix for normals
-				mat4.toRotationMat4(modelt, mrot);
 
 				if (Scene.objects[i].renderer.texture)
 					Scene.objects[i].renderer.texture.bind(0);
 
-				var uniforms = {
+				uniforms = {
 			    	m:mrot,
 			    	v:cam.view,
 			    	p:cam.projection,
 			    	mvp:cam.mvp,
-			    	umodelt:modelt,
+			    	cameraPosition: cam.owner.transform.position,
+			    	nearPlane: cam.near,
+			    	farPlane: cam.far,
 			    	uTexture: 0
 				};
 
-				Scene.shader = MicroShaderManager.getShader("gbuffer",["fulllight_vertex"],["gbuffer_fragment"],"microShaders.xml");
+				Scene.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
 				if (Scene.shader)
 					Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
-			}
-		}
+		// 	}
+		// }
 	});
+		gl.disable( gl.DEPTH_TEST );
 		// depthTexture.toCanvas(gl.canvas);
 		gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 
-
-	// diffuseTexture.bind(0);
-	// positionTexture.bind(1);
-	// normalsTexture.bind(2);
-
-	// var firstLight = true;
-	// for (var l in this.lights){
-	// 	if(!firstLight){
-	// 		gl.enable( gl.BLEND );
-	// 		gl.blendFunc( gl.ONE, gl.ONE );
-	// 		gl.depthMask(false);
-	// 		gl.depthFunc(gl.LEQUAL);
-	// 	}else{
-	// 		gl.disable(gl.BLEND);
-	// 		gl.depthMask(true);
-	// 	}
-
-	// 	this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],'microShaders.xml');
-	// 	if (t == 0)
-	// 		this.shader = MicroShaderManager.getShader("deferred_lightDir",["deferred_vertex"],["deferred_light_directional"],'microShaders.xml');
-	// 	if (t == 1)
-	// 		this.shader = MicroShaderManager.getShader("deferred_lightPoint",["deferred_vertex"],["deferred_light_point"],'microShaders.xml');
-	// 	if (t == 2)
-	// 		this.shader = MicroShaderManager.getShader("deferred_lightSpot",["deferred_vertex"],["deferred_light_spot"],'microShaders.xml');
-
-	// 	var uniforms = {
-	// 		tDiffuse:0,
-	// 		tPosition:1,
-	// 		tNormals:2,
-	//     	uLPosition: this.lights[l].position,
-	//     	uLDirection: this.lights[l].direction,
-	//     	uLType: this.lights[l].type,
-	//     	uLRange: this.lights[l].range,
-	//     	uLIntensity: this.lights[l].intensity,
-	//     	uLSpotAngle: this.lights[l].spotAngle,
-	//     	uLSpotExponent: this.lights[l].spotExponent,
-	//     	uLDiffuse: [this.lights[l].diffuse[0]/255,this.lights[l].diffuse[1]/255,this.lights[l].diffuse[2]/255,this.lights[l].diffuse[3]],
-	//     	uLSpecular: [this.lights[l].specular[0]/255,this.lights[l].specular[1]/255,this.lights[l].specular[2]/255,this.lights[l].specular[3]],
-	//     	uLAmbient: [this.lights[l].ambient[0]/255,this.lights[l].ambient[1]/255,this.lights[l].ambient[2]/255,this.lights[l].ambient[3]],
-	//     	uLConstantAttenuation: this.lights[l].constantAttenuation,
-	//     	uLLinearAttenuation: this.lights[l].linearAttenuation,
-	//     	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
-	//     	uOColor: [this.objects[i].color[0]/255,this.objects[i].color[1]/255,this.objects[i].color[2]/255,this.objects[i].color[3]]
-	// 	};
-	// 	this.shader.toViewport(uniforms);
-
-	// }
 }
 
 Scene.update = function(dt){
