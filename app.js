@@ -137,7 +137,7 @@ function init(){
 	obj = new GameObject("sphere");
 	obj.transform.position = [100,102,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.fromURL('assets/Dragon/Dargon posing2.obj');
+	ren.mesh = GL.Mesh.cube();
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [1,1,1];
