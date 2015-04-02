@@ -157,8 +157,50 @@ Scene.forwardRender = function(){
 Scene.deferredRender = function(){
 	i = 6;
 	cam = this.cameras[this.activeCamera];
-	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	// Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
+	// 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	// 	gl.enable( gl.DEPTH_TEST );
+		
+	// 	// for (var i in Scene.objects){
+	// 	// 	if (Scene.objects[i].renderer){
+	// 			// gl.enable( gl.BLEND );
+	// 			// gl.blendFunc( gl.ONE, gl.ONE );
+	// 			// gl.depthMask(false);
+	// 			// gl.depthFunc(gl.LEQUAL);
+
+	// 			mrot = Scene.objects[i].transform.globalModel;
+
+	// 			mat4.multiply(temp,cam.view,mrot); //modelview
+	// 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+	// 			//compute rotation matrix for normals
+
+	// 			if (Scene.objects[i].renderer.texture)
+	// 				Scene.objects[i].renderer.texture.bind(0);
+
+	// 			uniforms = {
+	// 		    	m:mrot,
+	// 		    	v:cam.view,
+	// 		    	p:cam.projection,
+	// 		    	mvp:cam.mvp,
+	// 		    	cameraPosition: cam.owner.transform.position,
+	// 		    	nearPlane: cam.near,
+	// 		    	farPlane: cam.far,
+	// 		    	uTexture: 0
+	// 			};
+
+	// 			Scene.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
+	// 			if (Scene.shader)
+	// 				Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
+	// 	// 	}
+	// 	// }
+	// });
+	// 	gl.disable( gl.DEPTH_TEST );
+	// 	// depthTexture.toCanvas(gl.canvas);
+	// 	gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
+	// 	gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
+	// 	gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
+
+	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		gl.enable( gl.DEPTH_TEST );
 		
 		// for (var i in Scene.objects){
@@ -192,13 +234,6 @@ Scene.deferredRender = function(){
 				if (Scene.shader)
 					Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
 		// 	}
-		// }
-	});
-		gl.disable( gl.DEPTH_TEST );
-		// depthTexture.toCanvas(gl.canvas);
-		gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
-		gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
-		gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 
 }
 
