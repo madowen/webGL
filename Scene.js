@@ -14,7 +14,7 @@ Scene.objects = [];
 Scene.cameras = [];
 Scene.lights = [];
 Scene.activeCamera = 0;
-Scene.render = Scene.DEFERRED; //0 = forward, 1 = deferred
+Scene.render = Scene.FORWARD; //0 = forward, 1 = deferred
 Scene.shader = null;
 
 var ambientLight = new Light(Light.AMBIENT,[0, 0, 0.6, 1]);
@@ -48,6 +48,7 @@ Scene.forwardRender = function(){
 	var cam = this.cameras[this.activeCamera];
 	//create modelview and projection matrices
 	gl.disable(gl.BLEND);
+	gl.enable(gl.DEPTH_TEST);
 	for (var i in this.objects){
 		if (this.objects[i].enabled){
 			var firstLight = true;
@@ -148,6 +149,7 @@ Scene.forwardRender = function(){
 	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
 	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
 
+	var modelt = mat4.create();
 	var temp = mat4.create();
 	var mrot;
 	var i;
@@ -155,85 +157,73 @@ Scene.forwardRender = function(){
 	var cam;
 
 Scene.deferredRender = function(){
-	i = 6;
+
 	cam = this.cameras[this.activeCamera];
-	// Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
-	// 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-	// 	gl.enable( gl.DEPTH_TEST );
-		
-	// 	// for (var i in Scene.objects){
-	// 	// 	if (Scene.objects[i].renderer){
-	// 			// gl.enable( gl.BLEND );
-	// 			// gl.blendFunc( gl.ONE, gl.ONE );
-	// 			// gl.depthMask(false);
-	// 			// gl.depthFunc(gl.LEQUAL);
-
-	// 			mrot = Scene.objects[i].transform.globalModel;
-
-	// 			mat4.multiply(temp,cam.view,mrot); //modelview
-	// 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
-	// 			//compute rotation matrix for normals
-
-	// 			if (Scene.objects[i].renderer.texture)
-	// 				Scene.objects[i].renderer.texture.bind(0);
-
-	// 			uniforms = {
-	// 		    	m:mrot,
-	// 		    	v:cam.view,
-	// 		    	p:cam.projection,
-	// 		    	mvp:cam.mvp,
-	// 		    	cameraPosition: cam.owner.transform.position,
-	// 		    	nearPlane: cam.near,
-	// 		    	farPlane: cam.far,
-	// 		    	uTexture: 0
-	// 			};
-
-	// 			Scene.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
-	// 			if (Scene.shader)
-	// 				Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
-	// 	// 	}
-	// 	// }
-	// });
-	// 	gl.disable( gl.DEPTH_TEST );
-	// 	// depthTexture.toCanvas(gl.canvas);
-	// 	gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
-	// 	gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
-	// 	gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
-
-	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		gl.enable( gl.DEPTH_TEST );
-		
-		// for (var i in Scene.objects){
-		// 	if (Scene.objects[i].renderer){
-				// gl.enable( gl.BLEND );
-				// gl.blendFunc( gl.ONE, gl.ONE );
-				// gl.depthMask(false);
-				// gl.depthFunc(gl.LEQUAL);
+		gl.disable( gl.CULL_FACE );
+		gl.disable( gl.BLEND );
 
-				mrot = Scene.objects[i].transform.globalModel;
+		uniforms = {
+			m:mrot,
+			v:cam.view,
+			p:cam.projection,
+			mvp:cam.mvp,
+			umodelt:modelt,
+			cameraPosition: cam.owner.transform.position,
+			nearPlane: cam.near,
+			farPlane: cam.far,
+			uTexture: 6
+		};
+			
+		 for (var i = 0; i < Scene.objects.length ; ++i){
+			var object = Scene.objects[i];
+		 	if (!object.renderer)
+				continue;
 
-				mat4.multiply(temp,cam.view,mrot); //modelview
-				mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
-				//compute rotation matrix for normals
+			gl.enable( gl.CULL_FACE );
 
-				if (Scene.objects[i].renderer.texture)
-					Scene.objects[i].renderer.texture.bind(0);
+			mrot = object.transform.globalModel;
 
-				uniforms = {
-			    	m:mrot,
-			    	v:cam.view,
-			    	p:cam.projection,
-			    	mvp:cam.mvp,
-			    	cameraPosition: cam.owner.transform.position,
-			    	nearPlane: cam.near,
-			    	farPlane: cam.far,
-			    	uTexture: 0
-				};
+			mat4.multiply(temp,cam.view,mrot); //modelview
+			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+			//compute rotation matrix for normals
+			mat4.toRotationMat4(modelt, mrot);
 
-				Scene.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
-				if (Scene.shader)
-					Scene.shader.uniforms(uniforms).draw(Scene.objects[i].renderer.mesh);
-		// 	}
+			if (object.renderer.texture)
+				object.renderer.texture.bind(6);
+
+			Scene.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
+			if (Scene.shader)
+				Scene.shader.uniforms(uniforms).draw(object.renderer.mesh);
+		 }
+	});
+
+
+gl.disable( gl.DEPTH_TEST );
+// gl.disable( gl.CULL_FACE );
+
+gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
+gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
+gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
+
+// diffuseTexture.bind(0);
+// depthTexture.bind(1);
+// normalsTexture.bind(2);
+// Scene.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+// uniforms = {
+// 			m:mrot,
+// 			v:cam.view,
+// 			p:cam.projection,
+// 			mvp:cam.mvp,
+// 			umodelt:modelt,
+// 			uAlbedoText:0,
+// 			uNormalText:1,
+// 			uDepthText:2
+// }
+// 			if (Scene.shader)
+// 				Scene.shader.toViewport(uniforms);
 
 }
 

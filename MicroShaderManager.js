@@ -16,8 +16,14 @@ var MicroShaderManager = {
 			if (this.shaders[name] == null){
 				this.vertexSource = this.composeShader(vertex);
 				this.fragmentSource = this.composeShader(fragment);
-				this.shaders[name] = new GL.Shader(this.vertexSource,this.fragmentSource);
-				return this.shaders[name];
+				if(!this.vertexSource || !this.fragmentSource)
+					return null;
+
+
+				var shader = new GL.Shader(this.vertexSource,this.fragmentSource);
+				this.shaders[name] = shader;
+				shader.ps_code = this.fragmentSource;
+				return shader;
 			}else{
 				return this.shaders[name];
 			}
@@ -32,6 +38,9 @@ var MicroShaderManager = {
 		for (var m in micros){
 			var micro = micros[m]
 			var shader = this.microShaders[micro];
+			if(!shader)
+				return null;
+
 			shaderHeader += shader.header+"\n";
 			shaderCode   += shader.maincode+"\n";
 		}

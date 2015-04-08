@@ -374,6 +374,7 @@
 			varying vec3 vNormalDirection;  // surface normal vector in world space
 			varying vec2 vTextureCoord;		
 
+			uniform mat4 umodelt;
 			uniform mat4 m, v, p;			//model, view, projection
 			uniform mat4 mvp;
 			]]>
@@ -381,10 +382,26 @@
 		<maincode><![CDATA[
 			vTextureCoord = a_coord;
 			vPosition = m * vec4(a_vertex,1.0);
-			vNormalDirection = normalize(m * vec4(a_normal,0.0)).xyz;
+			vNormalDirection = normalize(umodelt * vec4(a_normal,0.0)).xyz;
 			gl_Position = mvp * vec4(a_vertex,1.0);
 			]]>
 		</maincode>
 	</micro_shader>
-	
+	<micro_shader>
+		<name>deferred_fragment</name>
+		<header>
+			<![CDATA[
+			varying vec2 vTextureCoord;		
+			uniform sampler2D uAlbedoText;
+			uniform sampler2D uNormalText;
+			uniform sampler2D uDepthText;
+			]]>
+		</header>
+		<maincode>
+			<![CDATA[
+			vec4 color = texture2D( uAlbedoText, vTextureCoord);
+			gl_FragColor = color;
+			]]>	
+		</maincode>
+	</micro_shader>
 </micro_shader_library>
