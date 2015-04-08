@@ -32,7 +32,8 @@ function GUI(){
 		var guiObject = gui.addFolder(gameObject.name);
 		guiObject.add(gameObject, 'enabled').name('Enabled').listen();
 
-		addColor(guiObject,gameObject.color,'Color');
+		if (gameObject.renderer)
+			addColor(guiObject,gameObject.color,'Color');
 
 		for (var c in gameObject.components){
 			if (gameObject.components[c] == 'transform') GUI.transform(guiObject,gameObject[gameObject.components[c]]);

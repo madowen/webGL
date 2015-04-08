@@ -23,6 +23,7 @@ var MicroShaderManager = {
 				var shader = new GL.Shader(this.vertexSource,this.fragmentSource);
 				this.shaders[name] = shader;
 				shader.ps_code = this.fragmentSource;
+				shader.vs_code = this.vertexSource;
 				return shader;
 			}else{
 				return this.shaders[name];

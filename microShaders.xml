@@ -400,7 +400,7 @@
 		<maincode>
 			<![CDATA[
 			vec4 color = texture2D( uAlbedoText, vTextureCoord);
-			gl_FragColor = color;
+			gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 			]]>	
 		</maincode>
 	</micro_shader>

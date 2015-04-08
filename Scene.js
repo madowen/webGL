@@ -202,28 +202,39 @@ Scene.deferredRender = function(){
 
 
 gl.disable( gl.DEPTH_TEST );
-// gl.disable( gl.CULL_FACE );
 
-gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
-gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
-gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
+// gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
+// gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
+// gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 
-// diffuseTexture.bind(0);
-// depthTexture.bind(1);
-// normalsTexture.bind(2);
-// Scene.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
-// uniforms = {
-// 			m:mrot,
-// 			v:cam.view,
-// 			p:cam.projection,
-// 			mvp:cam.mvp,
-// 			umodelt:modelt,
-// 			uAlbedoText:0,
-// 			uNormalText:1,
-// 			uDepthText:2
-// }
-// 			if (Scene.shader)
-// 				Scene.shader.toViewport(uniforms);
+diffuseTexture.bind(0);
+depthTexture.bind(1);
+normalsTexture.bind(2);
+Scene.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+uniforms = {
+			m:mrot,
+			v:cam.view,
+			p:cam.projection,
+			mvp:cam.mvp,
+			umodelt:modelt,
+			uAlbedoText:0,
+			uNormalText:1,
+			uDepthText:2
+};
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.enable( gl.DEPTH_TEST );
+		gl.enable( gl.CULL_FACE );
+		gl.disable( gl.BLEND );
+
+			mrot = mat4.identity(mrot);
+
+			mat4.multiply(temp,cam.view,mrot); //modelview
+			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+			//compute rotation matrix for normals
+			mat4.toRotationMat4(modelt, mrot);
+
+			if (Scene.shader)
+				Scene.shader.uniforms(uniforms).draw(GL.Mesh.getScreenQuad());
 
 }
 
