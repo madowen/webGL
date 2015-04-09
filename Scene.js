@@ -49,99 +49,97 @@ Scene.forwardRender = function(){
 	//create modelview and projection matrices
 	gl.disable(gl.BLEND);
 	gl.enable(gl.DEPTH_TEST);
-	for (var i in this.objects){
-		if (this.objects[i].enabled){
-			var firstLight = true;
-			if (this.objects[i].renderer){
-				for (var l in this.lights){
-					var Diffuse = this.lights[l].diffuse;
-					var Specular = this.lights[l].specular;
-					var Ambient = this.lights[l].ambient;
-					if (!this.lights[l].enabled || !this.lights[l].owner.enabled){
-				    	Diffuse = [0,0,0,1];
-				    	Specular = [0,0,0,1];
-				    	Ambient = [0,0,0,1];
-					}
-					if(!firstLight){
-						gl.enable( gl.BLEND );
-						gl.blendFunc( gl.ONE, gl.ONE );
-						gl.depthMask(false);
-						gl.depthFunc(gl.LEQUAL);
-					}else{
-						gl.disable(gl.BLEND);
-						gl.depthMask(true);
-					}
-					var modelt = mat4.create();
-					var temp = mat4.create();
-					var mrot = this.objects[i].transform.globalModel;
-
-					mat4.multiply(temp,cam.view,mrot); //modelview
-					mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
-					//compute rotation matrix for normals
-					mat4.toRotationMat4(modelt, mrot);
-
-					if (this.objects[i].renderer.texture)
-						this.objects[i].renderer.texture.bind(0);
-
-
-					var t = this.lights[l].type;
-				    //render mesh using the shader
-				    if (this.renderMode == Scene.FULL){
-						if (t == Light.DIRECTIONAL || t == Light.AMBIENT)
-							this.shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
-						else if (t == Light.POINT)
-							this.shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
-						else if (t == Light.SPOT)
-							this.shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
-					}
-				    else if (this.renderMode == Scene.ALBEDO ){
-						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
-					}
-				    else if (this.renderMode == Scene.DEPTH){
-						this.shader = MicroShaderManager.getShader("depth_deferred_rendering",["fulllight_vertex"],["depth_deferred_fragment"],"microShaders.xml");
-				    }
-				    else if (this.renderMode == Scene.NORMAL){
-						this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
-				    }
-				    if (this.objects[i].name == "gizmo")
-						this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
-					if (this.shader)
-				    this.shader.uniforms({
-				    	m:mrot,
-				    	v:cam.view,
-				    	p:cam.projection,
-				    	mvp:cam.mvp,
-				    	umodelt:modelt,
-				    	v_inv:mat4.invert(mat4.create(),cam.view),
-				    	uTexture: 0,
-				    	uLPosition: this.lights[l].position,
-				    	uLDirection: this.lights[l].direction,
-				    	uLType: this.lights[l].type,
-				    	uLRange: this.lights[l].range,
-				    	uLIntensity: this.lights[l].intensity,
-				    	uLSpotAngle: this.lights[l].spotAngle,
-				    	uLSpotExponent: this.lights[l].spotExponent,
-				    	uLDiffuse: Diffuse,
-				    	uLSpecular: Specular,
-				    	uLAmbient: Ambient,
-				    	uLConstantAttenuation: this.lights[l].constantAttenuation,
-				    	uLLinearAttenuation: this.lights[l].linearAttenuation,
-				    	uLQuadraticAttenuation: this.lights[l].quadraticAttenuation,
-				    	uOColor: this.objects[i].color,
-				    	cameraPosition: cam.owner.transform.position,
-				    	nearPlane: cam.near,
-				    	farPlane: cam.far
-				    }).draw(this.objects[i].renderer.mesh);
-
-					// if next object do not have texture, it won't get it from the buffer
-					if (this.objects[i].renderer.texture)
-						this.objects[i].renderer.texture.unbind(0);
-					firstLight = false;
-				}
-			
+	for (var i = 0; i < this.objects.length; i++){
+		var object = this.objects[i];
+		var firstLight = true;
+		if (!object.enabled) continue;
+		if (!object.renderer) continue;
+		for (var l = 0; l < this.lights.length; l++){
+			var light = this.lights[l];
+			var Diffuse = light.diffuse;
+			var Specular = light.specular;
+			var Ambient = light.ambient;
+			if (!light.enabled || !light.owner.enabled){
+		    	Diffuse = [0,0,0,1];
+		    	Specular = [0,0,0,1];
+		    	Ambient = [0,0,0,1];
 			}
+			if(!firstLight){
+				gl.enable( gl.BLEND );
+				gl.blendFunc( gl.ONE, gl.ONE );
+				gl.depthMask(false);
+				gl.depthFunc(gl.LEQUAL);
+			}else{
+				gl.disable(gl.BLEND);
+				gl.depthMask(true);
+			}
+			var modelt = mat4.create();
+			var temp = mat4.create();
+			var mrot = object.transform.globalModel;
+
+			mat4.multiply(temp,cam.view,mrot); //modelview
+			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+			//compute rotation matrix for normals
+			mat4.toRotationMat4(modelt, mrot);
+
+			if (object.renderer.texture)
+				object.renderer.texture.bind(0);
+
+
+			var t = light.type;
+		    //render mesh using the shader
+		    if (this.renderMode == Scene.FULL){
+				if (t == Light.DIRECTIONAL || t == Light.AMBIENT)
+					this.shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
+				else if (t == Light.POINT)
+					this.shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
+				else if (t == Light.SPOT)
+					this.shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
+			}
+		    else if (this.renderMode == Scene.ALBEDO ){
+				this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+			}
+		    else if (this.renderMode == Scene.DEPTH){
+				this.shader = MicroShaderManager.getShader("depth_deferred_rendering",["fulllight_vertex"],["depth_deferred_fragment"],"microShaders.xml");
+		    }
+		    else if (this.renderMode == Scene.NORMAL){
+				this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
+		    }
+		    if (object.name == "gizmo")
+				this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
+			if (this.shader)
+		    this.shader.uniforms({
+		    	m:mrot,
+		    	v:cam.view,
+		    	p:cam.projection,
+		    	mvp:cam.mvp,
+		    	umodelt:modelt,
+		    	v_inv:mat4.invert(mat4.create(),cam.view),
+		    	uTexture: 0,
+		    	uLPosition: light.position,
+		    	uLDirection: light.direction,
+		    	uLType: light.type,
+		    	uLRange: light.range,
+		    	uLIntensity: light.intensity,
+		    	uLSpotAngle: light.spotAngle,
+		    	uLSpotExponent: light.spotExponent,
+		    	uLDiffuse: Diffuse,
+		    	uLSpecular: Specular,
+		    	uLAmbient: Ambient,
+		    	uLConstantAttenuation: light.constantAttenuation,
+		    	uLLinearAttenuation: light.linearAttenuation,
+		    	uLQuadraticAttenuation: light.quadraticAttenuation,
+		    	uOColor: object.color,
+		    	cameraPosition: cam.owner.transform.position,
+		    	nearPlane: cam.near,
+		    	farPlane: cam.far
+		    }).draw(object.renderer.mesh);
+
+			// if next object do not have texture, it won't get it from the buffer
+			if (object.renderer.texture)
+				object.renderer.texture.unbind(0);
+			firstLight = false;
 		}
-		firstLight = true;
 	}
 }
 
