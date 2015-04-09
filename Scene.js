@@ -46,16 +46,51 @@ Scene.draw = function(){
 
 Scene.forwardRender = function(){
 	var cam = this.cameras[this.activeCamera];
-	//create modelview and projection matrices
+	var light = {};
+	var object = {};
+	var modelt = {};
+	var temp = {};
+	var mrot = mat4.create();
+	var v_inv = {};
+	var Diffuse = {};
+	var Specular = {};
+	var Ambient = {};
+	var uniforms = {
+		m:mrot,
+		v:cam.view,
+		p:cam.projection,
+		mvp:cam.mvp,
+		umodelt:modelt,
+		v_inv:v_inv,
+		uTexture: 0,
+		uLPosition: light.position,
+		uLDirection: light.direction,
+		uLType: light.type,
+		uLRange: light.range,
+		uLIntensity: light.intensity,
+		uLSpotAngle: light.spotAngle,
+		uLSpotExponent: light.spotExponent,
+		uLDiffuse: Diffuse,
+		uLSpecular: Specular,
+		uLAmbient: Ambient,
+		uLConstantAttenuation: light.constantAttenuation,
+		uLLinearAttenuation: light.linearAttenuation,
+		uLQuadraticAttenuation: light.quadraticAttenuation,
+		uOColor: object.color,
+		cameraPosition: cam.owner.transform.position,
+		nearPlane: cam.near,
+		farPlane: cam.far
+	}
+
 	gl.disable(gl.BLEND);
 	gl.enable(gl.DEPTH_TEST);
 	for (var i = 0; i < this.objects.length; i++){
-		var object = this.objects[i];
+		object = this.objects[i];
 		var firstLight = true;
 		if (!object.enabled) continue;
 		if (!object.renderer) continue;
 		for (var l = 0; l < this.lights.length; l++){
-			var light = this.lights[l];
+			light = this.lights[l];
 			var Diffuse = light.diffuse;
 			var Specular = light.specular;
 			var Ambient = light.ambient;
@@ -73,71 +108,19 @@ Scene.forwardRender = function(){
 				gl.disable(gl.BLEND);
 				gl.depthMask(true);
 			}
-			var modelt = mat4.create();
-			var temp = mat4.create();
-			var mrot = object.transform.globalModel;
+			modelt = mat4.create();
+			temp = mat4.create();
+			mrot = object.transform.globalModel;
+			v_inv = mat4.invert(mat4.create(),cam.view);
 
 			mat4.multiply(temp,cam.view,mrot); //modelview
 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 			//compute rotation matrix for normals
 			mat4.toRotationMat4(modelt, mrot);
 
-			if (object.renderer.texture)
-				object.renderer.texture.bind(0);
 
+		    object.renderer.render(this.renderMode,uniforms,light);
 
-			var t = light.type;
-		    //render mesh using the shader
-		    if (this.renderMode == Scene.FULL){
-				if (t == Light.DIRECTIONAL || t == Light.AMBIENT)
-					this.shader = MicroShaderManager.getShader("lightDir",["fulllight_vertex"],["light_directional","light_phong","phong","basic_fragment"],'microShaders.xml');
-				else if (t == Light.POINT)
-					this.shader = MicroShaderManager.getShader("lightPoint",["fulllight_vertex"],["light_point","light_phong","phong","basic_fragment"],'microShaders.xml');
-				else if (t == Light.SPOT)
-					this.shader = MicroShaderManager.getShader("lightSpot",["fulllight_vertex"],["light_spot","light_phong","phong","basic_fragment"],'microShaders.xml');
-			}
-		    else if (this.renderMode == Scene.ALBEDO ){
-				this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
-			}
-		    else if (this.renderMode == Scene.DEPTH){
-				this.shader = MicroShaderManager.getShader("depth_deferred_rendering",["fulllight_vertex"],["depth_deferred_fragment"],"microShaders.xml");
-		    }
-		    else if (this.renderMode == Scene.NORMAL){
-				this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
-		    }
-		    if (object.name == "gizmo")
-				this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
-			if (this.shader)
-		    this.shader.uniforms({
-		    	m:mrot,
-		    	v:cam.view,
-		    	p:cam.projection,
-		    	mvp:cam.mvp,
-		    	umodelt:modelt,
-		    	v_inv:mat4.invert(mat4.create(),cam.view),
-		    	uTexture: 0,
-		    	uLPosition: light.position,
-		    	uLDirection: light.direction,
-		    	uLType: light.type,
-		    	uLRange: light.range,
-		    	uLIntensity: light.intensity,
-		    	uLSpotAngle: light.spotAngle,
-		    	uLSpotExponent: light.spotExponent,
-		    	uLDiffuse: Diffuse,
-		    	uLSpecular: Specular,
-		    	uLAmbient: Ambient,
-		    	uLConstantAttenuation: light.constantAttenuation,
-		    	uLLinearAttenuation: light.linearAttenuation,
-		    	uLQuadraticAttenuation: light.quadraticAttenuation,
-		    	uOColor: object.color,
-		    	cameraPosition: cam.owner.transform.position,
-		    	nearPlane: cam.near,
-		    	farPlane: cam.far
-		    }).draw(object.renderer.mesh);
-
-			// if next object do not have texture, it won't get it from the buffer
-			if (object.renderer.texture)
-				object.renderer.texture.unbind(0);
 			firstLight = false;
 		}
 	}
