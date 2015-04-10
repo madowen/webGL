@@ -85,18 +85,18 @@ function init(){
 	ol3.addComponent(l3);
 	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
 	l3.type = 0;
-	l3.intensity = 0.7;
+	l3.intensity = 0.3;
 	l3.diffuse = [0.05,0.1,0.9,1];
 	l3.specular = [0.5,0.1,0.9,1];
 	Scene.addLight(l3);
 	Scene.addObject(ol3);
 	
 	var obj = new GameObject("floor");
-	obj.transform.position = [100,100,100]
+	obj.transform.position = [100,100,100];
 	var ren = new Renderer();
 	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
@@ -117,7 +117,7 @@ function init(){
 	var ren = new Renderer();
 	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
 	obj.transform.rotateLocal(-90,[0,0,1]);
 	obj.addComponent(ren);
@@ -128,19 +128,20 @@ function init(){
 	var ren = new Renderer();
 	ren.mesh = GL.Mesh.plane({xz:true});
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
 	obj.transform.rotateLocal(-90,[1,0,0]);
 	obj.addComponent(ren);
-	// Scene.addObject(obj);
+	Scene.addObject(obj);
 
 	obj = new GameObject("sphere");
 	obj.transform.position = [100,102,100]
 	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cube();
+	ren.mesh = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [1,1,1];
+	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 	

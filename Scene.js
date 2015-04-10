@@ -72,14 +72,7 @@ Scene.forwardRender = function(){
 		if (!object.renderer) continue;
 		for (var l = 0; l < this.lights.length; l++){
 			light = this.lights[l];
-				lDiffuse  = light.diffuse;
-				lSpecular = light.specular;
-				lAmbient  = light.ambient;
-			if (!light.enabled || !light.owner.enabled){
-		    	lDiffuse = [0,0,0,1];
-		    	lSpecular = [0,0,0,1];
-		    	lAmbient = [0,0,0,1];
-			}
+			if (!light.enabled || !light.owner.enabled) continue;
 			if(!firstLight){
 				gl.enable( gl.BLEND );
 				gl.blendFunc( gl.ONE, gl.ONE );
@@ -112,9 +105,9 @@ Scene.forwardRender = function(){
 				uLIntensity: light.intensity,
 				uLSpotAngle: light.spotAngle,
 				uLSpotExponent: light.spotExponent,
-				uLDiffuse: lDiffuse,
-				uLSpecular: lSpecular,
-				uLAmbient: lAmbient,
+				uLDiffuse: light.diffuse,
+				uLSpecular: light.specular,
+				uLAmbient: light.ambient,
 				uLConstantAttenuation: light.constantAttenuation,
 				uLLinearAttenuation: light.linearAttenuation,
 				uLQuadraticAttenuation: light.quadraticAttenuation,
