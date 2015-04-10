@@ -43,61 +43,42 @@ Scene.draw = function(){
 		this.deferredRender();
 	}
 }
+	var uniforms = {};
 
 Scene.forwardRender = function(){
 	var cam = this.cameras[this.activeCamera];
-	var light = {};
-	var object = {};
-	var modelt = {};
-	var temp = {};
-	var mrot = mat4.create();
-	var v_inv = {};
-	var Diffuse = {};
-	var Specular = {};
-	var Ambient = {};
-	var uniforms = {
-		m:mrot,
-		v:cam.view,
-		p:cam.projection,
-		mvp:cam.mvp,
-		umodelt:modelt,
-		v_inv:v_inv,
-		uTexture: 0,
-		uLPosition: light.position,
-		uLDirection: light.direction,
-		uLType: light.type,
-		uLRange: light.range,
-		uLIntensity: light.intensity,
-		uLSpotAngle: light.spotAngle,
-		uLSpotExponent: light.spotExponent,
-		uLDiffuse: Diffuse,
-		uLSpecular: Specular,
-		uLAmbient: Ambient,
-		uLConstantAttenuation: light.constantAttenuation,
-		uLLinearAttenuation: light.linearAttenuation,
-		uLQuadraticAttenuation: light.quadraticAttenuation,
-		uOColor: object.color,
-		cameraPosition: cam.owner.transform.position,
-		nearPlane: cam.near,
-		farPlane: cam.far
-	}
+	// var light = this.lights[1];
+	// var object = this.objects[0];
+	// var modelt = mat4.create();
+	// var temp = mat4.create();
+	// var mrot = null;
+	// var v_inv = null;
+	// var lDiffuse = light.diffuse;
+	// var lSpecular = light.specular;
+	// var lAmbient = light.ambient;
+	// var lPosition,lDirection,lType,lRange,lIntensity,lSpotAngle,lSpotExponent,lDiffuse,lSpecular,lAmbient;
+	// var lConstantAttenuation,lLinearAttenuation,lQuadraticAttenuation;
+	// var oColor;
+	
+	
 
 	gl.disable(gl.BLEND);
 	gl.enable(gl.DEPTH_TEST);
 	for (var i = 0; i < this.objects.length; i++){
 		object = this.objects[i];
+		oColor = object.color;
 		var firstLight = true;
 		if (!object.enabled) continue;
 		if (!object.renderer) continue;
 		for (var l = 0; l < this.lights.length; l++){
 			light = this.lights[l];
-			var Diffuse = light.diffuse;
-			var Specular = light.specular;
-			var Ambient = light.ambient;
+				lDiffuse  = light.diffuse;
+				lSpecular = light.specular;
+				lAmbient  = light.ambient;
 			if (!light.enabled || !light.owner.enabled){
-		    	Diffuse = [0,0,0,1];
-		    	Specular = [0,0,0,1];
-		    	Ambient = [0,0,0,1];
+		    	lDiffuse = [0,0,0,1];
+		    	lSpecular = [0,0,0,1];
+		    	lAmbient = [0,0,0,1];
 			}
 			if(!firstLight){
 				gl.enable( gl.BLEND );
@@ -108,15 +89,53 @@ Scene.forwardRender = function(){
 				gl.disable(gl.BLEND);
 				gl.depthMask(true);
 			}
-			modelt = mat4.create();
-			temp = mat4.create();
 			mrot = object.transform.globalModel;
 			v_inv = mat4.invert(mat4.create(),cam.view);
-
+			
 			mat4.multiply(temp,cam.view,mrot); //modelview
 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 			//compute rotation matrix for normals
 			mat4.toRotationMat4(modelt, mrot);
+
+			uniforms = {
+				m:mrot,
+				v:cam.view,
+				p:cam.projection,
+				mvp:cam.mvp,
+				umodelt:modelt,
+				v_inv:v_inv,
+				uTexture: 0,
+				uLPosition: light.position,
+				uLDirection: light.direction,
+				uLType: light.type,
+				uLRange: light.range,
+				uLIntensity: light.intensity,
+				uLSpotAngle: light.spotAngle,
+				uLSpotExponent: light.spotExponent,
+				uLDiffuse: lDiffuse,
+				uLSpecular: lSpecular,
+				uLAmbient: lAmbient,
+				uLConstantAttenuation: light.constantAttenuation,
+				uLLinearAttenuation: light.linearAttenuation,
+				uLQuadraticAttenuation: light.quadraticAttenuation,
+				uOColor: object.color,
+				cameraPosition: cam.owner.transform.position,
+				nearPlane: cam.near,
+				farPlane: cam.far
+			}
+			// lPosition = light.position;
+			// lDirection = light.direction;
+			// lType = light.type;
+			// lRange = light.range;
+			// lIntensity = light.intensity;
+			// lSpotAngle = light.spotAngle;
+			// lSpotExponent = light.spotExponent;
+			// lConstantAttenuation = light.constantAttenuation;
+			// lLinearAttenuation = light.linearAttenuation;
+			// lQuadraticAttenuation = light.quadraticAttenuation;
+
+
+
 
 
 		    object.renderer.render(this.renderMode,uniforms,light);
@@ -134,7 +153,6 @@ Scene.forwardRender = function(){
 	var temp = mat4.create();
 	var mrot;
 	var i;
-	var uniforms = {};
 	var cam;
 
 Scene.deferredRender = function(){
@@ -182,40 +200,40 @@ Scene.deferredRender = function(){
 	});
 
 
-gl.disable( gl.DEPTH_TEST );
+	gl.disable( gl.DEPTH_TEST );
 
-// gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
-// gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
-// gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
+	// gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
+	// gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
+	// gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 
-diffuseTexture.bind(0);
-depthTexture.bind(1);
-normalsTexture.bind(2);
-Scene.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
-uniforms = {
-			m:mrot,
-			v:cam.view,
-			p:cam.projection,
-			mvp:cam.mvp,
-			umodelt:modelt,
-			uAlbedoText:0,
-			uNormalText:1,
-			uDepthText:2
-};
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-		gl.enable( gl.DEPTH_TEST );
-		gl.enable( gl.CULL_FACE );
-		gl.disable( gl.BLEND );
+	diffuseTexture.bind(0);
+	depthTexture.bind(1);
+	normalsTexture.bind(2);
+	Scene.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+	uniforms = {
+				m:mrot,
+				v:cam.view,
+				p:cam.projection,
+				mvp:cam.mvp,
+				umodelt:modelt,
+				uAlbedoText:0,
+				uNormalText:1,
+				uDepthText:2
+	};
+	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+	gl.enable( gl.DEPTH_TEST );
+	gl.enable( gl.CULL_FACE );
+	gl.disable( gl.BLEND );
 
-			mrot = mat4.identity(mrot);
+	mrot = mat4.identity(mrot);
 
-			mat4.multiply(temp,cam.view,mrot); //modelview
-			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
-			//compute rotation matrix for normals
-			mat4.toRotationMat4(modelt, mrot);
+	mat4.multiply(temp,cam.view,mrot); //modelview
+	mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
+	//compute rotation matrix for normals
+	mat4.toRotationMat4(modelt, mrot);
 
-			if (Scene.shader)
-				Scene.shader.uniforms(uniforms).draw(GL.Mesh.getScreenQuad());
+	if (Scene.shader)
+		Scene.shader.uniforms(uniforms).draw(GL.Mesh.getScreenQuad());
 
 }
 
