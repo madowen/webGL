@@ -4,13 +4,13 @@ function Renderer(mesh,texture,shader){
 	this.texture = texture;
 	this.shader = shader;
 
-	Renderer.prototype.render = function(renderMode,uniforms,light){
+	Renderer.prototype.render = function(renderMode,uniforms,type){
 
 		if (this.texture)
 			this.texture.bind(0);
 
 
-		var t = light.type;
+		var t = type;
 	    //render mesh using the shader
 	    if (renderMode == Scene.FULL){
 			if (t == Light.DIRECTIONAL || t == Light.AMBIENT)

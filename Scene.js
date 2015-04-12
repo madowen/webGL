@@ -102,7 +102,7 @@ Scene.forwardRender = function(){
 				farPlane: cam.far
 			}
 
-		    object.renderer.render(this.renderMode,uniforms,light);
+		    object.renderer.render(this.renderMode,uniforms,light.type);
 
 			firstLight = false;
 		}
