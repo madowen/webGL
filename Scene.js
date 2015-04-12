@@ -129,17 +129,7 @@ Scene.deferredRender = function(){
 		gl.disable( gl.CULL_FACE );
 		gl.disable( gl.BLEND );
 
-		uniforms = {
-			m:mrot,
-			v:cam.view,
-			p:cam.projection,
-			mvp:cam.mvp,
-			umodelt:modelt,
-			cameraPosition: cam.owner.transform.position,
-			nearPlane: cam.near,
-			farPlane: cam.far,
-			uTexture: 6
-		};
+
 			
 		 for (var i = 0; i < Scene.objects.length ; ++i){
 			var object = Scene.objects[i];
@@ -154,6 +144,18 @@ Scene.deferredRender = function(){
 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 			//compute rotation matrix for normals
 			mat4.toRotationMat4(modelt, mrot);
+
+		uniforms = {
+			m:mrot,
+			v:cam.view,
+			p:cam.projection,
+			mvp:cam.mvp,
+			umodelt:modelt,
+			cameraPosition: cam.owner.transform.position,
+			nearPlane: cam.near,
+			farPlane: cam.far,
+			uTexture: 6
+		};
 
 			if (object.renderer.texture)
 				object.renderer.texture.bind(6);
