@@ -310,17 +310,22 @@
 		</header>
 		<maincode><![CDATA[
 				float d = 10.0;
-				float depth = abs(length(cameraPosition - vPosition.xyz));
-				float x = mod(depth,d);
-				depth = depth/d;
-				float y = mod(depth,d);
-				float z = depth/d;
+				float distance = abs(length(cameraPosition - vPosition.xyz));
+				float x = mod(distance,d);
+				distance = distance/d;
+				float y = mod(distance,d);
+				float z = distance/d;
 				vec4 color;
 				color.x =  x/d;
 				color.y =  y/d;
 				color.z =  z/d;
 				color.w = 1.0;
-				gl_FragColor = color;
+
+				float depth = length(cameraPosition - vPosition.xyz);
+				depth = (depth-nearPlane)/(farPlane-nearPlane);
+				vec4 depthGray = vec4(depth);
+
+				gl_FragColor = depthGray;
 			]]>
 		</maincode>
 	</micro_shader>
@@ -359,7 +364,7 @@
 
 				gl_FragData[0] = texture2D( uTexture, vTextureCoord);
 				gl_FragData[1] = vec4(depth);
-				gl_FragData[2] = vec4(0.5 * normalize(vNormalDirection) + 1.0,1.0);
+				gl_FragData[2] = abs(normalize(vec4(vNormalDirection.xyz,0)));
 			]]>
 		</maincode>
 	</micro_shader>
@@ -381,8 +386,8 @@
 		</header>
 		<maincode><![CDATA[
 			vTextureCoord = a_coord;
-			vPosition = (m * vec4(a_vertex,1.0)).xyz;
-			vNormalDirection = (m * vec4(a_normal,0.0)).xyz;
+			vPosition = m * vec4(a_vertex,1.0);
+			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
 			gl_Position = mvp * vec4(a_vertex,1.0);
 			]]>
 		</maincode>
@@ -391,10 +396,7 @@
 		<name>deferred_fragment</name>
 		<header>
 			<![CDATA[
-			varying vec3 vPosition;  		// position of the vertex (and fragment) in world space
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec2 vTextureCoord;		
-
+			varying vec2 v_coord;		
 			uniform sampler2D uAlbedoText;
 			uniform sampler2D uNormalText;
 			uniform sampler2D uDepthText;
@@ -402,9 +404,26 @@
 		</header>
 		<maincode>
 			<![CDATA[
-			vec4 color = texture2D( uAlbedoText, vTextureCoord);
-			gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+			vec4 color = texture2D( uDepthText, v_coord);
+			gl_FragColor = color;
 			]]>	
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>SCREEN_VERTEX_SHADER</name>
+		<header>
+			<![CDATA[
+      attribute vec3 a_vertex;
+      attribute vec2 a_coord;
+      varying vec2 v_coord;
+      
+    			]]>
+		</header>
+		<maincode>
+			<![CDATA[
+		v_coord = a_coord;
+        gl_Position = vec4(a_coord * 2.0 - 1.0, 0.0, 1.0);
+      			]]>	
 		</maincode>
 	</micro_shader>
 </micro_shader_library>
