@@ -358,7 +358,8 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-				float depth = length(cameraPosition - vPosition.xyz);
+				//float depth = length(cameraPosition - vPosition.xyz);
+				float depth = length(cameraPosition - vec3(100,100,100));
 				depth = (depth-nearPlane)/(farPlane-nearPlane);
 
 
@@ -386,7 +387,7 @@
 		</header>
 		<maincode><![CDATA[
 			vTextureCoord = a_coord;
-			vPosition = m * vec4(vec3(100,100,100),1.0);
+			vPosition = m * vec4(a_vertex,1.0);
 			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
 			gl_Position = mvp * vec4(a_vertex,1.0);
 			]]>
@@ -401,7 +402,6 @@
 			uniform sampler2D uNormalText;
 			uniform sampler2D uDepthText;
             uniform vec4 viewport;
-            uniform mat4 viewProject;
             uniform mat4 inv_viewProject;
 
             vec3 unproject(float pixelX,float pixelY,float distZ){
@@ -413,11 +413,9 @@
                 v.z = 2.0 * distZ - 1.0;
                 v.w = 1.0;
                 
-                mat4 m = viewProject;
                 mat4 inv_m = inv_viewProject;
-                //if(!m) { return null; }
                 
-                v = v*m;
+                v = v*inv_m;
                 if(v.w == 0.0) { return vec3(0.0); }
                 vec3 pos;
                 pos.x = v.x / v.w;
