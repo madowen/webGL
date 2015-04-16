@@ -119,10 +119,12 @@ Scene.forwardRender = function(){
 	var i;
 	var uniforms = {};
 	var cam;
+	var viewport;
 
 Scene.deferredRender = function(){
 
 	cam = this.cameras[this.activeCamera];
+	viewport = vec4.fromValues(0,0,gl.canvas.width,gl.canvas.height);
 	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		gl.enable( gl.DEPTH_TEST );
@@ -178,11 +180,17 @@ Scene.deferredRender = function(){
 		depthTexture.bind(1);
 		normalsTexture.bind(2);
 
-		 Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
+		Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
+		
+		var viewProject = mat4.multiply(mat4.create(),cam.view,cam.projection);
+		var inv_viewProject = mat4.invert(mat4.create(),viewProject);
 		uniforms = {
-					uAlbedoText:0,
-					uDepthText:1,
-					uNormalText:2
+			uAlbedoText:0,
+			uDepthText:1,
+			uNormalText:2,
+			viewport: viewport,
+			viewProject: viewProject,
+			inv_viewProject: inv_viewProject
 		};
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);
