@@ -184,13 +184,14 @@ Scene.deferredRender = function(){
 		
 		var viewProject = mat4.multiply(mat4.create(),cam.view,cam.projection);
 		var inv_viewProject = mat4.invert(mat4.create(),viewProject);
+		
 		uniforms = {
 			uAlbedoText:0,
 			uDepthText:1,
 			uNormalText:2,
 			viewport: viewport,
 			viewProject: viewProject,
-			inv_viewProject: inv_viewProject
+			inv_viewProject: inv_viewProject,
 		};
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);
