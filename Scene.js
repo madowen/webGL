@@ -192,6 +192,8 @@ Scene.deferredRender = function(){
 			viewport: viewport,
 			viewProject: viewProject,
 			inv_viewProject: inv_viewProject,
+			nearPlane: cam.near,
+			farPlane: cam.far,
 		};
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);

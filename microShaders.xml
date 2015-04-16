@@ -403,7 +403,9 @@
 			uniform sampler2D uDepthText;
             uniform vec4 viewport;
             uniform mat4 inv_viewProject;
-
+			uniform float nearPlane;
+			uniform float farPlane;
+			
             vec3 unproject(float pixelX,float pixelY,float distZ){
             
                 vec4 v;
@@ -430,7 +432,8 @@
 		<maincode>
 			<![CDATA[
 			vec4 color = texture2D( uDepthText, v_coord);
-            vec3 pos = unproject(v_coord.x, v_coord.y, color.x);
+			float distZ = (farPlane-nearPlane) * color.x + nearPlane;
+            vec3 pos = unproject(v_coord.x, v_coord.y, distZ);
             if (pos == vec3(100,100,100))
 				gl_FragColor = vec4(0,1,0,1.0);
 			else
