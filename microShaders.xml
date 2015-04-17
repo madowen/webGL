@@ -364,7 +364,7 @@
 
 
 				gl_FragData[0] = texture2D( uTexture, vTextureCoord);
-				gl_FragData[1] = vec4(depth);
+				gl_FragData[1] = vec4(vPosition.xyz,1.0);
 				gl_FragData[2] = abs(normalize(vec4(vNormalDirection.xyz,0)));
 			]]>
 		</maincode>
@@ -431,13 +431,8 @@
 		</header>
 		<maincode>
 			<![CDATA[
-			vec4 color = texture2D( uDepthText, v_coord);
-			float distZ = (farPlane-nearPlane) * color.x + nearPlane;
-            vec3 pos = unproject(v_coord.x, v_coord.y, distZ);
-            if (pos == vec3(100,100,100))
-				gl_FragColor = vec4(0,1,0,1.0);
-			else
-				gl_FragColor = vec4(1,0,0,1.0);
+			vec4 position = texture2D( uDepthText, v_coord);
+				gl_FragColor = position;
 			]]>	
 		</maincode>
 	</micro_shader>
