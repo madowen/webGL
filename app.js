@@ -70,12 +70,14 @@ function init(){
 	var objlight = new GameObject("light1",[100,105,100]);
 	var light = new Light(Light.POINT);
 	objlight.addComponent(light);
+	objlight.enabled = false;
 	Scene.addLight(light);
 	Scene.addObject(objlight);
 	
 	var objlight = new GameObject("light2");
 	var light = new Light(Light.SPOT);
 	objlight.addComponent(light);
+	objlight.enabled = false;
 	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
 	Scene.addLight(light);
 	Scene.addObject(objlight);
@@ -86,8 +88,8 @@ function init(){
 	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
 	l3.type = 0;
 	l3.intensity = 0.3;
-	l3.diffuse = [0.05,0.1,0.9,1];
-	l3.specular = [0.5,0.1,0.9,1];
+	l3.diffuse = [0.8,0.8,0.8,1];
+	l3.specular = [0.8,0.8,0.8,1];
 	Scene.addLight(l3);
 	Scene.addObject(ol3);
 	
@@ -134,7 +136,7 @@ function init(){
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
-	obj = new GameObject("sphere");
+	obj = new GameObject("dragon");
 	obj.transform.position = [100,102,100]
 	var ren = new Renderer();
 	ren.mesh = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
@@ -144,6 +146,29 @@ function init(){
 	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
+
+	obj = new GameObject("sphere");
+	obj.transform.position = [97,103,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.sphere();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [0.5,0.5,0.5];
+	obj.transform.rotate(135,[0,1,0]);
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	obj = new GameObject("cylinder");
+	obj.transform.position = [97,100,100]
+	var ren = new Renderer();
+	ren.mesh = GL.Mesh.cylinder();
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [1,1,1];
+	obj.transform.rotate(135,[0,1,0]);
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
 	
 	obj = new GameObject("camera");
 	var cam = new Camera();
