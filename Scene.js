@@ -17,8 +17,9 @@ Scene.activeCamera = 0;
 Scene.render = Scene.DEFERRED; //0 = forward, 1 = deferred
 Scene.shader = null;
 
-var ambientLight = new Light(Light.AMBIENT,[0, 0, 0.6, 1]);
+var ambientLight = new Light(Light.AMBIENT,[0, 0, 0, 1]);
 ambientLight.owner = Scene;
+ambientLight.enabled = false;
 Scene.lights.push(ambientLight);
 
 Scene.renderMode = 0;
@@ -33,6 +34,7 @@ Scene.addLight = function(light){
 	this.lights.push(light);
 }
 Scene.draw = function(){
+	gl.clearColor(0.1,0.1,0.1,1);
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	this.shader = null;
 	//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
@@ -47,6 +49,9 @@ Scene.draw = function(){
 Scene.forwardRender = function(){
 	var cam = this.cameras[this.activeCamera];
 	//create modelview and projection matrices
+	gl.clearColor(0.1,0.1,0.1,1);
+	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
 	gl.disable(gl.BLEND);
 	gl.enable(gl.DEPTH_TEST);
 	for (var i = 0; i < this.objects.length; i++){
@@ -126,14 +131,17 @@ Scene.deferredRender = function(){
 	cam = this.cameras[this.activeCamera];
 	viewport = vec4.fromValues(0,0,gl.canvas.width,gl.canvas.height);
 	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		gl.enable( gl.DEPTH_TEST );
 		gl.disable( gl.CULL_FACE );
 		gl.disable( gl.BLEND );
 
+		gl.clearColor(0.1,0.1,0.1,1);
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
+		gl.disable(gl.BLEND);
+		gl.enable(gl.DEPTH_TEST);
 			
-		 for (var i = 0; i < Scene.objects.length ; ++i){
+		for (var i = 0; i < Scene.objects.length ; ++i){
 			var object = Scene.objects[i];
 		 	if (!object.renderer)
 				continue;
@@ -171,7 +179,7 @@ Scene.deferredRender = function(){
 
 	gl.disable( gl.DEPTH_TEST );
 
-	if (this.renderMode == Scene.FULL){
+	if (this.renderMode != Scene.FULL){
 		gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
@@ -179,24 +187,52 @@ Scene.deferredRender = function(){
 		diffuseTexture.bind(0);
 		depthTexture.bind(1);
 		normalsTexture.bind(2);
+	
+		gl.clearColor(0.1,0.1,0.1,1);
+		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+		gl.disable(gl.BLEND);
+		gl.enable(gl.DEPTH_TEST);
 
 		Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
-		
-		var viewProject = mat4.multiply(mat4.create(),cam.view,cam.projection);
-		var inv_viewProject = mat4.invert(mat4.create(),viewProject);
-		
-		uniforms = {
-			uAlbedoText:0,
-			uDepthText:1,
-			uNormalText:2,
-			viewport: viewport,
-			viewProject: viewProject,
-			inv_viewProject: inv_viewProject,
-			nearPlane: cam.near,
-			farPlane: cam.far,
-		};
+		var firstLight = true;		
+		for (var l = 0; l < this.lights.length; l++){
+			light = this.lights[3];
+			if (!light.enabled || !light.owner.enabled) continue;
+			if(!firstLight){
+				gl.enable( gl.BLEND );
+				gl.blendFunc( gl.ONE, gl.ONE );
+				gl.depthMask(false);
+				gl.depthFunc(gl.LEQUAL);
+			}else{
+				gl.disable(gl.BLEND);
+				gl.depthMask(true);
+			}		
+
+			v_inv = mat4.invert(mat4.create(),cam.view);
+
+			uniforms = {
+				uAlbedoText:0,
+				uDepthText:1,
+				uNormalText:2,
+				v_inv:v_inv,
+				uLPosition: light.position,
+				uLDirection: light.direction,
+				uLType: light.type,
+				uLRange: light.range,
+				uLIntensity: light.intensity,
+				uLSpotAngle: light.spotAngle,
+				uLSpotExponent: light.spotExponent,
+				uLDiffuse: light.diffuse,
+				uLSpecular: light.specular,
+				uLAmbient: light.ambient,
+				uLConstantAttenuation: light.constantAttenuation,
+				uLLinearAttenuation: light.linearAttenuation,
+				uLQuadraticAttenuation: light.quadraticAttenuation,
+
+			};
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);
+		}
 	}
 }
 
