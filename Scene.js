@@ -140,7 +140,7 @@ Scene.deferredRender = function(){
 
 			gl.enable( gl.CULL_FACE );
 
-			mrot = object.transform.globalModel;
+			mrot = object.transform.globalModel; 
 
 			mat4.multiply(temp,cam.view,mrot); //modelview
 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
