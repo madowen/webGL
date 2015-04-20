@@ -17,9 +17,11 @@ Scene.activeCamera = 0;
 Scene.render = Scene.DEFERRED; //0 = forward, 1 = deferred
 Scene.shader = null;
 
-var ambientLight = new Light(Light.AMBIENT,[0, 0, 0, 1]);
+var ambientLight = new Light();
+ambientLight.ambient = [0.005, 0.005, 0.005, 1];
+ambientLight.diffuse = [0, 0, 0, 1];
+ambientLight.specular = [0, 0, 0, 1];
 ambientLight.owner = Scene;
-ambientLight.enabled = false;
 Scene.lights.push(ambientLight);
 
 Scene.renderMode = 0;
@@ -201,7 +203,6 @@ Scene.deferredRender = function(){
 			if(!firstLight){
 				gl.enable( gl.BLEND );
 				gl.blendFunc( gl.ONE, gl.ONE );
-				gl.depthMask(false);
 				gl.depthFunc(gl.LEQUAL);
 			}else{
 				gl.disable(gl.BLEND);

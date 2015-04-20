@@ -7,16 +7,16 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.enabled = true;
 	
 	this.type = type || Light.DIRECTIONAL //directional = 0|| point = 1 ||spot = 2
-	this.ambient = ambient || [0.1,0.1,0.1,1.0];
+	this.ambient = ambient || [0.01,0.01,0.01,1.0];
 	this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
 	this.specular = specular || [0.9,0.9,0.9,1.0];
-	this.intensity = intensity || 0.8;
-	this.range = range || 2.0;
+	this.intensity = intensity || 0.88;
+	this.range = range || 1.0;
 	this.spotAngle = spotAngle || 30.0;
 	this.spotExponent = spotExponent || 1.0;
-	this.constantAttenuation = constantAttenuation || 0.5;
-	this.linearAttenuation = linearAttenuation || 0.4;
-	this.quadraticAttenuation = quadraticAttenuation || 0.1;
+	this.constantAttenuation = constantAttenuation || 0.09;
+	this.linearAttenuation = linearAttenuation || 0.08;
+	this.quadraticAttenuation = quadraticAttenuation ||  0.17;
 
 	this.gizmo = true || addGizmo;
 

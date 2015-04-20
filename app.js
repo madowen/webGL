@@ -67,14 +67,15 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-	var objlight = new GameObject("light1",[100,105,100]);
+	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
+	light.diffuse = [0.8,0.1,0.3,1.0];
+	light.specular = [0.9,0.05,0.15,1.0];
 	objlight.addComponent(light);
-	objlight.enabled = false;
 	Scene.addLight(light);
 	Scene.addObject(objlight);
 	
-	var objlight = new GameObject("light2");
+	var objlight = new GameObject("Spot Light");
 	var light = new Light(Light.SPOT);
 	objlight.addComponent(light);
 	objlight.enabled = false;
@@ -82,7 +83,7 @@ function init(){
 	Scene.addLight(light);
 	Scene.addObject(objlight);
 
-	var ol3 = new GameObject("globalLight");
+	var ol3 = new GameObject("Directional Light");
 	var l3 = new Light();
 	ol3.addComponent(l3);
 	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
@@ -174,7 +175,7 @@ function init(){
 	var cam = new Camera();
 	obj.addComponent(cam);
 	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,1.0,255.0);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
 	obj.addComponent(kc);
