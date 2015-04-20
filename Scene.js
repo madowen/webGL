@@ -196,7 +196,7 @@ Scene.deferredRender = function(){
 		Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 		var firstLight = true;		
 		for (var l = 0; l < this.lights.length; l++){
-			light = this.lights[3];
+			light = this.lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
 			if(!firstLight){
 				gl.enable( gl.BLEND );
@@ -232,6 +232,8 @@ Scene.deferredRender = function(){
 			};
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);
+
+			firstLight = false;
 		}
 	}
 }
