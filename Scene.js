@@ -116,9 +116,9 @@ Scene.forwardRender = function(){
 	}
 }
 
-	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
-	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
-	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.HALF_FLOAT_OES});
+	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
+	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
 
 	var modelt = mat4.create();
 	var temp = mat4.create();
@@ -195,7 +195,6 @@ Scene.deferredRender = function(){
 		gl.disable(gl.BLEND);
 		gl.enable(gl.DEPTH_TEST);
 
-		Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 		var firstLight = true;		
 		for (var l = 0; l < this.lights.length; l++){
 			light = this.lights[l];
@@ -231,6 +230,7 @@ Scene.deferredRender = function(){
 				uLQuadraticAttenuation: light.quadraticAttenuation,
 
 			};
+			Scene.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 			if (Scene.shader)
 				Scene.shader.toViewport(uniforms);
 
