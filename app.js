@@ -78,7 +78,6 @@ function init(){
 	var objlight = new GameObject("Spot Light");
 	var light = new Light(Light.SPOT);
 	objlight.addComponent(light);
-	objlight.enabled = false;
 	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
 	Scene.addLight(light);
 	Scene.addObject(objlight);
