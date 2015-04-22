@@ -50,7 +50,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 			var obj = new GameObject("gizmo");
 			obj.transform.scale = [0,0,0];
 			obj.parent = this.owner;
-			var ren = new Renderer();
+			var ren = new ObjectRenderer();
 			obj.addComponent(ren);
 			ren.mesh = GL.Mesh.sphere();
 			var temp_color = [this.diffuse[0]*255,this.diffuse[1]*255,this.diffuse[2]*255,this.diffuse[3]];

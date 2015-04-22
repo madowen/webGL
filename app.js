@@ -67,108 +67,8 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-	var objlight = new GameObject("Point Light",[104,101,104]);
-	var light = new Light(Light.POINT);
-	light.diffuse = [0.8,0.1,0.3,1.0];
-	light.specular = [0.9,0.05,0.15,1.0];
-	objlight.addComponent(light);
-	Scene.addLight(light);
-	Scene.addObject(objlight);
-	
-	var objlight = new GameObject("Spot Light");
-	var light = new Light(Light.SPOT);
-	objlight.addComponent(light);
-	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
-	Scene.addLight(light);
-	Scene.addObject(objlight);
 
-	var ol3 = new GameObject("Directional Light");
-	var l3 = new Light();
-	ol3.addComponent(l3);
-	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
-	l3.type = 0;
-	l3.intensity = 0.3;
-	l3.diffuse = [0.8,0.8,0.8,1];
-	l3.specular = [0.8,0.8,0.8,1];
-	Scene.addLight(l3);
-	Scene.addObject(ol3);
-	
-	var obj = new GameObject("floor");
-	obj.transform.position = [100,100,100];
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/crate.gif");
-	obj.transform.scale = [10,1,10];
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	obj = new GameObject("leftWall");
-	obj.transform.position = [105,105,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/crate.gif");
-	obj.transform.rotateLocal(90,[0,0,1]);
-	obj.transform.scale = [10,1,10];
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-				
-	obj = new GameObject("rightWall");
-	obj.transform.position = [95,105,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/crate.gif");
-	obj.transform.scale = [10,1,10];
-	obj.transform.rotateLocal(-90,[0,0,1]);
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	obj = new GameObject("frontWall");
-	obj.transform.position = [100,105,105]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/crate.gif");
-	obj.transform.scale = [10,1,10];
-	obj.transform.rotateLocal(-90,[1,0,0]);
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	obj = new GameObject("dragon");
-	obj.transform.position = [100,102,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [1,1,1];
-	obj.transform.rotate(135,[0,1,0]);
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	obj = new GameObject("sphere");
-	obj.transform.position = [97,103,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.sphere();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.5,0.5,0.5];
-	obj.transform.rotate(135,[0,1,0]);
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	obj = new GameObject("cylinder");
-	obj.transform.position = [97,100,100]
-	var ren = new Renderer();
-	ren.mesh = GL.Mesh.cylinder();
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [1,1,1];
-	obj.transform.rotate(135,[0,1,0]);
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
+	Benchmark(Scene,10,10);
 	
 	obj = new GameObject("camera");
 	var cam = new Camera();
@@ -182,8 +82,6 @@ function init(){
 	obj.addComponent(mc);
 	Scene.addObject(obj);
 
-	
-
 	console.log(Scene.objects);
 
 	//generic gl flags and settings
@@ -193,7 +91,7 @@ function init(){
 
 	//rendering loop
 	gl.ondraw = function(){
-		Scene.draw();
+		Renderer.draw(Scene.renderMode,Scene.channel,Scene.objects,Scene.lights,Scene.cameras[Scene.activeCamera]);
 	};
 
 	//update loop
