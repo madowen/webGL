@@ -1,5 +1,5 @@
 var MicroShaderManager = {
-	microShaders: null,
+	microShaders: [],
 	shaders: [],
 	xmlFile: 'microShaders.xml',
 	micros: null,

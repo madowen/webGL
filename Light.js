@@ -14,9 +14,9 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.range = range || 1.0;
 	this.spotAngle = spotAngle || 30.0;
 	this.spotExponent = spotExponent || 1.0;
-	this.constantAttenuation = constantAttenuation || 0.09;
-	this.linearAttenuation = linearAttenuation || 0.08;
-	this.quadraticAttenuation = quadraticAttenuation ||  0.17;
+	this.constantAttenuation = constantAttenuation || 0.126;
+	this.linearAttenuation = linearAttenuation || 0.712;
+	this.quadraticAttenuation = quadraticAttenuation ||  0.8;
 
 	this.gizmo = true || addGizmo;
 
@@ -50,7 +50,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 			var obj = new GameObject("gizmo");
 			obj.transform.scale = [0,0,0];
 			obj.parent = this.owner;
-			var ren = new Renderer();
+			var ren = new ObjectRenderer();
 			obj.addComponent(ren);
 			ren.mesh = GL.Mesh.sphere();
 			var temp_color = [this.diffuse[0]*255,this.diffuse[1]*255,this.diffuse[2]*255,this.diffuse[3]];

@@ -19,7 +19,7 @@ function GUI(){
 	}
 
 	GUI.scene = function(gui,scene){
-		gui.add(scene, 'render',{'Forward':0,'Deferred':1}).name('Render Type').listen();
+		gui.add(scene, 'renderType',{'Forward':0,'Deferred':1}).name('Render Type').listen();
 		gui.add(scene, 'renderMode',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
 		addColor(gui,scene.lights[0].ambient,'Ambient Scene');
 
