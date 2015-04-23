@@ -68,7 +68,7 @@ function init(){
 	gl.animate();
 	
 
-	Benchmark(Scene,3,3);
+	Benchmark(3,3);
 	
 	obj = new GameObject("camera");
 	var cam = new Camera();
