@@ -18,8 +18,6 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.linearAttenuation = linearAttenuation || 0.1;
 	this.quadraticAttenuation = quadraticAttenuation ||  0.57;
 
-	this.gizmo = true || addGizmo;
-
 	Object.defineProperty(this, 'direction',{
 		get: function() {
 			if (this.owner.transform)
@@ -31,7 +29,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	Object.defineProperty(this, 'position',{
 		get: function() {
 			if (this.owner.transform)
-				return this.owner.transform.globalPosition;
+				return this.owner.transform.position;
 			else
 				return [0,0,0];
 		}
@@ -46,39 +44,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	}
 
 	Light.prototype.update = function(dt){
-		if (this.gizmo){
-			var obj = new GameObject("gizmo");
-			obj.transform.scale = [0,0,0];
-			obj.parent = this.owner;
-			var ren = new ObjectRenderer();
-			obj.addComponent(ren);
-			ren.mesh = GL.Mesh.sphere();
-			var temp_color = [this.diffuse[0]*255,this.diffuse[1]*255,this.diffuse[2]*255,this.diffuse[3]];
-			ren.texture = GL.Texture.fromURL("assets/white.png",{temp_color:temp_color, minFilter: gl.LINEAR_MIPMAP_LINEAR});
-			Scene.addObject(obj);
-			this.gizmo = false;
-		}
+
 	}
 
-	Light.prototype.GUI = function(gui,name){
-
-		var guiLight = gui.addFolder(name == 'parent' ? this.owner.name : 'Light');
-		guiLight.add(this,'enabled').name('Enabled').listen();
-		guiLight.add(this,'type',{'Ambient':-1,'Directional':0,'Point':1,'Spot':2}).name('Type').listen();
-
-		guiLight.add(this,'intensity').name('Intensity').step(0.01).min(0);
-		guiLight.add(this,'range').name('Range').min(0);
-		guiLight.add(this,'spotAngle').name('Spot Angle').min(0);
-		guiLight.add(this,'spotExponent').name('Spot Exponent');
-		guiLight.add(this,'constantAttenuation',0,1).name('Constant Attenuation').step(0.001);
-		guiLight.add(this,'linearAttenuation',0,1).name('Linear Attenuation').step(0.001);
-		guiLight.add(this,'quadraticAttenuation',0,1).name('Quadratic Attenuation').step(0.001);
-	
-		var guiLightColor = guiLight.addFolder('Color');
-		{
-			guiLightColor.addColor(this,'ambient');
-			guiLightColor.addColor(this,'specular');
-			guiLightColor.addColor(this,'diffuse');
-		}
-	}
 }

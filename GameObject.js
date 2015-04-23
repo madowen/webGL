@@ -65,16 +65,6 @@ function GameObject(name,position,rotation,scale){
 		}
 	}
 	
-	GameObject.prototype.GUI = function(gui){
-		var guiObject = gui.addFolder(this.name);
-		guiObject.add(this, 'enabled').name('Enabled').listen();
-		guiObject.addColor(this, 'color').name('Color').listen();
-		for (var c in this.components){
-			if (this[this.components[c]].GUI)
-				this[this.components[c]].GUI(guiObject);
-		}
-	}
-
 	this.addComponent(new Transform(position,rotation,scale));
 
 
