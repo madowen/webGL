@@ -22,9 +22,9 @@ function GUI(){
 		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1}).name('Render Type').listen();
 		gui.add(scene, 'channel',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
 		addColor(gui,scene.lights[0].ambient,'Ambient Scene');
-return;
+		var guiObjectList = gui.addFolder("Objects");
 		for (var o in scene.objects){
-			GUI.gameObject(gui,scene.objects[o])
+			GUI.gameObject(guiObjectList,scene.objects[o])
 		}
 	};
 
