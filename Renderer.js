@@ -63,11 +63,11 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 				uLSpotExponent: light.spotExponent,
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
-				uLAmbient: light.ambient,
 				uLConstantAttenuation: light.constantAttenuation,
 				uLLinearAttenuation: light.linearAttenuation,
 				uLQuadraticAttenuation: light.quadraticAttenuation,
 				uOColor: object.color,
+				uSAmbient: Scene.ambient,
 				cameraPosition: cam.owner.transform.position,
 				nearPlane: cam.near,
 				farPlane: cam.far
@@ -109,7 +109,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 		 	if (!object.objectRenderer)
 				continue;
 
-			gl.enable( gl.CULL_FACE );
+			// gl.enable( gl.CULL_FACE );
 
 			mrot = object.transform.globalModel; 
 
@@ -185,7 +185,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLSpotExponent: light.spotExponent,
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
-				uLAmbient: light.ambient,
+				uSAmbient: Scene.ambient,
 				uLConstantAttenuation: light.constantAttenuation,
 				uLLinearAttenuation: light.linearAttenuation,
 				uLQuadraticAttenuation: light.quadraticAttenuation,

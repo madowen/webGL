@@ -7,7 +7,6 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.enabled = true;
 	
 	this.type = type || Light.DIRECTIONAL //directional = 0|| point = 1 ||spot = 2
-	this.ambient = ambient || [0.005,0.005,0.005,1.0];
 	this.diffuse = diffuse || [0.9,0.9,0.9,1.0];
 	this.specular = specular || [0.9,0.9,0.9,1.0];
 	this.intensity = intensity || 0.88;

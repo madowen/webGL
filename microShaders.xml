@@ -72,13 +72,13 @@
 		<header><![CDATA[
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uLAmbient;
+			uniform vec4 	uSAmbient;
 			]]>
 		</header>
 		<maincode><![CDATA[
 			lightDiffuse = vec3(uLDiffuse);
 			lightSpecular = vec3(uLSpecular);
-			lightAmbient = vec3(uLAmbient);
+			lightAmbient = vec3(uSAmbient);
 			]]>
 		</maincode>
 	</micro_shader>
@@ -181,7 +181,7 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uLAmbient;
+			uniform vec4 	uSAmbient;
 			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 
 			//object//
@@ -218,7 +218,7 @@
 
 			}
 			
-			vec3 ambientLighting = vec3(uLAmbient) ;
+			vec3 ambientLighting = vec3(uSAmbient) ;
 			
 			vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * max(0.0, dot(normalDirection, lightDirection));
 			
@@ -448,7 +448,7 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uLAmbient;
+			uniform vec4 	uSAmbient;
 			uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 
 			vec3 	lightDiffuse = vec3(1.0,1.0,1.0);
@@ -496,7 +496,7 @@
 
 			lightDiffuse = vec3(uLDiffuse);
 			lightSpecular = vec3(uLSpecular);
-			lightAmbient = vec3(uLAmbient);
+			lightAmbient = vec3(uSAmbient);
 
 			
 			normalDirection = normalize(normal.xyz);

@@ -7,7 +7,7 @@ var r,g,b;
 var obj;
 var light;
 
-function NiceScene(Scene){
+function NiceScene(){
 	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
 	light.diffuse = [0.8,0.1,0.3,1.0];

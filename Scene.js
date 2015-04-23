@@ -17,12 +17,7 @@ Scene.activeCamera = 0;
 Scene.renderMode = Scene.DEFERRED; //0 = forward, 1 = deferred
 Scene.shader = null;
 
-var ambientLight = new Light();
-ambientLight.ambient = [0.005, 0.005, 0.005, 1];
-ambientLight.diffuse = [0, 0, 0, 1];
-ambientLight.specular = [0, 0, 0, 1];
-ambientLight.owner = Scene;
-Scene.lights.push(ambientLight);
+Scene.ambient = [0.005, 0.005, 0.005, 1];
 
 Scene.channel = Scene.FULL;
 
