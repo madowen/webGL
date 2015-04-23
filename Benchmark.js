@@ -7,7 +7,7 @@ var r,g,b;
 var obj;
 var light;
 
-function NiceScene(){
+function NiceScene(Scene){
 	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
 	light.diffuse = [0.8,0.1,0.3,1.0];
@@ -126,7 +126,7 @@ function Benchmark(Scene,n,m,object_mesh){
 			g = generateRandomNumber(0,1);
 			b = generateRandomNumber(0,1);
 			light.diffuse = [r,g,b,1.0];
-			light.specular = [r,g,b,1.0];
+			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
 			obj.addComponent(light);
 			Scene.addLight(light);
 			Scene.addObject(obj);
