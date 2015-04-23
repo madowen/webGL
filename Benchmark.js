@@ -7,7 +7,10 @@ var r,g,b;
 var obj;
 var light;
 
-function NiceScene(){
+function NiceScene(Scene){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+
 	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
 	light.diffuse = [0.8,0.1,0.3,1.0];
@@ -111,12 +114,10 @@ function NiceScene(){
 	Scene.addObject(obj);
 }
 
-function Benchmark(Scene,n,m,object_mesh){
-	// for (var i = 0; i < n_objecs; i++){
-	// 	for (var j = 0; j < m_objecs; j++){
-	// 		obj = new GameObject("obj"+i,[orig_x+(i-n_objecs/2)*3,orig_y,orig_z+(i-n_objecs/2)*3]);
-	// 	}
-	// }
+function Benchmark(n,m,object_mesh){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){

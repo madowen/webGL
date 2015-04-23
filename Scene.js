@@ -30,18 +30,6 @@ Scene.addCamera = function(camera){
 Scene.addLight = function(light){
 	this.lights.push(light);
 }
-Scene.draw = function(){
-	gl.clearColor(0.1,0.1,0.1,1);
-	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-	this.shader = null;
-	//mat4.lookAt(cam.view, cam.eye, cam.center, cam.up);
-
-	if (this.renderMode == Scene.FORWARD){
-		Renderer.forwardRender(this.channel,this.objects,this.lights,this.cameras[this.activeCamera]);
-	}else{
-		Renderer.deferredRender(this.channel,this.objects,this.lights,this.cameras[this.activeCamera]);
-	}
-}
 
 Scene.update = function(dt){
 	for (var i in this.objects){					

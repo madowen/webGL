@@ -29,9 +29,7 @@ function ObjectRenderer(mesh,texture,shader){
 	    else if (renderMode == Scene.NORMAL){
 			this.shader = MicroShaderManager.getShader("normals_deferred_rendering",["fulllight_vertex"],["normals_deferred_fragment"],"microShaders.xml");
 	    }
-	    if (this.owner.name == "gizmo")
-			this.shader = MicroShaderManager.getShader("albedo_deferred_rendering",["fulllight_vertex"],["albedo_deferred_fragment"],"microShaders.xml");
-
+	    
 		if (this.shader)
 		this.shader.uniforms(uniforms).draw(this.mesh);
 

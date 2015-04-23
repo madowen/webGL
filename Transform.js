@@ -177,23 +177,5 @@ function Transform(position,rotation,scale){
 	Transform.prototype.update = function(dt){
 		this.updateModel();
 	}
-
-	Transform.prototype.GUI = function(gui){
-		var guiTransform = gui.addFolder('Transform');
-		var guiTransformPos = guiTransform.addFolder('Position');
-		{
-			guiTransformPos.add(this._position,[0]).name('x').step(1).listen();
-			guiTransformPos.add(this._position,[1]).name('y').step(1).listen();
-			guiTransformPos.add(this._position,[2]).name('z').step(1).listen();
-		}
-		var guiTransformPos = guiTransform.addFolder('Scale');
-		{
-			guiTransformPos.add(this._scale,[0]).name('x').listen();
-			guiTransformPos.add(this._scale,[1]).name('y').listen();
-			guiTransformPos.add(this._scale,[2]).name('z').listen();
-		}
-
-	}
-	//this.updateModel();
 	
 }

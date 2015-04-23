@@ -89,7 +89,6 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var mrot;
 	var i;
 	var uniforms = {};
-	var cam;
 
 Renderer.deferredRender = function(channel,objects,lights,cam){
 
