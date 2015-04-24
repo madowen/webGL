@@ -67,20 +67,10 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-
+	//NiceScene();
 	Benchmark(1,1);
 	
-	obj = new GameObject("camera");
-	var cam = new Camera();
-	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
-	Scene.addCamera(cam);
-	var kc = new KeyController([0,0,-1],[-1,0,0]);
-	obj.addComponent(kc);
-	var mc = new MouseController([0,-1,0],[-1,0,0]);
-	obj.addComponent(mc);
-	Scene.addObject(obj);
+
 
 	console.log(Scene.objects);
 

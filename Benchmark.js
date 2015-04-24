@@ -7,9 +7,10 @@ var r,g,b;
 var obj;
 var light;
 
-function NiceScene(Scene){
+function NiceScene(){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
 
 	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
@@ -112,11 +113,24 @@ function NiceScene(Scene){
 	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
+
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
 }
 
 function Benchmark(n,m,object_mesh){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
 
 
 	for (var i = 0; i < n; i++){
@@ -143,7 +157,17 @@ function Benchmark(n,m,object_mesh){
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
-
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
 }
 
 function generateRandomNumber(min,max) {
