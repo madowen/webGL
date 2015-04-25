@@ -27,7 +27,7 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - v_position);
 			float distance = length(positionToLightSource);
 			lightDirection = normalize(positionToLightSource);
 			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
@@ -52,7 +52,7 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+			vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - v_position);
 			float distance = length(positionToLightSource);
 			lightDirection = normalize(positionToLightSource);
 			attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
@@ -85,8 +85,8 @@
 	<micro_shader>
 		<name>phong</name>
 		<header><![CDATA[
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec4 vPosition;  // position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec4 v_position;  // position of the vertex (and fragment) in world space
 			uniform mat4 v_inv;
 
 			vec3 	normalDirection;
@@ -101,8 +101,8 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			normalDirection = normalize(vNormalDirection);
-			viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
+			normalDirection = normalize(v_normal);
+			viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - v_position));
 			ambientLighting = lightAmbient ;
 			
 			diffuseReflection = attenuation * lightDiffuse * max(0.0, dot(normalDirection, lightDirection));
@@ -118,7 +118,7 @@
 	<micro_shader>
 		<name>basic_fragment</name>
 		<header><![CDATA[
-			varying vec2 vTextureCoord;
+			varying vec2 v_coord;
 			uniform sampler2D uTexture;
 			uniform vec4 uOColor;
 
@@ -130,7 +130,7 @@
 			]]>		
 		</header>
 		<maincode><![CDATA[
-			albedoColor = texture2D( uTexture, vTextureCoord);
+			albedoColor = texture2D( uTexture, v_coord);
 			gl_FragColor = uOColor * albedoColor * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * lightIntensity;
 			]]>
 		</maincode>
@@ -142,9 +142,9 @@
 			attribute vec3 a_normal;
 			attribute vec2 a_coord;
 
-			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec2 vTextureCoord;		
+			varying vec4 v_position;  		// position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec2 v_coord;		
 
 			uniform mat4 m, v, p;			//model, view, projection
 			uniform mat4 mvp;
@@ -152,9 +152,9 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vTextureCoord = a_coord;
-			vPosition = m * vec4(a_vertex,1.0);
-			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			v_coord = a_coord;
+			v_position = m * vec4(a_vertex,1.0);
+			v_normal = normalize(umodelt * vec4(a_normal,1.0)).xyz;
 			
 			//mat4 mvp = p*v*m;
 			gl_Position = mvp * vec4(a_vertex,1.0);
@@ -165,9 +165,9 @@
 	<micro_shader>
 		<name>fulllight_fragment</name>
 		<header><![CDATA[
-			varying vec4 vPosition;  // position of the vertex (and fragment) in world space
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec2 vTextureCoord;
+			varying vec4 v_position;  // position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec2 v_coord;
 			uniform mat4 v_inv;
 			uniform sampler2D uTexture;
 
@@ -190,8 +190,8 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vec3 normalDirection = normalize(vNormalDirection);
-			vec3 viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - vPosition));
+			vec3 normalDirection = normalize(v_normal);
+			vec3 viewDirection = normalize(vec3(v_inv * vec4(0.0, 0.0, 0.0, 1.0) - v_position));
 			vec3 lightDirection;
 			float attenuation;
 			
@@ -199,12 +199,12 @@
 				attenuation = 1.0; 									// no attenuation
 				lightDirection = normalize(-uLDirection);
 			}else if(1 == uLType){ 									// point light or spotlight (or other kind of light)
-				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - v_position);
 				float distance = length(positionToLightSource);
 				lightDirection = normalize(positionToLightSource);
 				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
 			}else if(2 == uLType){
-				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - vPosition);
+				vec3 positionToLightSource = vec3(vec4(uLPosition,1.0) - v_position);
 				float distance = length(positionToLightSource);
 				lightDirection = normalize(positionToLightSource);
 				attenuation = uLRange * 1.0 / (uLConstantAttenuation + uLLinearAttenuation * distance + uLQuadraticAttenuation * distance * distance);
@@ -229,7 +229,7 @@
 				specularReflection = attenuation * vec3(uLSpecular) * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 			
-			vec4 color = texture2D( uTexture, vTextureCoord);
+			vec4 color = texture2D( uTexture, v_coord);
 			gl_FragColor = uOColor * color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>
 		</maincode>
@@ -241,9 +241,9 @@
 			attribute vec3 a_normal;
 			attribute vec2 a_coord;
 
-			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec2 vTextureCoord;		
+			varying vec4 v_position;  		// position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec2 v_coord;		
 
 			uniform mat4 m, v, p;			//model, view, projection
 			uniform mat4 mvp;
@@ -251,9 +251,9 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vTextureCoord = a_coord;
-			vPosition = m * vec4(a_vertex,1.0);
-			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			v_coord = a_coord;
+			v_position = m * vec4(a_vertex,1.0);
+			v_normal = normalize(umodelt * vec4(a_normal,1.0)).xyz;
 			
 			//mat4 mvp = p*v*m;
 			gl_Position = mvp * vec4(a_vertex,1.0);
@@ -263,12 +263,12 @@
 	<micro_shader>
 		<name>albedo_deferred_fragment</name>
 		<header><![CDATA[
-			varying vec2 vTextureCoord;
+			varying vec2 v_coord;
 			uniform sampler2D uTexture;
 			]]>		
 		</header>
 		<maincode><![CDATA[
-				vec4 color = texture2D( uTexture, vTextureCoord);
+				vec4 color = texture2D( uTexture, v_coord);
 				gl_FragColor = color;
 			]]>
 		</maincode>
@@ -276,7 +276,7 @@
 	<micro_shader>
 		<name>depth_deferred_fragment</name>
 		<header><![CDATA[
-			varying vec4 vPosition;
+			varying vec4 v_position;
 			uniform vec3 cameraPosition;
 			uniform float nearPlane;
 			uniform float farPlane;
@@ -284,7 +284,7 @@
 		</header>
 		<maincode><![CDATA[
 				float d = 10.0;
-				float distance = abs(length(cameraPosition - vPosition.xyz));
+				float distance = abs(length(cameraPosition - v_position.xyz));
 				float x = mod(distance,d);
 				distance = distance/d;
 				float y = mod(distance,d);
@@ -295,7 +295,7 @@
 				color.z =  z/d;
 				color.w = 1.0;
 
-				float depth = length(cameraPosition - vPosition.xyz);
+				float depth = length(cameraPosition - v_position.xyz);
 				depth = (depth-nearPlane)/(farPlane-nearPlane);
 				vec4 depthGray = vec4(depth);
 
@@ -306,14 +306,14 @@
 	<micro_shader>
 		<name>normals_deferred_fragment</name>
 		<header><![CDATA[
-			varying vec4 vPosition;
-			varying vec3 vNormalDirection;
+			varying vec4 v_position;
+			varying vec3 v_normal;
 			uniform vec3 cameraPosition;
 			]]>
 		</header>
 		<maincode><![CDATA[
-				//gl_FragColor = normalize(vec4(abs(vNormalDirection.xyz),0));
-				vec4 normal = 0.5 * normalize(vec4(vNormalDirection.xyz,0) + 1.0);
+				//gl_FragColor = normalize(vec4(abs(v_normal.xyz),0));
+				vec4 normal = 0.5 * normalize(vec4(v_normal.xyz,0) + 1.0);
 				 gl_FragColor = normal;
 			]]>
 		</maincode>
@@ -322,9 +322,9 @@
 		<name>gbuffer_fragment</name>
 		<header><![CDATA[
 			#extension GL_EXT_draw_buffers : require 
-			varying vec2 vTextureCoord;
-			varying vec4 vPosition;
-			varying vec3 vNormalDirection;
+			varying vec2 v_coord;
+			varying vec4 v_position;
+			varying vec3 v_normal;
 			uniform sampler2D uTexture;
 			uniform vec3 cameraPosition;
 			uniform float nearPlane;
@@ -332,14 +332,14 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-				//float depth = length(cameraPosition - vPosition.xyz);
+				//float depth = length(cameraPosition - v_position.xyz);
 				float depth = length(cameraPosition - vec3(100,100,100));
 				depth = (depth-nearPlane)/(farPlane-nearPlane);
 
 
-				gl_FragData[0] = texture2D( uTexture, vTextureCoord);
-				gl_FragData[1] = vec4(vPosition.xyz,1.0);
-				gl_FragData[2] = normalize(vec4(vNormalDirection.xyz,0));
+				gl_FragData[0] = texture2D( uTexture, v_coord);
+				gl_FragData[1] = vec4(v_position.xyz,1.0);
+				gl_FragData[2] = normalize(vec4(v_normal.xyz,0));
 			]]>
 		</maincode>
 	</micro_shader>
@@ -350,9 +350,9 @@
 			attribute vec2 a_coord;
 			attribute vec3 a_normal;
 
-			varying vec4 vPosition;  		// position of the vertex (and fragment) in world space
-			varying vec3 vNormalDirection;  // surface normal vector in world space
-			varying vec2 vTextureCoord;		
+			varying vec4 v_position;  		// position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec2 v_coord;		
 
 			uniform mat4 umodelt;
 			uniform mat4 m, v, p;			//model, view, projection
@@ -360,9 +360,9 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-			vTextureCoord = a_coord;
-			vPosition = m * vec4(a_vertex,1.0);
-			vNormalDirection = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			v_coord = a_coord;
+			v_position = m * vec4(a_vertex,1.0);
+			v_normal = normalize(umodelt * vec4(a_normal,1.0)).xyz;
 			gl_Position = mvp * vec4(a_vertex,1.0);
 			]]>
 		</maincode>
@@ -437,7 +437,7 @@
 			uniform sampler2D uDepthText;
 			
 			uniform mat4 v_inv;
-
+			uniform vec2 uScreenSize;
 			//light//
 			uniform vec3	uLPosition;
 			uniform vec3	uLDirection;
@@ -467,9 +467,10 @@
 		</header>
 		<maincode>
 			<![CDATA[
-			vec4 position = texture2D( uDepthText, v_coord);
-			vec4 normal = texture2D( uNormalText, v_coord);
-			vec4 albedoColor = texture2D( uAlbedoText, v_coord);
+			vec2 coord = gl_FragCoord.xy / uScreenSize;
+			vec4 position = texture2D( uDepthText, coord);
+			vec4 normal = texture2D( uNormalText, coord);
+			vec4 albedoColor = texture2D( uAlbedoText, coord);
 			
 			if (0 == uLType){										// directional light?
 				attenuation = 1.0;

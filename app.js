@@ -68,7 +68,7 @@ function init(){
 	gl.animate();
 	
 	//NiceScene();
-	Benchmark(1,1);
+	Benchmark(3,3);
 	
 
 
