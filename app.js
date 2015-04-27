@@ -75,9 +75,9 @@ function init(){
 	console.log(Scene.objects);
 
 	//generic gl flags and settings
-	gl.clearColor(0.2,0.2,0.2,1);
-	gl.enable( gl.DEPTH_TEST );
-	gl.enable( gl.CULL_FACE );
+	gl.clearColor(0.0,0.0,0.0,1);
+	// gl.enable( gl.DEPTH_TEST );
+	// gl.enable( gl.CULL_FACE );
 
 	//rendering loop
 	gl.ondraw = function(){

@@ -86,13 +86,13 @@
 		<header><![CDATA[
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uSAmbient;
+			uniform vec4 	uLAmbient;
 			]]>
 		</header>
 		<maincode><![CDATA[
 			lightDiffuse = vec3(uLDiffuse);
 			lightSpecular = vec3(uLSpecular);
-			lightAmbient = vec3(uSAmbient);
+			lightAmbient = vec3(uLAmbient);
 			]]>
 		</maincode>
 	</micro_shader>
@@ -195,7 +195,7 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uSAmbient;
+			uniform vec4 	uLAmbient;
 			//uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 			uniform float uLNear,uLFar;
 
@@ -245,7 +245,7 @@
 
 			}
 			
-			vec3 ambientLighting = vec3(uSAmbient) ;
+			vec3 ambientLighting = vec3(uLAmbient) ;
 			
 			vec3 diffuseReflection = attenuation * vec3(uLDiffuse) * max(0.0, dot(normalDirection, lightDirection));
 			
@@ -475,7 +475,7 @@
 			uniform float	uLSpotExponent;
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
-			uniform vec4 	uSAmbient;
+			uniform vec4 	uLAmbient;
 			//uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
 			uniform float uLNear,uLFar;
 
@@ -500,7 +500,7 @@
 			vec4 normal = texture2D( uNormalText, coord);
 			vec4 albedoColor = texture2D( uAlbedoText, coord);
 			
-			if (0 == uLType){										// directional light?
+			if (0 == uLType || 3 == uLType){										// directional light?
 				attenuation = 1.0;
 				lightDirection = normalize(-uLDirection);
 			}else if(1 == uLType){ 									// point light or spotlight (or other kind of light)
@@ -537,7 +537,7 @@
 
 			lightDiffuse = vec3(uLDiffuse);
 			lightSpecular = vec3(uLSpecular);
-			lightAmbient = vec3(uSAmbient);
+			lightAmbient = vec3(uLAmbient);
 
 			
 			normalDirection = normalize(normal.xyz);
@@ -551,7 +551,7 @@
 				specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 
-			gl_FragColor = albedoColor* vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>	
 		</maincode>
 	</micro_shader>

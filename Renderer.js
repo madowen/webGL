@@ -2,7 +2,7 @@ var Renderer = {}
 Renderer.shader = null;
 
 Renderer.draw = function(renderMode,channel,objects,lights,cam){
-	gl.clearColor(0.1,0.1,0.1,1);
+	// gl.clearColor(0.1,0.1,0.1,1);
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	this.shader = null;
 
@@ -15,7 +15,7 @@ Renderer.draw = function(renderMode,channel,objects,lights,cam){
 
 
 Renderer.forwardRender = function(channel,objects,lights,cam){
-	gl.clearColor(0.1,0.1,0.1,1);
+	// gl.clearColor(0.1,0.1,0.1,1);
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 	gl.disable(gl.BLEND);
@@ -63,13 +63,13 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 				uLSpotExponent: light.spotExponent,
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
+				uLAmbient: light.ambient,
 				// uLConstantAttenuation: light.constantAttenuation,
 				// uLLinearAttenuation: light.linearAttenuation,
 				// uLQuadraticAttenuation: light.quadraticAttenuation,
 				uLNear: light.near,
 				uLFar: light.far,
 				uOColor: object.color,
-				uSAmbient: Scene.ambient,
 				cameraPosition: cam.owner.transform.position,
 				nearPlane: cam.near,
 				farPlane: cam.far
@@ -98,7 +98,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 		gl.depthMask(true);
 		gl.disable( gl.CULL_FACE );
 
-		gl.clearColor(0.1,0.1,0.1,1);
+		 // gl.clearColor(0.1,0.1,0.1,1);
 		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 		gl.enable(gl.DEPTH_TEST);
 		gl.disable(gl.BLEND);
@@ -156,7 +156,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 		depthTexture.bind(1);
 		normalsTexture.bind(2);
 	
-		gl.clearColor(0.1,0.1,0.1,1);
+		// gl.clearColor(0.1,0.1,0.1,1);
 		gl.clear(gl.COLOR_BUFFER_BIT );
 
 		var firstLight = true;		
@@ -166,7 +166,8 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 
 			v_inv = mat4.invert(mat4.create(),cam.view);
 
-			mrot = light.owner.transform.globalModel; 
+			if (light.owner.transform)
+				mrot = light.owner.transform.globalModel; 
 
 			mat4.multiply(temp,cam.view,mrot); 
 			mat4.multiply(cam.mvp,cam.projection,temp); 
@@ -191,7 +192,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLSpotExponent: light.spotExponent,
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
-				uSAmbient: Scene.ambient,
+				uLAmbient: light.ambient,
 				// uLConstantAttenuation: light.constantAttenuation,
 				// uLLinearAttenuation: light.linearAttenuation,
 				// uLQuadraticAttenuation: light.quadraticAttenuation,
@@ -200,25 +201,15 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uScreenSize: [gl.canvas.width,gl.canvas.height],
 			};
 
-			// if (light.type == Light.DIRECTIONAL){
+			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
 				this.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 				if (this.shader)
 					this.shader.toViewport(uniforms);
-			// }else{
-			// 	this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
-			// 	if (this.shader)
-			// 		this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.far}));
-			// }
+			 }else{
+				this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+				if (this.shader)
+					this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.far}));
+			}
 		}
 	}
-}
-
-function CalcPointLightBSphere(light)
-{
-   	var MaxChannel = Math.max(Math.max(light.diffuse[0], light.diffuse[1]), light.diffuse[2]);
-
-   	var ret = (-light.linearAttenuation + Math.sqrt(light.linearAttenuation * light.linearAttenuation
-   	 - 4 * light.quadraticAttenuation * (light.constantAttenuation - 256 * MaxChannel * light.intensity))) / (2 
-   	* light.quadraticAttenuation);
-   	return ret;
 }

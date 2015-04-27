@@ -23,7 +23,7 @@ function GUI(){
 		gui.add(scene, 'channel',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
 		this.NiceScene = NiceScene;
 		gui.add(this,'NiceScene');
-		addColor(gui,scene.ambient,'Ambient Scene');
+		addColor(gui,scene.lights[0].ambient,'Ambient Scene');
 		var guiObjectList = gui.addFolder("Objects");
 		for (var o in scene.objects){
 			GUI.gameObject(guiObjectList,scene.objects[o])

@@ -12,6 +12,13 @@ function NiceScene(){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
+	var ambientLight = new Light();
+	ambientLight.ambient = [0.005, 0.005, 0.005, 1];
+	ambientLight.diffuse = [0, 0, 0, 1];
+	ambientLight.specular = [0, 0, 0, 1];
+	ambientLight.owner = Scene;
+	Scene.lights.push(ambientLight);
+
 	var objlight = new GameObject("Point Light",[104,101,104]);
 	var light = new Light(Light.POINT);
 	light.diffuse = [0.8,0.1,0.3,1.0];
@@ -132,6 +139,12 @@ function Benchmark(n,m,object_mesh){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
+	var ambientLight = new Light();
+	ambientLight.ambient = [0.02, 0.02, 0.02, 1];
+	ambientLight.diffuse = [0, 0, 0, 1];
+	ambientLight.specular = [0, 0, 0, 1];
+	ambientLight.owner = Scene;
+	Scene.lights.push(ambientLight);
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
