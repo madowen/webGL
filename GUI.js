@@ -23,7 +23,6 @@ function GUI(){
 		gui.add(scene, 'channel',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
 		this.NiceScene = NiceScene;
 		gui.add(this,'NiceScene');
-		gui.add(scene, 'lightVolume').listen();
 		addColor(gui,scene.ambient,'Ambient Scene');
 		var guiObjectList = gui.addFolder("Objects");
 		for (var o in scene.objects){
@@ -54,9 +53,11 @@ function GUI(){
 		guiLight.add(light,'range').name('Range').min(0);
 		guiLight.add(light,'spotAngle').name('Spot Angle').min(0);
 		guiLight.add(light,'spotExponent').name('Spot Exponent');
-		guiLight.add(light,'constantAttenuation',0,1).name('Constant Attenuation').step(0.001);
-		guiLight.add(light,'linearAttenuation',0,1).name('Linear Attenuation').step(0.001);
-		guiLight.add(light,'quadraticAttenuation',0,1).name('Quadratic Attenuation').step(0.001);
+		guiLight.add(light,'near').name('Near');
+		guiLight.add(light,'far').name('Far');
+		// guiLight.add(light,'constantAttenuation',0,1).name('Constant Attenuation').step(0.001);
+		// guiLight.add(light,'linearAttenuation',0,1).name('Linear Attenuation').step(0.001);
+		// guiLight.add(light,'quadraticAttenuation',0,1).name('Quadratic Attenuation').step(0.001);
 	
 		var guiLightColor = guiLight.addFolder('Color');
 		{
@@ -69,9 +70,9 @@ function GUI(){
 		var guiTransform = gui.addFolder('Transform');
 		var guiTransformPos = guiTransform.addFolder('Position');
 		{
-			guiTransformPos.add(transform._position,[0]).name('x').step(1).listen();
-			guiTransformPos.add(transform._position,[1]).name('y').step(1).listen();
-			guiTransformPos.add(transform._position,[2]).name('z').step(1).listen();
+			guiTransformPos.add(transform._position,[0]).name('x').step(0.1).listen();
+			guiTransformPos.add(transform._position,[1]).name('y').step(0.1).listen();
+			guiTransformPos.add(transform._position,[2]).name('z').step(0.1).listen();
 		}
 		var rot = quat.toEuler(vec3.create(),transform._rotation);
 		rot = vec3.scale(rot,rot,180/Math.PI);

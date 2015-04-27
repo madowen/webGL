@@ -20,7 +20,6 @@ Scene.shader = null;
 Scene.ambient = [0.005, 0.005, 0.005, 1];
 
 Scene.channel = Scene.FULL;
-Scene.lightVolume = true;
 
 Scene.addObject = function(object){
 	this.objects.push(object);

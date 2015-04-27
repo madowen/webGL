@@ -2,7 +2,7 @@ Light.DIRECTIONAL = 0
 Light.POINT = 1
 Light.SPOT = 2
 Light.AMBIENT = 3
-function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExponent,constantAttenuation,linearAttenuation,quadraticAttenuation,addGizmo){
+function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExponent,constantAttenuation,linearAttenuation,quadraticAttenuation,att_near,att_far){
 	this.name = "light";
 	this.enabled = true;
 	
@@ -16,6 +16,8 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.constantAttenuation = constantAttenuation || 0.08;
 	this.linearAttenuation = linearAttenuation || 0.1;
 	this.quadraticAttenuation = quadraticAttenuation ||  0.57;
+	this.near = att_near || 0.01;
+	this.far = att_far|| 10;
 
 	Object.defineProperty(this, 'direction',{
 		get: function() {

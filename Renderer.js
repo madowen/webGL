@@ -63,9 +63,11 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 				uLSpotExponent: light.spotExponent,
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
-				uLConstantAttenuation: light.constantAttenuation,
-				uLLinearAttenuation: light.linearAttenuation,
-				uLQuadraticAttenuation: light.quadraticAttenuation,
+				// uLConstantAttenuation: light.constantAttenuation,
+				// uLLinearAttenuation: light.linearAttenuation,
+				// uLQuadraticAttenuation: light.quadraticAttenuation,
+				uLNear: light.near,
+				uLFar: light.far,
 				uOColor: object.color,
 				uSAmbient: Scene.ambient,
 				cameraPosition: cam.owner.transform.position,
@@ -190,25 +192,23 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLDiffuse: light.diffuse,
 				uLSpecular: light.specular,
 				uSAmbient: Scene.ambient,
-				uLConstantAttenuation: light.constantAttenuation,
-				uLLinearAttenuation: light.linearAttenuation,
-				uLQuadraticAttenuation: light.quadraticAttenuation,
+				// uLConstantAttenuation: light.constantAttenuation,
+				// uLLinearAttenuation: light.linearAttenuation,
+				// uLQuadraticAttenuation: light.quadraticAttenuation,
+				uLNear: light.near,
+				uLFar: light.far,
 				uScreenSize: [gl.canvas.width,gl.canvas.height],
 			};
 
-			if (light.type == Light.DIRECTIONAL){
+			// if (light.type == Light.DIRECTIONAL){
 				this.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 				if (this.shader)
 					this.shader.toViewport(uniforms);
-			}else{
-				this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
-				if (this.shader)
-					if (Scene.lightVolume)
-						this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:CalcPointLightBSphere(light)}));
-					else
-						this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.range}));
-			}
-			firstLight = false;
+			// }else{
+			// 	this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+			// 	if (this.shader)
+			// 		this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.far}));
+			// }
 		}
 	}
 }
