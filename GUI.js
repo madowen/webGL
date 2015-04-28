@@ -22,15 +22,15 @@ function GUI(){
 		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1}).name('Render Type').listen();
 		gui.add(scene, 'channel',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
 		this.NiceScene = NiceScene;
-		this.Benchmark1x1 = function() {Benchmark(1,1);}
-		this.Benchmark2x2 = function() {Benchmark(2,2);}
-		this.Benchmark4x4 = function() {Benchmark(3,3);}
-		this.Benchmark10x10 = function() {Benchmark(10,10);}
+		this.Benchmark1x1Lights = function() {BenchmarkLights(1,1);}
+		this.Benchmark2x2Lights = function() {BenchmarkLights(2,2);}
+		this.Benchmark4x4Lights = function() {BenchmarkLights(3,3);}
+		this.Benchmark10x10Lights = function() {BenchmarkLights(10,10);}
 		gui.add(this,'NiceScene');
-		gui.add(this,'Benchmark1x1');
-		gui.add(this,'Benchmark2x2');
-		gui.add(this,'Benchmark4x4');
-		gui.add(this,'Benchmark10x10');
+		gui.add(this,'Benchmark1x1Lights');
+		gui.add(this,'Benchmark2x2Lights');
+		gui.add(this,'Benchmark4x4Lights');
+		gui.add(this,'Benchmark10x10Lights');
 		addColor(gui,scene.lights[0].ambient,'Ambient Scene');
 		var guiObjectList = gui.addFolder("Objects");
 		for (var o in scene.objects){

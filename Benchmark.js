@@ -190,7 +190,7 @@ function GreatHall(){
 
 }
 
-function Benchmark(n,m,object_mesh){
+function BenchmarkLights(n,m,object_mesh){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
@@ -204,7 +204,7 @@ function Benchmark(n,m,object_mesh){
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
-			obj = new GameObject("obj"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.3,orig_z-(j-m/2)*separation-separation/2]);
+			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.3,orig_z-(j-m/2)*separation-separation/2]);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
 			g = generateRandomNumber(0,1);
@@ -225,6 +225,56 @@ function Benchmark(n,m,object_mesh){
 	obj.transform.scale = [n*separation,1,m*separation];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
+
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+}
+
+function BenchmarkLightsObjects(n,m,object_mesh){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
+
+	var ambientLight = new Light();
+	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
+	ambientLight.diffuse = [0, 0, 0, 1];
+	ambientLight.specular = [0, 0, 0, 1];
+	ambientLight.owner = Scene;
+	Scene.lights.push(ambientLight);
+
+	for (var i = 0; i < n; i++){
+		for (var j = 0; j < m; j++){
+			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.3,orig_z-(j-m/2)*separation-separation/2]);
+			light = new Light(Light.POINT);
+			r = generateRandomNumber(0,1);
+			g = generateRandomNumber(0,1);
+			b = generateRandomNumber(0,1);
+			light.diffuse = [r,g,b,1.0];
+			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
+			obj.addComponent(light);
+			Scene.addLight(light);
+			Scene.addObject(obj);
+
+			var obj = new GameObject("floor"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y,orig_z-(j-m/2)*separation-separation/2]);
+			var ren = new ObjectRenderer();
+			ren.mesh = GL.Mesh.plane({xz:true});
+			ren.texture = GL.Texture.fromURL("assets/white.png");
+			obj.transform.scale = [1*separation,1,1*separation];
+			obj.addComponent(ren);
+			Scene.addObject(obj);
+		}
+	}
+
+	
 
 	obj = new GameObject("camera");
 	var cam = new Camera();
