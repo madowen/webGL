@@ -18,7 +18,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	this.linearAttenuation = linearAttenuation || 0.1;
 	this.quadraticAttenuation = quadraticAttenuation ||  0.57;
 	this.near = att_near || 0.01;
-	this.far = att_far|| 10;
+	this.far = att_far|| 1.5;
 
 	Object.defineProperty(this, 'direction',{
 		get: function() {

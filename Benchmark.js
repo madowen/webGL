@@ -31,6 +31,7 @@ function NiceScene(){
 	var light = new Light(Light.SPOT);
 	objlight.addComponent(light);
 	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
+	light.far = 8;
 	Scene.addLight(light);
 	Scene.addObject(objlight);
 
@@ -94,7 +95,6 @@ function NiceScene(){
 	ren.mesh = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [1,1,1];
 	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
@@ -116,8 +116,6 @@ function NiceScene(){
 	ren.mesh = GL.Mesh.cylinder();
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [1,1,1];
-	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
@@ -134,13 +132,71 @@ function NiceScene(){
 	Scene.addObject(obj);
 }
 
+function GreatHall(){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
+
+	var ambientLight = new Light();
+	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
+	ambientLight.diffuse = [0, 0, 0, 1];
+	ambientLight.specular = [0, 0, 0, 1];
+	ambientLight.owner = Scene;
+	Scene.lights.push(ambientLight);
+
+	obj = new GameObject("GreatHall");
+	obj.transform.position = [100,100,100]
+	var ren = new ObjectRenderer();
+	ren.mesh = GL.Mesh.fromURL("assets/Great Hall/Great Hall Model.obj");
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	var ol3 = new GameObject("Directional Light");
+	var l3 = new Light();
+	ol3.addComponent(l3);
+	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
+	l3.type = 0;
+	l3.intensity = 1.0;
+	l3.diffuse = [0.8,0.8,0.8,1];
+	l3.specular = [0.8,0.8,0.8,1];
+	Scene.addLight(l3);
+	Scene.addObject(ol3);
+
+	var ol3 = new GameObject("Point Light");
+	var l3 = new Light();
+	ol3.addComponent(l3);
+	ol3.transform.position = [100,91.3,49];
+	l3.type = 1;
+	l3.intensity = 3.5;
+	l3.diffuse = [0.8,0.3,0.3,1];
+	l3.specular = [0.8,0.3,0.3,1];
+	l3.far = 65
+	Scene.addLight(l3);
+	Scene.addObject(ol3);
+
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([102,106,91],[100,91.3,49],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+
+}
+
 function Benchmark(n,m,object_mesh){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
 	var ambientLight = new Light();
-	ambientLight.ambient = [0.02, 0.02, 0.02, 1];
+	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
 	ambientLight.diffuse = [0, 0, 0, 1];
 	ambientLight.specular = [0, 0, 0, 1];
 	ambientLight.owner = Scene;

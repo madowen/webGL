@@ -67,8 +67,9 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-	//NiceScene();
-	Benchmark(3,3);
+	NiceScene();
+	//Benchmark(3,3);
+	//GreatHall();
 	
 
 

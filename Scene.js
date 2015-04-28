@@ -37,11 +37,23 @@ Scene.update = function(dt){
 }
 
 Scene.onkeydown = function(e){
-	if(gl.keys['U']) this.channel = Scene.FULL;
-	if(gl.keys['I']) this.channel = Scene.ALBEDO;
-	if(gl.keys['O']) this.channel = Scene.DEPTH;
-	if(gl.keys['P']) this.channel = Scene.NORMAL;
-	if(gl.keys['Y']) this.renderMode = !this.renderMode;
+	if(gl.keys['U']){
+		this.channel = Scene.FULL;
+	}
+	if(gl.keys['I']){
+		this.channel = Scene.ALBEDO;
+	}
+	if(gl.keys['O']){
+		this.channel = Scene.DEPTH;
+	}
+	if(gl.keys['P']){
+		this.channel = Scene.NORMAL;
+	}
+	if(gl.keys['Y']){
+		this.renderMode = !this.renderMode;
+		if (!this.renderMode) console.log("Render Mode: Forward");
+		else console.log("Render Mode: Deferred");
+	}
 	for (var i in this.objects){
 		// console.log(e);
 		this.objects[i].callMethod("onkeydown",{evento: e});
