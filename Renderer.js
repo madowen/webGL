@@ -82,15 +82,17 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	}
 }
 
-	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
-	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
-	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
+	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{magFilter: gl.LINEAR});
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,	 {magFilter: gl.LINEAR});
+	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{magFilter: gl.LINEAR});
 
 	var modelt = mat4.create();
 	var temp = mat4.create();
 	var mrot;
 	var i;
 	var uniforms = {};
+	
+
 
 Renderer.deferredRender = function(channel,objects,lights,cam){
 
@@ -123,16 +125,15 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			p:cam.projection,
 			mvp:cam.mvp,
 			umodelt:modelt,
-			cameraPosition: cam.owner.transform.position,
-			nearPlane: cam.near,
+			uTexture: 6,
 			farPlane: cam.far,
-			uTexture: 6
+			nearPlane: cam.near,
 		};
 
 			if (object.objectRenderer.texture)
 				object.objectRenderer.texture.bind(6);
 
-			this.shader = MicroShaderManager.getShader("gbuffer",["deferred_vertex"],["gbuffer_fragment"],"microShaders.xml");
+			this.shader = MicroShaderManager.getShader("gbuffer",["gbuffer_vertex"],["gbuffer_fragment"],"microShaders.xml");
 			if (this.shader)
 				this.shader.uniforms(uniforms).draw(object.objectRenderer.mesh);
 		 }
@@ -165,6 +166,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			if (!light.enabled || !light.owner.enabled) continue;
 
 			v_inv = mat4.invert(mat4.create(),cam.view);
+			p_inv = mat4.invert(mat4.create(),cam.projection);
 
 			if (light.owner.transform)
 				mrot = light.owner.transform.globalModel; 
@@ -172,6 +174,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			mat4.multiply(temp,cam.view,mrot); 
 			mat4.multiply(cam.mvp,cam.projection,temp); 
 			mat4.toRotationMat4(modelt, mrot);
+
 
 			uniforms = {
 				m:mrot,
@@ -182,7 +185,8 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uAlbedoText:0,
 				uDepthText:1,
 				uNormalText:2,
-				v_inv:v_inv,
+				v_inv: v_inv,
+				p_inv: p_inv,
 				uLPosition: light.position,
 				uLDirection: light.direction,
 				uLType: light.type,
@@ -199,6 +203,8 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLNear: light.near,
 				uLFar: light.far,
 				uScreenSize: [gl.canvas.width,gl.canvas.height],
+				farPlane: cam.far,
+				nearPlane: cam.near,
 			};
 
 			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){

@@ -307,6 +307,11 @@
 			uniform vec3 cameraPosition;
 			uniform float nearPlane;
 			uniform float farPlane;
+
+			float color_to_float(float3 color){
+				const float3 byte_to_float=float3(1.0,1.0/256,1.0/(256*256));
+				return dot(color,byte_to_float);
+			}
 			]]>
 		</header>
 		<maincode><![CDATA[
@@ -353,20 +358,52 @@
 			varying vec4 v_position;
 			varying vec3 v_normal;
 			uniform sampler2D uTexture;
-			uniform vec3 cameraPosition;
-			uniform float nearPlane;
 			uniform float farPlane;
+			uniform float nearPlane;
+
+			vec3 float_to_color( float f){
+				vec3 color;
+				f *= 256.0;
+				color.x = floor(f);
+				f = (f-color.x)*256.0;
+				color.y = floor(f);
+				color.z = f-color.y;
+				color.xy *= 0.00390625; // *= 1.0/256
+				return color;
+			}
 			]]>
 		</header>
 		<maincode><![CDATA[
-				//float depth = length(cameraPosition - v_position.xyz);
-				float depth = length(cameraPosition - vec3(100,100,100));
-				depth = (depth-nearPlane)/(farPlane-nearPlane);
-
+				//float depth = v_position.z/farPlane;
+				float depth = length(v_position);
 
 				gl_FragData[0] = texture2D( uTexture, v_coord);
-				gl_FragData[1] = vec4(v_position.xyz,1.0);
+				gl_FragData[1] = vec4(float_to_color(depth),1.0);
 				gl_FragData[2] = normalize(vec4(v_normal.xyz,0));
+			]]>
+		</maincode>
+	</micro_shader>
+	<micro_shader>
+		<name>gbuffer_vertex</name>
+		<header><![CDATA[
+			attribute vec3 a_vertex;
+			attribute vec2 a_coord;
+			attribute vec3 a_normal;
+
+			varying vec4 v_position;  		// position of the vertex (and fragment) in world space
+			varying vec3 v_normal;  // surface normal vector in world space
+			varying vec2 v_coord;		
+
+			uniform mat4 umodelt;
+			uniform mat4 m, v, p;			//model, view, projection
+			uniform mat4 mvp;
+			]]>
+		</header>
+		<maincode><![CDATA[
+			v_coord = a_coord;
+			v_position = v * m * vec4(a_vertex,1.0);
+			v_normal = normalize(umodelt * vec4(a_normal,1.0)).xyz;
+			gl_Position = mvp * vec4(a_vertex,1.0);
 			]]>
 		</maincode>
 	</micro_shader>
@@ -384,6 +421,8 @@
 			uniform mat4 umodelt;
 			uniform mat4 m, v, p;			//model, view, projection
 			uniform mat4 mvp;
+
+			uniform mat4 p_inv;
 			]]>
 		</header>
 		<maincode><![CDATA[
@@ -433,7 +472,7 @@
 		<maincode>
 			<![CDATA[
 			vec4 position = texture2D( uDepthText, v_coord);
-				gl_FragColor = position;
+			gl_FragColor = position;
 			]]>	
 		</maincode>
 	</micro_shader>
@@ -444,12 +483,16 @@
       attribute vec3 a_vertex;
       attribute vec2 a_coord;
       varying vec2 v_coord;
+      varying vec4 v_position;
+
+      uniform mat4 m;
       
     			]]>
 		</header>
 		<maincode>
 			<![CDATA[
 		v_coord = a_coord;
+		v_position = m * vec4(a_vertex,1.0);
         gl_Position = vec4(a_coord * 2.0 - 1.0, 0.0, 1.0);
       			]]>	
 		</maincode>
@@ -459,12 +502,18 @@
 		<header>
 			<![CDATA[
 			varying vec2 v_coord;		
+			varying vec4 v_position;
+			
 			uniform sampler2D uAlbedoText;
 			uniform sampler2D uNormalText;
 			uniform sampler2D uDepthText;
 			
+			uniform mat4 v;
 			uniform mat4 v_inv;
 			uniform vec2 uScreenSize;
+			uniform float farPlane;
+			uniform float nearPlane;
+			
 			//light//
 			uniform vec3	uLPosition;
 			uniform vec3	uLDirection;
@@ -476,8 +525,8 @@
 			uniform vec4 	uLDiffuse;
 			uniform vec4 	uLSpecular;
 			uniform vec4 	uLAmbient;
-			//uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
-			uniform float uLNear,uLFar;
+		  //uniform float 	uLConstantAttenuation, uLLinearAttenuation, uLQuadraticAttenuation;
+			uniform float 	uLNear,uLFar;
 
 			vec3 	lightDiffuse = vec3(1.0,1.0,1.0);
 			vec3 	lightSpecular = vec3(1.0,1.0,1.0);
@@ -491,12 +540,32 @@
 			vec3 	diffuseReflection = vec3(1.0,1.0,1.0);
 			vec3 	specularReflection = vec3(1.0,1.0,1.0);
 
+			float color_to_float(vec3 color){
+				vec3 byte_to_float = vec3(1.0,1.0/256.0,1.0/(256.0*256.0));
+				return dot(color,byte_to_float);
+			}
+
 			]]>
 		</header>
 		<maincode>
 			<![CDATA[
 			vec2 coord = gl_FragCoord.xy / uScreenSize;
-			vec4 position = texture2D( uDepthText, coord);
+
+//			vec3 viewRay;
+//			if (uLType == 1 || uLType == 2)
+//				viewRay = vec3(v_position.xy * (farPlane / v_position.z), farPlane);
+//			else if (uLType == 0)
+//				viewRay = v_position.xyz;
+//
+//			float normalizedDepth = color_to_float(texture2D( uDepthText, coord).xyz);
+//			vec4 position = vec4(viewRay * normalizedDepth,1.0);
+
+if (uLType == 1 || uLType == 2)
+	vec3 position = m * v_position;
+else if (uLType == 0)
+	vec3 position =  * inv_p;
+
+
 			vec4 normal = texture2D( uNormalText, coord);
 			vec4 albedoColor = texture2D( uAlbedoText, coord);
 			
