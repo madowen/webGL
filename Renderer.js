@@ -209,11 +209,11 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			};
 
 			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
-				this.shader = MicroShaderManager.getShader("deferred",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
+				this.shader = MicroShaderManager.getShader("deferred_dir",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 				if (this.shader)
 					this.shader.toViewport(uniforms);
 			 }else{
-				this.shader = MicroShaderManager.getShader("deferred",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+				this.shader = MicroShaderManager.getShader("deferred_point",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
 				if (this.shader)
 					this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.far}));
 			}
