@@ -91,7 +91,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var mrot;
 	var i;
 	var uniforms = {};
-	
+	var camDir = vec3.create();
 
 
 Renderer.deferredRender = function(channel,objects,lights,cam){
@@ -175,7 +175,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			mat4.multiply(cam.mvp,cam.projection,temp); 
 			mat4.toRotationMat4(modelt, mrot);
 
-
+			camDir = vec3.sub(camDir,[0,0,0],Scene.cameras[0].owner.transform.front);
 			uniforms = {
 				m:mrot,
 				v:cam.view,
@@ -202,9 +202,10 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				// uLQuadraticAttenuation: light.quadraticAttenuation,
 				uLNear: light.near,
 				uLFar: light.far,
-				uScreenSize: [gl.canvas.width,gl.canvas.height],
 				farPlane: cam.far,
 				nearPlane: cam.near,
+				cameraPosition: cam.owner.transform.position,
+				cameraDirection: camDir,
 			};
 
 			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
