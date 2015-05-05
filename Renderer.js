@@ -82,9 +82,10 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	}
 }
 
-	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{magFilter: gl.LINEAR});
-	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,	 {magFilter: gl.LINEAR});
-	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{magFilter: gl.LINEAR});
+	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height);
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height);
+	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height);
+	var positionsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height);
 
 	var modelt = mat4.create();
 	var temp = mat4.create();
@@ -96,7 +97,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 Renderer.deferredRender = function(channel,objects,lights,cam){
 
-	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture],function(){
+	Texture.drawTo([diffuseTexture,depthTexture,normalsTexture,positionsTexture],function(){
 		gl.depthMask(true);
 		gl.disable( gl.CULL_FACE );
 
@@ -147,6 +148,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 		gl.drawTexture(diffuseTexture, 	0,0, 					gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(depthTexture, 	gl.canvas.width*0.5,0, 	gl.canvas.width*0.5, gl.canvas.height*0.5);
 		gl.drawTexture(normalsTexture, 	0,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
+		gl.drawTexture(positionsTexture,gl.canvas.width*0.5,gl.canvas.height*0.5, gl.canvas.width*0.5, gl.canvas.height*0.5);
 	}else{
 
 		gl.enable(gl.BLEND);
@@ -213,7 +215,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				if (this.shader)
 					this.shader.toViewport(uniforms);
 			 }else{
-				this.shader = MicroShaderManager.getShader("deferred_point",["deferred_vertex"],["deferred_fragment"],"microShaders.xml");
+				this.shader = MicroShaderManager.getShader("deferred_point",["SCREEN_VERTEX_SHADER"],["deferred_fragment"],"microShaders.xml");
 				if (this.shader)
 					this.shader.uniforms(uniforms).draw(GL.Mesh.sphere({size:light.far}));
 			}
