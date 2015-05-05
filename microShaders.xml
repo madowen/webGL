@@ -381,7 +381,7 @@
 				gl_FragData[0] = texture2D( uTexture, v_coord);
 				gl_FragData[1] = vec4(float_to_color(depth),1.0);
 				gl_FragData[2] = normalize(vec4(v_normal.xyz,0));
-				gl_FragData[3] = v_position;
+				//gl_FragData[3] = v_position;
 			]]>
 		</maincode>
 	</micro_shader>

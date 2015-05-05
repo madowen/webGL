@@ -17,7 +17,7 @@ Scene.activeCamera = 0;
 Scene.renderMode = Scene.DEFERRED; //0 = forward, 1 = deferred
 Scene.shader = null;
 
-Scene.channel = Scene.ALBEDO;
+Scene.channel = Scene.FULL;
 
 Scene.addObject = function(object){
 	this.objects.push(object);
