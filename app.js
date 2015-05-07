@@ -108,3 +108,93 @@ function init(){
 function resize(){
 	alert("resize");
 }
+
+function printVector(v){
+	for (var i = 0; i < v.length; i++){
+		document.getElementById("log").innerHTML += v[i];
+		if (i < v.length-1) document.getElementById("log").innerHTML += ", ";
+	}
+	document.getElementById("log").innerHTML += "<br>";
+}
+
+function printMatrix(m){
+	for (var i = 0; i < m.length; i++){
+		printVector(m[i]);
+		if (i < m.length-1) document.getElementById("log").innerHTML += "<br>";
+	}
+	document.getElementById("log").innerHTML += "<br>";
+}
+
+function testUnproject(){
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			var model = mat4.create();
+			document.getElementById("log").innerHTML += "model: ";
+			printVector(model);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var view = mat4.create();
+			document.getElementById("log").innerHTML += "view: ";
+			printVector(view);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var projection = mat4.perspective(mat4.create(), 45, gl.canvas.width/gl.canvas.height, 0.1, 100);
+			document.getElementById("log").innerHTML += "var projection = mat4.perspective(mat4.create(), 45, gl.canvas.width/gl.canvas.height, 0.1, 100);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "projection: ";
+			printVector(projection);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var pos = [2,2,2,1];
+			document.getElementById("log").innerHTML += "pos: ";
+			printVector(pos);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var viewport = gl.getViewport();
+			
+			var modelview = 		mat4.multiply(mat4.create(),	view,		model); 
+			document.getElementById("log").innerHTML += "var modelview = 		mat4.multiply(mat4.create(),	view,		model); ";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "modelview: ";
+			printVector(modelview);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var viewprojection = 	mat4.multiply(mat4.create(),	projection,	view);
+			document.getElementById("log").innerHTML += "var viewprojection = 	mat4.multiply(mat4.create(),	projection,	view);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "viewprojection: ";
+			printVector(viewprojection);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var mvp = 				mat4.multiply(mat4.create(),	projection,	modelview); 
+			document.getElementById("log").innerHTML += "var mvp = 				mat4.multiply(mat4.create(),	projection,	modelview); ";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "mpv: ";
+			printVector(mvp);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var posScreenCoords = 	vec4.transformMat4(vec4.create(),	pos,	mvp);
+			document.getElementById("log").innerHTML += "var posScreenCoords = 	vec4.transformMat4(vec4.create(),	pos,	mvp);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "posScreenCoords: ";
+			printVector(posScreenCoords);
+			document.getElementById("log").innerHTML += "<br>";
+
+			var gluUnproj = vec3.create();
+			GLU.unProject(posScreenCoords[0],posScreenCoords[1],posScreenCoords[2], modelview, projection, viewport, gluUnproj);
+			var vec3unproj = vec3.create();
+			vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);
+			document.getElementById("log").innerHTML += "GLU.unProject(posScreenCoords[0],posScreenCoords[1],posScreenCoords[2], modelview, projection, viewport, gluUnproj);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "gluUnproj: ";
+			printVector(gluUnproj);
+			document.getElementById("log").innerHTML += "<br>";
+
+			document.getElementById("log").innerHTML += "vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "vecUnproj: ";
+			printVector(vec3unproj);
+			document.getElementById("log").innerHTML += "<br>";
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
+

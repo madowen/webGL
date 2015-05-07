@@ -44,6 +44,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 			mat4.multiply(temp,cam.view,mrot); //modelview
 			mat4.multiply(cam.mvp,cam.projection,temp); //modelviewprojection
 			//compute rotation matrix for normals
+
 			mat4.toRotationMat4(modelt, mrot);
 
 			uniforms = {
