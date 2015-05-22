@@ -144,7 +144,7 @@ function testUnproject(){
 			printVector(projection);
 			document.getElementById("log").innerHTML += "<br>";
 
-			var pos = [2,2,2,1];
+			var pos = [0,0,-1,1];
 			document.getElementById("log").innerHTML += "pos: ";
 			printVector(pos);
 			document.getElementById("log").innerHTML += "<br>";
@@ -181,19 +181,27 @@ function testUnproject(){
 
 			var gluUnproj = vec3.create();
 			GLU.unProject(posScreenCoords[0],posScreenCoords[1],posScreenCoords[2], modelview, projection, viewport, gluUnproj);
-			var vec3unproj = vec3.create();
-			vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);
 			document.getElementById("log").innerHTML += "GLU.unProject(posScreenCoords[0],posScreenCoords[1],posScreenCoords[2], modelview, projection, viewport, gluUnproj);";
 			document.getElementById("log").innerHTML += "<br>";
 			document.getElementById("log").innerHTML += "gluUnproj: ";
 			printVector(gluUnproj);
 			document.getElementById("log").innerHTML += "<br>";
 
+			var vec3unproj = vec3.create();
+			vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);
 			document.getElementById("log").innerHTML += "vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);";
 			document.getElementById("log").innerHTML += "<br>";
 			document.getElementById("log").innerHTML += "vecUnproj: ";
 			printVector(vec3unproj);
 			document.getElementById("log").innerHTML += "<br>";
+
+			// var invView = mat4.create();
+			// mat4.invert(invView,view);
+			// document.getElementById("log").innerHTML += "mat4.invert(invView,view);";
+			// document.getElementById("log").innerHTML += "<br>";
+			// document.getElementById("log").innerHTML += "invView: ";
+			// printVector(invView);
+			// document.getElementById("log").innerHTML += "<br>";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
