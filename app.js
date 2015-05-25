@@ -195,14 +195,37 @@ function testUnproject(){
 			printVector(vec3unproj);
 			document.getElementById("log").innerHTML += "<br>";
 
-			// var invView = mat4.create();
-			// mat4.invert(invView,view);
-			// document.getElementById("log").innerHTML += "mat4.invert(invView,view);";
-			// document.getElementById("log").innerHTML += "<br>";
-			// document.getElementById("log").innerHTML += "invView: ";
-			// printVector(invView);
-			// document.getElementById("log").innerHTML += "<br>";
+			var VSPositionFromDepthUnproj = vec3.create();
+			var p_inv = mat4.invert(mat4.create(),projection);
+			var vp_inv = mat4.invert(mat4.create(),viewprojection);
+			VSPositionFromDepthUnproj = VSPositionFromDepth(posScreenCoords[0],posScreenCoords[1],posScreenCoords[2], vp_inv);
+			document.getElementById("log").innerHTML += "VSPositionFromDepthUnproj = VSPositionFromDepth([posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], p_inv);";
+			document.getElementById("log").innerHTML += "<br>";
+			document.getElementById("log").innerHTML += "VSPositionFromDepthUnproj: ";
+			printVector(VSPositionFromDepthUnproj);
+			document.getElementById("log").innerHTML += "<br>";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
+function VSPositionFromDepth(in_x, in_y, in_z, p_inv){
+				// Get the depth value for this pixel
+				var z = in_z;
+				// Get x/w and y/w from the viewport position
+				var x = in_x * 2.0 - 1.0;
+				var y = (1.0 - in_y) * 2.0 - 1.0;
+				var vProjectedPos = vec4.create();
+				vProjectedPos[0] = x;
+				vProjectedPos[1] = y;
+				vProjectedPos[2] = z;
+				vProjectedPos[3] = 1.0;
+				// Transform by the inverse projection matrix
+				var vPositionVS = vec4.create();
+				vec4.transformMat4(vPositionVS,vProjectedPos,p_inv);
+				// Divide by w to get the view-space position
+				var out = vec3.create();
+				out[0] = vPositionVS[0] / vPositionVS[3];
+				out[1] = vPositionVS[1] / vPositionVS[3];
+				out[2] = vPositionVS[2] / vPositionVS[3];
+				return out;
+			}
