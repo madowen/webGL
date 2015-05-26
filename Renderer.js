@@ -170,6 +170,8 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 
 			v_inv = mat4.invert(mat4.create(),cam.view);
 			p_inv = mat4.invert(mat4.create(),cam.projection);
+			vp = mat4.multiply(mat4.create(), cam.view, cam.projection);
+			vp_inv = mat4.invert(mat4.create(),vp);
 
 			if (light.owner.transform)
 				mrot = light.owner.transform.globalModel; 
@@ -190,6 +192,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uNormalText:2,
 				v_inv: v_inv,
 				p_inv: p_inv,
+				vp_inv: vp_inv,
 				uLPosition: light.position,
 				uLDirection: light.direction,
 				uLType: light.type,

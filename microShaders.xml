@@ -478,6 +478,7 @@
 			uniform mat4 v;
 			uniform mat4 v_inv;
 			uniform mat4 p_inv;
+			uniform mat4 vp_inv;
 			uniform float farPlane;
 			uniform float nearPlane;
 			uniform vec3 cameraPosition;
@@ -522,7 +523,7 @@
 				float y = (1.0 - vTexCoord.y) * 2.0 - 1.0;
 				vec4 vProjectedPos = vec4(x, y, z, 1.0);
 				// Transform by the inverse projection matrix
-				vec4 vPositionVS = p_inv * vProjectedPos;
+				vec4 vPositionVS = vp_inv * vProjectedPos;
 				// Divide by w to get the view-space position
 				return vPositionVS.xyz / vPositionVS.w;  
 			}
@@ -589,7 +590,8 @@
 				specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 
-			gl_FragColor = albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			//gl_FragColor = albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = texture2D( uDepthText, coord);
 			]]>	
 		</maincode>
 	</micro_shader>
