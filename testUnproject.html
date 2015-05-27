@@ -87,12 +87,19 @@ function testUnproject(){
 			printVector(mvp);
 			document.getElementById("log").innerHTML += "<br>";
 
+
 			var posScreenCoords = 	vec4.transformMat4(vec4.create(),	pos,	mvp);
 			document.getElementById("log").innerHTML += "var posScreenCoords = 	vec4.transformMat4(vec4.create(),	pos,	mvp);";
 			document.getElementById("log").innerHTML += "<br>";
 			document.getElementById("log").innerHTML += "posScreenCoords: ";
 			printVector(posScreenCoords);
 			document.getElementById("log").innerHTML += "<br>";
+
+			var mvp_inv = mat4.invert(mat4.create(), mvp);
+			var posScreenCoords2 = vec4.transformMat4(vec4.create(), posScreenCoords, mvp_inv);
+			document.getElementById("log").innerHTML += "posScreenCoords2: ";
+			printVector(posScreenCoords2);
+
 
 			var vec3unproj = vec3.create();
 			vec3.unproject(vec3unproj, [posScreenCoords[0],posScreenCoords[1],posScreenCoords[2]], viewprojection, viewport);
