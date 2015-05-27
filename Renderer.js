@@ -201,6 +201,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLNear: light.near,
 				uLFar: light.far,
 				uScreenSize: [gl.canvas.width,gl.canvas.height],
+				viewport: gl.viewport,
 			};
 
 			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){

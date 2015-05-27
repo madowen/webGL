@@ -466,6 +466,7 @@
 			uniform mat4 v_inv;
 			uniform mat4 mvp_inv;
 			uniform vec2 uScreenSize;
+			uniform vec4 viewport;
 			//light//
 			uniform vec3	uLPosition;
 			uniform vec3	uLDirection;
@@ -496,9 +497,14 @@
 		</header>
 		<maincode>
 			<![CDATA[
-			vec2 coord = gl_FragCoord.xy / uScreenSize;
+			//vec2 coord = gl_FragCoord.xy / uScreenSize;
+			vec2 screen = (vec2(gl_FragCoord.x, gl_FragCoord.y) - viewport.xy) * viewport.zw;
 			vec4 position = texture2D( uDepthText, coord);
-			vec4 depth = 	texture2D( uDepthText, coord);
+			float depth = 	texture2D( uDepthText, coord).x;
+			
+			//mat4 IM = inverse(ProjectionMatrix * CameraMatrix) * RemapMatrix; //http://www.gamedev.net/topic/498615-how-can-i-get-the-world-coordinates-in-a-glsl-pixel-shader-by-using-the-depth-value/
+			//vec4 world = vec4(screen, depth, 1.0) * IM
+
 
 			//vec4 posScreenCoords = vec4(coord.x,coord.y,depth,1.0);
 			//vec4 position2 = posScreenCoords * mvp_inv;
