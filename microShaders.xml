@@ -359,13 +359,13 @@
 			]]>
 		</header>
 		<maincode><![CDATA[
-				//float depth = length(cameraPosition - v_position.xyz);
-				float depth = length(cameraPosition - vec3(100,100,100));
+				float depth = length(cameraPosition - v_position.xyz);
+				//float depth = length(cameraPosition - vec3(100,100,100));
 				depth = (depth-nearPlane)/(farPlane-nearPlane);
 
 
 				gl_FragData[0] = texture2D( uTexture, v_coord);
-				gl_FragData[1] = vec4(v_position.xyz,1.0);
+				gl_FragData[1] = vec4(vec3(depth),1.0);
 				gl_FragData[2] = normalize(vec4(v_normal.xyz,0));
 			]]>
 		</maincode>
@@ -497,6 +497,7 @@
 			<![CDATA[
 			vec2 coord = gl_FragCoord.xy / uScreenSize;
 			vec4 position = texture2D( uDepthText, coord);
+			float depth = texture2D( uDepthText, coord).x;
 			vec4 normal = texture2D( uNormalText, coord);
 			vec4 albedoColor = texture2D( uAlbedoText, coord);
 			
@@ -551,7 +552,7 @@
 				specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 
-			gl_FragColor = albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = vec4(coord.x,coord.y,depth,0.0);//albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>	
 		</maincode>
 	</micro_shader>
