@@ -82,9 +82,9 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	}
 }
 
-	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
-	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
-	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,{type: gl.FLOAT, magFilter: gl.LINEAR});
+	var diffuseTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,	{type: gl.FLOAT, 	magFilter: gl.LINEAR});
+	var depthTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,		{type: gl.FLOAT, 	magFilter: gl.LINEAR});
+	var normalsTexture = new GL.Texture(gl.canvas.width,gl.canvas.height,	{type: gl.FLOAT, 	magFilter: gl.LINEAR});
 
 	var modelt = mat4.create();
 	var temp = mat4.create();
@@ -164,14 +164,15 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			light = lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
 
-			v_inv = mat4.invert(mat4.create(),cam.view);
-
 			if (light.owner.transform)
 				mrot = light.owner.transform.globalModel; 
 
 			mat4.multiply(temp,cam.view,mrot); 
 			mat4.multiply(cam.mvp,cam.projection,temp); 
 			mat4.toRotationMat4(modelt, mrot);
+
+			v_inv = mat4.invert(mat4.create(),cam.view);
+			mvp_inv = mat4.invert(mat4.create(),cam.mvp);
 
 			uniforms = {
 				m:mrot,
@@ -183,6 +184,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uDepthText:1,
 				uNormalText:2,
 				v_inv:v_inv,
+				mvp_inv:mvp_inv,
 				uLPosition: light.position,
 				uLDirection: light.direction,
 				uLType: light.type,

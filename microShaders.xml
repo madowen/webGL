@@ -464,6 +464,7 @@
 			uniform sampler2D uDepthText;
 			
 			uniform mat4 v_inv;
+			uniform mat4 mvp_inv;
 			uniform vec2 uScreenSize;
 			//light//
 			uniform vec3	uLPosition;
@@ -497,7 +498,11 @@
 			<![CDATA[
 			vec2 coord = gl_FragCoord.xy / uScreenSize;
 			vec4 position = texture2D( uDepthText, coord);
-			float depth = texture2D( uDepthText, coord).x;
+			vec4 depth = 	texture2D( uDepthText, coord);
+
+			//vec4 posScreenCoords = vec4(coord.x,coord.y,depth,1.0);
+			//vec4 position2 = posScreenCoords * mvp_inv;
+
 			vec4 normal = texture2D( uNormalText, coord);
 			vec4 albedoColor = texture2D( uAlbedoText, coord);
 			
@@ -552,7 +557,7 @@
 				specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 
-			gl_FragColor = vec4(coord.x,coord.y,depth,0.0);//albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = normal;//albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>	
 		</maincode>
 	</micro_shader>
