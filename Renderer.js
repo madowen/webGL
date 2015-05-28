@@ -91,6 +91,8 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var mrot;
 	var i;
 	var uniforms = {};
+	var remapMatrix = [2.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,0.0,2.0,0.0,-1.0,-1.0,-1.0,1.0];
+
 
 Renderer.deferredRender = function(channel,objects,lights,cam){
 
@@ -172,7 +174,11 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 			mat4.toRotationMat4(modelt, mrot);
 
 			v_inv = mat4.invert(mat4.create(),cam.view);
+			vp = mat4.multiply(mat4.create(),cam.projection,cam.view);
+			vp_inv = mat4.invert(mat4.create(),vp);
 			mvp_inv = mat4.invert(mat4.create(),cam.mvp);
+			IM = mat4.multiply(mat4.create(),remapMatrix,vp_inv);
+			viewport = [0,0,gl.canvas.width,gl.canvas.height];
 
 			uniforms = {
 				m:mrot,
@@ -184,7 +190,10 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uDepthText:1,
 				uNormalText:2,
 				v_inv:v_inv,
+				vp_inv:vp_inv,
 				mvp_inv:mvp_inv,
+				IM:IM,
+				remapMatrix:remapMatrix,
 				uLPosition: light.position,
 				uLDirection: light.direction,
 				uLType: light.type,
@@ -201,7 +210,7 @@ Renderer.deferredRender = function(channel,objects,lights,cam){
 				uLNear: light.near,
 				uLFar: light.far,
 				uScreenSize: [gl.canvas.width,gl.canvas.height],
-				viewport: gl.viewport,
+				viewport: viewport,
 			};
 
 			 if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
