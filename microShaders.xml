@@ -464,8 +464,11 @@
 			uniform sampler2D uDepthText;
 			
 			uniform mat4 v_inv;
+			uniform mat4 IM;
 			uniform mat4 mvp_inv;
 			uniform vec2 uScreenSize;
+			uniform vec4 viewport;
+			uniform mat4 remapMatrix;
 			//light//
 			uniform vec3	uLPosition;
 			uniform vec3	uLDirection;
@@ -497,8 +500,15 @@
 		<maincode>
 			<![CDATA[
 			vec2 coord = gl_FragCoord.xy / uScreenSize;
-			vec4 position = texture2D( uDepthText, coord);
-			vec4 depth = 	texture2D( uDepthText, coord);
+			//vec4 position = texture2D( uDepthText, coord);
+			
+
+			// http://www.gamedev.net/topic/498615-how-can-i-get-the-world-coordinates-in-a-glsl-pixel-shader-by-using-the-depth-value/
+			vec2 screen = (vec2(gl_FragCoord.x, gl_FragCoord.y) - viewport.xy) * viewport.zw;
+			float depth = 	texture2D( uDepthText, coord).x;
+			vec4 world = IM * vec4(screen, depth, 1.0);
+			world.xyz /= world.w;
+			vec4 position = vec4(world.xyz,1.0);
 
 			//vec4 posScreenCoords = vec4(coord.x,coord.y,depth,1.0);
 			//vec4 position2 = posScreenCoords * mvp_inv;
@@ -557,7 +567,7 @@
 				specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 			}
 
-			gl_FragColor = normal;//albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = position; //albedoColor * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>	
 		</maincode>
 	</micro_shader>
