@@ -145,7 +145,7 @@
 		</header>
 		<maincode><![CDATA[
 			albedoColor = texture2D( uTexture, v_coord);
-			gl_FragColor = uOColor * albedoColor * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * lightIntensity;
+			gl_FragColor = uOColor * albedoColor * vec4( diffuseReflection + specularReflection, 1.0) * lightIntensity;
 			]]>
 		</maincode>
 	</micro_shader>
@@ -257,7 +257,7 @@
 			}
 			
 			vec4 color = texture2D( uTexture, v_coord);
-			gl_FragColor = uOColor * color * vec4(ambientLighting + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+			gl_FragColor = uOColor * color * vec4( diffuseReflection + specularReflection, 1.0) * uLIntensity;
 			]]>
 		</maincode>
 	</micro_shader>
@@ -724,7 +724,7 @@ if (dot(normalDirection, lightDirection) < 0.0){ 	// light source on the wrong s
 	specularReflection = attenuation * lightSpecular  * pow(max(0.0, dot(reflect(-lightDirection, normalDirection), viewDirection)), 1.0);
 }
 
-gl_FragColor = diffuse_color * vec4(lightAmbient + diffuseReflection + specularReflection, 1.0) * uLIntensity;
+gl_FragColor = diffuse_color * vec4( diffuseReflection + specularReflection, 1.0) * uLIntensity;
 
 ]]>	
 		</maincode>

@@ -19,10 +19,13 @@ function NiceScene(){
 	ambientLight.owner = Scene;
 	Scene.lights.push(ambientLight);
 
-	var objlight = new GameObject("Point Light",[104,101,104]);
+	var objlight = new GameObject("Point Light",[102,105,102]);
 	var light = new Light(Light.POINT);
 	light.diffuse = [0.8,0.1,0.3,1.0];
 	light.specular = [0.9,0.05,0.15,1.0];
+	light.intensity = 1.5;
+	light.near = 4.5;
+	light.far = 6.0;
 	objlight.addComponent(light);
 	Scene.addLight(light);
 	Scene.addObject(objlight);
@@ -139,31 +142,47 @@ function Sponza(){
 	obj = new GameObject("Sponza");
 	obj.transform.position = [0,0,0]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/cornell-box/CornellBox-Original.obj");
+	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [50,50,50];
+	obj.transform.scale = [5,5,5];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	// LIGHTS //
-	obj = new GameObject("Directional Light");
-	var l3 = new Light(Light.SPOT);
-	obj.addComponent(l3);
-	l3.lookAt([10,10,0],[0,0,0],[0,0,1]);
-	l3.intensity = 0.6;
-	l3.diffuse = [0.2,0.8,0.5,1];
-	l3.specular = [0.2,0.8,0.5,1];
-	l3.near = 0.1;
-	l3.far = 200.0;
-	Scene.addLight(l3);
-	Scene.addObject(obj);
+		for (var j = 0; j < 50; j++){
+			obj = new GameObject("light"+j);
+			light = new Light(Light.POINT);
+			r = generateRandomNumber(0,1);
+			g = generateRandomNumber(0,1);
+			b = generateRandomNumber(0,1);
+			x = generateRandomNumber(-100,100);
+			y = generateRandomNumber(-10,100);
+			z = generateRandomNumber(-40,40);
+			obj.transform.position = [x,y,z]
+			light.diffuse 	= [r,g,b,1.0];
+			light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+			light.near 		= 10;
+			light.far 		= 30;
+			obj.addComponent(light);
+			Scene.addLight(light);
+			Scene.addObject(obj);
+		}
+
+		obj = new GameObject("light"+j);
+		light = new Light(Light.DIRECTIONAL);
+		obj.transform.lookAt([0,300,-1000],[0,0,0],[0,1,0]);
+		light.diffuse 	= [0.1,0.1,0.1,1.0];
+		light.specular 	= [0.1,0.1,0.1,1.0];
+		obj.addComponent(light);
+		Scene.addLight(light);
+		Scene.addObject(obj);
 
 	// CAMERA //
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([50,40,0],[0,0,0],[0,1,0]);
+	cam.lookAt([-50,50,0],[0,30,0],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-10],[-10,0,0]);
@@ -188,15 +207,16 @@ function BenchmarkLights(n,m,object_mesh){
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
-			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.3,orig_z-(j-m/2)*separation-separation/2]);
+			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.1,orig_z-(j-m/2)*separation-separation/2]);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
 			g = generateRandomNumber(0,1);
 			b = generateRandomNumber(0,1);
+			light.intensity = 1.0;
 			light.diffuse = [r,g,b,1.0];
 			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
 			light.near = 0.001;
-			light.far = 0.01;
+			light.far = 0.3;
 			obj.addComponent(light);
 			Scene.addLight(light);
 			Scene.addObject(obj);
@@ -284,7 +304,7 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	Scene.addObject(obj);
 }
 
-function planeSphere(){
+function Temple(){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
@@ -300,7 +320,7 @@ function planeSphere(){
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 15; j++){
+		for (var j = 0; j < 50; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -310,10 +330,11 @@ function planeSphere(){
 			y = generateRandomNumber(100,500);
 			z = generateRandomNumber(-250,250);
 			obj.transform.position = [x,y,z]
+			light.intensity = 2.0;
 			light.diffuse 	= [r,g,b,1.0];
 			light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
-			light.near 		= 0.1;
-			light.far 		= 200;
+			light.near 		= 40;
+			light.far 		= 100;
 			obj.addComponent(light);
 			Scene.addLight(light);
 			Scene.addObject(obj);
@@ -322,8 +343,8 @@ function planeSphere(){
 		obj = new GameObject("light"+j);
 		light = new Light(Light.DIRECTIONAL);
 		obj.transform.lookAt([0,300,-1000],[0,0,0],[0,1,0]);
-		light.diffuse 	= [0.7,0.4,0.4,1.0];
-		light.specular 	= [0.7,0.4,0.4,1.0];
+		light.diffuse 	= [0.5,0.2,0.2,1.0];
+		light.specular 	= [0.5,0.2,0.2,1.0];
 		obj.addComponent(light);
 		Scene.addLight(light);
 		Scene.addObject(obj);

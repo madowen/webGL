@@ -1267,8 +1267,6 @@ vec3.unproject = function (out, vec, viewprojection, viewport) {
   var m = unprojectMat;
   var v = unprojectVec;
   
-  // v[0] = vec[0] * 2.0  - 1.0;
-  // v[1] = vec[1] * 2.0  - 1.0;
   v[0] = (vec[0] - viewport[0]) * 2.0 / viewport[2] - 1.0;
   v[1] = (vec[1] - viewport[1]) * 2.0 / viewport[3] - 1.0;
   v[2] = 2.0 * vec[2] - 1.0;

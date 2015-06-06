@@ -19,14 +19,17 @@ function GUI(){
 	}
 
 	GUI.scene = function(gui,scene){
-		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1}).name('Render Type').listen();
-		gui.add(scene, 'channel',{'Full':0,'Albedo':1,'Depth':2,'Normals':3}).name('Render Mode').listen();
+		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1,'G-Buffer':2}).name('Render Type').listen();
 		this.NiceScene = NiceScene;
+		this.Sponza = Sponza;
+		this.Temple = Temple;
 		this.Benchmark1x1Lights = function() {BenchmarkLights(1,1);}
 		this.Benchmark2x2Lights = function() {BenchmarkLights(2,2);}
-		this.Benchmark4x4Lights = function() {BenchmarkLights(3,3);}
+		this.Benchmark4x4Lights = function() {BenchmarkLights(4,4);}
 		this.Benchmark10x10Lights = function() {BenchmarkLights(10,10);}
 		gui.add(this,'NiceScene');
+		gui.add(this,'Sponza');
+		gui.add(this,'Temple');
 		gui.add(this,'Benchmark1x1Lights');
 		gui.add(this,'Benchmark2x2Lights');
 		gui.add(this,'Benchmark4x4Lights');
