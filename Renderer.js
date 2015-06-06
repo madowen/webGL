@@ -91,7 +91,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 
 
-	//create G Buffers
+	//G Buffer
 	var w = (gl.canvas.width*0.5)|0;
 	var h = (gl.canvas.height*0.5)|0;
 	var type = gl.UNSIGNED_BYTE;// , gl.FLOAT, (or gl.HALF_FLOAT_OES although it doesnt work in firefox)
@@ -103,7 +103,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var fbo = new GL.FBO( textures, texture_depth );
 	var texture_final = new GL.Texture(w,h, { type: type, filter: gl.NEAREST });
 
-	//create basic matrices for cameras and transformation
+	//matrices
 	var proj = mat4.create();
 	var view = mat4.create();
 	var viewprojection = mat4.create();
@@ -114,7 +114,6 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var temp = mat4.create();
 	var identity = mat4.create();
 
-	//generic gl flags and settings
 	gl.clearColor(0.1,0.1,0.1,1);
 	gl.enable( gl.DEPTH_TEST );
 
@@ -137,20 +136,14 @@ Renderer.newDeferred = function(objects,lights,cam){
 		u_camera_position: camera_position,
 	};
 
-	//rendering loop
-
-	//render something in the texture
 	fbo.bind(true);
 
 	gl.clearColor(0.1,0.1,0.1,1);
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	gl.enable( gl.DEPTH_TEST );
 
-	//create modelview and projection matrices
-	//mat4.lookAt( view, camera_position, [0,0,0], [0,1,0]);
 	mat4.multiply( viewprojection, proj, view );
 	mat4.invert( inv_vp, viewprojection );
-
 	mvp.set( viewprojection );
 
 	for (var i = 0; i < objects.length ; ++i){
