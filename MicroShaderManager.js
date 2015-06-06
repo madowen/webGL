@@ -2,7 +2,6 @@ var MicroShaderManager = {
 	microShaders: null,
 	shaders: [],
 	xmlFile: 'microShaders.xml',
-	micros: null,
 	vertexSource: null,
 	fragmentSource: null,
 

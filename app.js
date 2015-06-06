@@ -6,7 +6,7 @@ function KeyController(front,right){
 	this.name = "keycontroller"
 	this.front = front 	|| [0,0,1];
 	this.right = right 	|| [1,0,0];
-	this.speed = 5;
+	this.speed = 50;
 	//KeyController.prototype.onkeydown = function(){}
 	KeyController.prototype.update = function(dt){
 		var f = this.owner.transform.front; //front
@@ -67,11 +67,10 @@ function init(){
 	canvas.appendChild(gl.canvas);
 	gl.animate();
 	
-	NiceScene();
-	//Benchmark(3,3);
-	//GreatHall();
-	
-
+	//NiceScene();
+	//BenchmarkLights(2,2);
+	//Sponza();
+	planeSphere();
 
 	console.log(Scene.objects);
 
@@ -101,7 +100,7 @@ function init(){
 		Scene.onmousemove(e);
 	};
 
-	GUI.init();
+	 GUI.init();
 
 }
 

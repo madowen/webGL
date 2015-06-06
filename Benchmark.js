@@ -1,7 +1,7 @@
-var orig_x = 100;
-var orig_y = 100;
-var orig_z = 100;
-var separation = 5;
+var orig_x = 0;
+var orig_y = 0;
+var orig_z = 0;
+var separation = 1;
 
 var r,g,b;
 var obj;
@@ -106,7 +106,6 @@ function NiceScene(){
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [0.5,0.5,0.5];
-	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
@@ -132,57 +131,42 @@ function NiceScene(){
 	Scene.addObject(obj);
 }
 
-function GreatHall(){
+function Sponza(){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
-	var ambientLight = new Light();
-	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
-	ambientLight.diffuse = [0, 0, 0, 1];
-	ambientLight.specular = [0, 0, 0, 1];
-	ambientLight.owner = Scene;
-	Scene.lights.push(ambientLight);
-
-	obj = new GameObject("GreatHall");
-	obj.transform.position = [100,100,100]
+	obj = new GameObject("Sponza");
+	obj.transform.position = [0,0,0]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/Great Hall/Great Hall Model.obj");
+	ren.mesh = GL.Mesh.fromURL("assets/cornell-box/CornellBox-Original.obj");
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [50,50,50];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
-	var ol3 = new GameObject("Directional Light");
-	var l3 = new Light();
-	ol3.addComponent(l3);
-	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
-	l3.type = 0;
-	l3.intensity = 1.0;
-	l3.diffuse = [0.8,0.8,0.8,1];
-	l3.specular = [0.8,0.8,0.8,1];
+	// LIGHTS //
+	obj = new GameObject("Directional Light");
+	var l3 = new Light(Light.SPOT);
+	obj.addComponent(l3);
+	l3.lookAt([10,10,0],[0,0,0],[0,0,1]);
+	l3.intensity = 0.6;
+	l3.diffuse = [0.2,0.8,0.5,1];
+	l3.specular = [0.2,0.8,0.5,1];
+	l3.near = 0.1;
+	l3.far = 200.0;
 	Scene.addLight(l3);
-	Scene.addObject(ol3);
+	Scene.addObject(obj);
 
-	var ol3 = new GameObject("Point Light");
-	var l3 = new Light();
-	ol3.addComponent(l3);
-	ol3.transform.position = [100,91.3,49];
-	l3.type = 1;
-	l3.intensity = 3.5;
-	l3.diffuse = [0.8,0.3,0.3,1];
-	l3.specular = [0.8,0.3,0.3,1];
-	l3.far = 65
-	Scene.addLight(l3);
-	Scene.addObject(ol3);
-
+	// CAMERA //
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,91.3,49],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	cam.lookAt([50,40,0],[0,0,0],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
 	Scene.addCamera(cam);
-	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	var kc = new KeyController([0,0,-10],[-10,0,0]);
 	obj.addComponent(kc);
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
@@ -211,6 +195,8 @@ function BenchmarkLights(n,m,object_mesh){
 			b = generateRandomNumber(0,1);
 			light.diffuse = [r,g,b,1.0];
 			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
+			light.near = 0.001;
+			light.far = 0.01;
 			obj.addComponent(light);
 			Scene.addLight(light);
 			Scene.addObject(obj);
@@ -226,11 +212,20 @@ function BenchmarkLights(n,m,object_mesh){
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
+	var obj = new GameObject("sphere");
+	obj.transform.position = [1,0,0];
+	var ren = new ObjectRenderer();
+	ren.mesh = GL.Mesh.sphere();
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [0.2,0.2,0.2];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	cam.lookAt([0.1,0.6,-0.9],[0,0,0],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,50.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
 	obj.addComponent(kc);
@@ -279,10 +274,68 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	cam.lookAt([orig_x+2,orig_y+6,orig_z-9],[orig_x,orig_y+2,orig_z],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+}
+
+function planeSphere(){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
+
+	obj = new GameObject("sphere");
+	obj.transform.position = [0,5,0]
+	var ren = new ObjectRenderer();
+	ren.mesh = GL.Mesh.fromURL("assets/Basic Temple/Model/Basic Temple.obj");
+	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [5,5,5];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	// LIGHTS //
+		for (var j = 0; j < 15; j++){
+			obj = new GameObject("light"+j);
+			light = new Light(Light.POINT);
+			r = generateRandomNumber(0,1);
+			g = generateRandomNumber(0,1);
+			b = generateRandomNumber(0,1);
+			x = generateRandomNumber(-250,250);
+			y = generateRandomNumber(100,500);
+			z = generateRandomNumber(-250,250);
+			obj.transform.position = [x,y,z]
+			light.diffuse 	= [r,g,b,1.0];
+			light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+			light.near 		= 0.1;
+			light.far 		= 200;
+			obj.addComponent(light);
+			Scene.addLight(light);
+			Scene.addObject(obj);
+		}
+
+		obj = new GameObject("light"+j);
+		light = new Light(Light.DIRECTIONAL);
+		obj.transform.lookAt([0,300,-1000],[0,0,0],[0,1,0]);
+		light.diffuse 	= [0.7,0.4,0.4,1.0];
+		light.specular 	= [0.7,0.4,0.4,1.0];
+		obj.addComponent(light);
+		Scene.addLight(light);
+		Scene.addObject(obj);
+
+	// CAMERA //
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([100,530,700],[10,110,0],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-10],[-10,0,0]);
 	obj.addComponent(kc);
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
