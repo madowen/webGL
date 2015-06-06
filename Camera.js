@@ -49,7 +49,7 @@ function Camera(fov,aspect,near,far){
 	}
 	Camera.prototype.updatePerpectiveMatrix = function(){
 		//set the camera perspective
-		mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);	
+		mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);
 	}
 	
 	Camera.prototype.update = function(dt){
