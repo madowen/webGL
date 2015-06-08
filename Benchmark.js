@@ -142,8 +142,9 @@ function Sponza(){
 	obj = new GameObject("Sponza");
 	obj.transform.position = [0,0,0]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
-	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
+	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh){
+		mesh.computeNormals(gl.STATIC_DRAW);
+	});
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [5,5,5];
 	obj.addComponent(ren);
@@ -353,7 +354,7 @@ function Temple(){
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([100,530,700],[10,110,0],[0,1,0]);
+	cam.lookAt([100,430,700],[0,110,0],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-10],[-10,0,0]);

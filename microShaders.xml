@@ -566,7 +566,7 @@
 attribute vec3 a_vertex;
 attribute vec3 a_normal;
 attribute vec2 a_coord;
-varying vec3 v_wPosition;
+varying vec3 v_position;
 varying vec3 v_normal;
 varying vec2 v_coord;
 uniform mat4 u_mvp;
@@ -576,7 +576,7 @@ uniform mat4 u_model;
 		<maincode>
 <![CDATA[
 	v_coord = a_coord;
-	v_wPosition = (u_model * vec4(a_vertex,1.0)).xyz;
+	v_position = (u_model * vec4(a_vertex,1.0)).xyz;
 	v_normal = (u_model * vec4(a_normal,0.0)).xyz;
 	gl_Position = u_mvp * vec4(a_vertex,1.0);
 ]]>	
@@ -587,7 +587,7 @@ uniform mat4 u_model;
 		<header>
 <![CDATA[
 #extension GL_EXT_draw_buffers : require
-varying vec3 v_wPosition;
+varying vec3 v_position;
 varying vec3 v_normal;
 varying vec2 v_coord;
 uniform vec4 u_color;
