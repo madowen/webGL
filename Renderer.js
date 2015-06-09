@@ -120,7 +120,6 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 
 Renderer.newDeferred = function(objects,lights,cam){
-	console.timeEnd('Render To Render');
 	console.time('Deferred');
 	console.time('GetShaders');
 
@@ -194,7 +193,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 		gl.enable(gl.BLEND);
 		gl.blendEquation(gl.FUNC_ADD);
 		gl.blendFunc(gl.ONE, gl.ONE);
-		gl.depthFunc(gl.LightEQUAL);
+		gl.depthFunc(gl.LEQUAL);
 
 		var quad = GL.Mesh.getScreenQuad();
 
@@ -241,8 +240,11 @@ Renderer.newDeferred = function(objects,lights,cam){
 			}else{
 				gl.enable(gl.CULL_FACE);
 				gl.cullFace(gl.FRONT);
+				//gl.depthFunc(gl.GREATER);
+
 				if (final_shader_sphere)
 					final_shader_sphere.uniforms( final_uniforms ).draw( GL.Mesh.sphere({size:light.far}) );
+				gl.depthFunc(gl.LEQUAL);
 				gl.cullFace(gl.BACK);
 				gl.disable(gl.CULL_FACE);
 			}
@@ -263,5 +265,4 @@ Renderer.newDeferred = function(objects,lights,cam){
 	console.timeEnd('Draw');
 
 	console.timeEnd('Deferred');
-	console.time('Render To Render');
 };
