@@ -142,9 +142,10 @@ function Sponza(){
 	obj = new GameObject("Sponza");
 	obj.transform.position = [0,0,0]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh){
-		mesh.computeNormals(gl.STATIC_DRAW);
-	});
+	// ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh){
+	// 	mesh.computeNormals(gl.STATIC_DRAW);
+	// });
+	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
 	ren.texture = GL.Texture.fromURL("assets/white.png");
 	obj.transform.scale = [5,5,5];
 	obj.addComponent(ren);
@@ -321,7 +322,7 @@ function Temple(){
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 50; j++){
+		for (var j = 0; j < 100; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -337,7 +338,8 @@ function Temple(){
 			light.near 		= 40;
 			light.far 		= 100;
 			obj.addComponent(light);
-			Scene.addLight(obj);
+			Scene.addLight(light);
+			Scene.addObject(obj);
 		}
 
 
@@ -347,7 +349,8 @@ function Temple(){
 		light.diffuse 	= [0.5,0.2,0.2,1.0];
 		light.specular 	= [0.5,0.2,0.2,1.0];
 		obj.addComponent(light);
-		Scene.addLight(obj);
+		Scene.addLight(light);
+		Scene.addObject(obj);
 
 	// CAMERA //
 	obj = new GameObject("camera");

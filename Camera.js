@@ -1,6 +1,7 @@
 function Camera(fov,aspect,near,far){
 	//[0,10,50],[0,0,0],[0,1,0],45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.1,1000
 	this.name = "camera";
+	this.enable = true;
 					
 	this.fov = fov || 45 * DEG2RAD;
 	this.aspect = aspect || gl.canvas.width/gl.canvas.height; //1024/720;

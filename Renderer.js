@@ -39,7 +39,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 		if (!object.enabled) continue;
 		if (!object.objectRenderer) continue;
 		for (var l = 0; l < lights.length; l++){
-			light = lights[l].light;
+			light = lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
 			if(!firstLight){
 				gl.enable( gl.BLEND );
@@ -118,28 +118,27 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	gl.clearColor(0.1,0.1,0.1,1);
 	gl.enable( gl.DEPTH_TEST );
 
+	var gbuffers_shader = null;
+	var final_shader_quad = null;
+	var final_shader_sphere = null;
+	var camera_position = null;
+
+	var quad = GL.Mesh.getScreenQuad();
+	var sphere = GL.Mesh.sphere();
+
+	var gbuffer_uniforms = {};
+	var final_uniforms = {};
 
 Renderer.newDeferred = function(objects,lights,cam){
 
-	var gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
-	var final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
-	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
-	var camera_position = cam.owner.transform.position;
-
-	
+	gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
+	final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
+	final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
+	camera_position = cam.owner.transform.position;
 
 	view = cam.view;
 	mat4.invert(inv_v,view);
 	proj = cam.projection;
-
-	var gbuffer_uniforms = {
-		u_texture: 0,
-		u_color: [1.0,1.0,1.0,1],
-		u_model: model,
-		u_mvp: mvp,
-		u_view: view,
-		u_camera_position: camera_position,
-	};
 
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
@@ -155,16 +154,28 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 	for (var i = 0; i < objects.length ; ++i){
 		var object = objects[i];
-		if (!object.enabled) continue;
-	 	if (!object.objectRenderer) continue;
+		if (!object.enabled || !object.objectRenderer) continue;
 
 		if (object.objectRenderer.texture)
 			object.objectRenderer.texture.bind(0);
 
 		model = object.transform.globalModel;
 		mat4.multiply( mvp, viewprojection, model );
+
+		gbuffer_uniforms = {
+			u_texture: 			0,
+			u_color: 			object.color,
+			u_model: 			model,
+			u_mvp: 				mvp,
+			u_view: 			view,
+			u_camera_position: 	camera_position,
+		};
+
 		if (gbuffers_shader)
 			gbuffers_shader.uniforms( gbuffer_uniforms ).draw( object.objectRenderer.mesh );
+
+		if (object.objectRenderer.texture)
+			object.objectRenderer.texture.unbind(0);
 
 	}
 
@@ -178,8 +189,6 @@ Renderer.newDeferred = function(objects,lights,cam){
 		gl.blendEquation(gl.FUNC_ADD);
 		gl.blendFunc(gl.ONE, gl.ONE);
 
-		var quad = GL.Mesh.getScreenQuad();
-		var sphere = GL.Mesh.sphere();
 		texture_albedo.bind(0);
 		texture_normal.bind(1);
 		texture_depth.bind(2);
@@ -187,34 +196,34 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 		firstLight = true;
 		for (var l = 0; l < lights.length; l++){
-			light = lights[l].light;
+			light = lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
 
 			model = light.owner.transform.globalModel;
 			mat4.scale(model,model,vec4.fromValues(light.far,light.far,light.far,1.0));
 			mat4.multiply( mvp, viewprojection, model );
 
-			var final_uniforms = {
-				u_invvp: inv_vp,
-				u_invv:  inv_v,
-				u_mvp:   mvp,
-				u_viewport: gl.viewport_data,
-				u_color_texture: 0,
-				u_normal_texture: 1,
-				u_depth_texture: 2,
+			final_uniforms = {
+				u_invvp: 			inv_vp,
+				u_invv:  			inv_v,
+				u_mvp:   			mvp,
+				u_viewport: 		gl.viewport_data,
+				u_color_texture: 	0,
+				u_normal_texture: 	1,
+				u_depth_texture: 	2,
 
-				uLPosition: light.position,
-				uLDirection: light.direction,
-				uLType: light.type,
-				uLRange: light.range,
-				uLIntensity: light.intensity,
-				uLSpotAngle: light.spotAngle,
-				uLSpotExponent: light.spotExponent,
-				uLDiffuse: light.diffuse,
-				uLSpecular: light.specular,
-				uLAmbient: light.ambient,
-				uLNear: light.near,
-				uLFar: light.far,
+				uLPosition: 		light.position,
+				uLDirection: 		light.direction,
+				uLType: 			light.type,
+				uLRange: 			light.range,
+				uLIntensity: 		light.intensity,
+				uLSpotAngle: 		light.spotAngle,
+				uLSpotExponent: 	light.spotExponent,
+				uLDiffuse: 			light.diffuse,
+				uLSpecular: 		light.specular,
+				uLAmbient: 			light.ambient,
+				uLNear: 			light.near,
+				uLFar: 				light.far,
 			};
 
 			if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){

@@ -1,5 +1,7 @@
 function Transform(position,rotation,scale){
 	this._name = "transform";
+	this.enable = true;
+
 	this._position = position || vec3.create();
 	this._rotation = rotation || quat.create();
 	this._scale = scale || vec3.fromValues(1,1,1);
