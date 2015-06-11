@@ -77,7 +77,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 				uLAmbient: light.ambient,
 				uLNear: light.near,
 				uLFar: light.far,
-				uOColor: object.color,
+				uOColor: oColor,
 				cameraPosition: cam.owner.transform.position,
 				nearPlane: cam.near,
 				farPlane: cam.far
@@ -120,16 +120,16 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 
 Renderer.newDeferred = function(objects,lights,cam){
-	console.timeEnd('Render To Render');
-	console.time('Deferred');
-	console.time('GetShaders');
+	//console.timeEnd('Render To Render');
+	//console.time('Deferred');
+	//console.time('GetShaders');
 
 	var gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
 	var final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
-	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
+	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex2"],["new_deferredlight_fragment2"],"microShaders.xml");
 	var camera_position = cam.owner.transform.position;
 
-	console.timeEnd('GetShaders');
+	//console.timeEnd('GetShaders');
 	
 
 	view = cam.view;
@@ -145,13 +145,11 @@ Renderer.newDeferred = function(objects,lights,cam){
 		u_camera_position: camera_position,
 	};
 
-	console.time('Geometry');
+	// console.time('Geometry');
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
 
 	gl.clearColor(0.1,0.1,0.1,1);
-	//gl.depthMask(gl.TRUE);
-	// if (gl.clearDepth) gl.clearDepth(1.0); else gl.clearDepthf(1.0); 
  	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	gl.enable( gl.DEPTH_TEST );
 	gl.disable(gl.BLEND);
@@ -179,36 +177,29 @@ Renderer.newDeferred = function(objects,lights,cam){
 	}
 
 	fbo.unbind();
-	//gl.depthMask(gl.FALSE);
 	gl.disable( gl.DEPTH_TEST );
-	console.timeEnd('Geometry');
 
-	console.time('Light');
 	// LIGHT PASS //
 	texture_final.drawTo(function(){
-		gl.clearColor(0.0,0.0,0.0,1);
-		gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-		gl.enable( gl.DEPTH_TEST );
-		gl.clear(gl.COLOR_BUFFER_BIT );
 		
 		gl.enable(gl.BLEND);
 		gl.blendEquation(gl.FUNC_ADD);
 		gl.blendFunc(gl.ONE, gl.ONE);
-		gl.depthFunc(gl.LightEQUAL);
 
 		var quad = GL.Mesh.getScreenQuad();
 
 		texture_albedo.bind(0);
 		texture_normal.bind(1);
 		texture_depth.bind(2);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		console.time('Light All Loops');
+
 		for (var l = 0; l < lights.length; l++){
-			console.time('Light One Loop ');
 			light = lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
 
 			model = light.owner.transform.globalModel;
+			mat4.scale(model,model,vec4.fromValues(light.far,light.far,light.far,1.0));
 			mat4.multiply( mvp, viewprojection, model );
 
 			var final_uniforms = {
@@ -234,34 +225,22 @@ Renderer.newDeferred = function(objects,lights,cam){
 				uLFar: light.far,
 			};
 
-			console.time('Light One Loop Draw');
 			if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
 				if (final_shader_quad)
 					final_shader_quad.uniforms( final_uniforms ).draw( quad );
+				
 			}else{
-				gl.enable(gl.CULL_FACE);
-				gl.cullFace(gl.FRONT);
 				if (final_shader_sphere)
-					final_shader_sphere.uniforms( final_uniforms ).draw( GL.Mesh.sphere({size:light.far}) );
-				gl.cullFace(gl.BACK);
-				gl.disable(gl.CULL_FACE);
+					final_shader_sphere.uniforms( final_uniforms ).draw( quad );
 			}
-			console.timeEnd('Light One Loop Draw');
-			console.timeEnd('Light One Loop ');
 		}
-		console.timeEnd('Light All Loops');
-	gl.disable(gl.BLEND);
+		gl.disable(gl.BLEND);
+		gl.disable( gl.DEPTH_TEST );
 	});
-	console.timeEnd('Light');
 
 
-	console.time('Draw');
 	gl.drawTexture(texture_albedo, 0,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
 	gl.drawTexture(texture_normal, gl.canvas.width * 0.5,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
 	gl.drawTexture(texture_depth, 0, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
 	gl.drawTexture(texture_final, gl.canvas.width * 0.5, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
-	console.timeEnd('Draw');
-
-	console.timeEnd('Deferred');
-	console.time('Render To Render');
 };

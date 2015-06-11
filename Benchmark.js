@@ -12,12 +12,12 @@ function NiceScene(){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
-	var ambientLight = new Light();
-	ambientLight.ambient = [0.005, 0.005, 0.005, 1];
-	ambientLight.diffuse = [0, 0, 0, 1];
-	ambientLight.specular = [0, 0, 0, 1];
-	ambientLight.owner = Scene;
-	Scene.lights.push(ambientLight);
+	// var ambientLight = new Light();
+	// ambientLight.ambient = [0.005, 0.005, 0.005, 1];
+	// ambientLight.diffuse = [0, 0, 0, 1];
+	// ambientLight.specular = [0, 0, 0, 1];
+	// ambientLight.owner = Scene;
+	// Scene.lights.push(ambientLight);
 
 	var objlight = new GameObject("Point Light",[102,105,102]);
 	var light = new Light(Light.POINT);
@@ -199,12 +199,12 @@ function BenchmarkLights(n,m,object_mesh){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
-	var ambientLight = new Light();
-	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
-	ambientLight.diffuse = [0, 0, 0, 1];
-	ambientLight.specular = [0, 0, 0, 1];
-	ambientLight.owner = Scene;
-	Scene.lights.push(ambientLight);
+	// var ambientLight = new Light();
+	// ambientLight.ambient = [0.1, 0.1, 0.1, 1];
+	// ambientLight.diffuse = [0, 0, 0, 1];
+	// ambientLight.specular = [0, 0, 0, 1];
+	// ambientLight.owner = Scene;
+	// Scene.lights.push(ambientLight);
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
@@ -260,12 +260,12 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
-	var ambientLight = new Light();
-	ambientLight.ambient = [0.1, 0.1, 0.1, 1];
-	ambientLight.diffuse = [0, 0, 0, 1];
-	ambientLight.specular = [0, 0, 0, 1];
-	ambientLight.owner = Scene;
-	Scene.lights.push(ambientLight);
+	// var ambientLight = new Light();
+	// ambientLight.ambient = [0.1, 0.1, 0.1, 1];
+	// ambientLight.diffuse = [0, 0, 0, 1];
+	// ambientLight.specular = [0, 0, 0, 1];
+	// ambientLight.owner = Scene;
+	// Scene.lights.push(ambientLight);
 
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
@@ -321,7 +321,7 @@ function Temple(){
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 50; j++){
+		for (var j = 0; j < 1; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -340,8 +340,25 @@ function Temple(){
 			Scene.addLight(light);
 			Scene.addObject(obj);
 		}
+			obj = new GameObject("light"+j+1);
+			light = new Light(Light.POINT);
+			r = 1;
+			g = 0;
+			b = 0;
+			x = 0;
+			y = 200;
+			z = 0;
+			obj.transform.position = [x,y,z]
+			light.intensity = 2.0;
+			light.diffuse 	= [r,g,b,1.0];
+			light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+			light.near 		= 40;
+			light.far 		= 100;
+			obj.addComponent(light);
+			Scene.addLight(light);
+			Scene.addObject(obj);
 
-		obj = new GameObject("light"+j);
+		obj = new GameObject("light"+j+2);
 		light = new Light(Light.DIRECTIONAL);
 		obj.transform.lookAt([0,300,-1000],[0,0,0],[0,1,0]);
 		light.diffuse 	= [0.5,0.2,0.2,1.0];
@@ -354,7 +371,7 @@ function Temple(){
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([100,430,700],[0,110,0],[0,1,0]);
+	cam.lookAt([0,430,700],[0,110,0],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-10],[-10,0,0]);
