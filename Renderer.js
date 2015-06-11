@@ -19,7 +19,7 @@ var uniforms = {};
 
 Renderer.forwardRender = function(channel,objects,lights,cam){
 	// gl.clearColor(0.1,0.1,0.1,1);
-	if (gl.clearDepth) gl.clearDepth(1.0); else gl.clearDepthf(1.0); 
+	//if (gl.clearDepth) gl.clearDepth(1.0); else gl.clearDepthf(1.0); 
 	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 	gl.disable(gl.BLEND);
@@ -126,7 +126,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 	var gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
 	var final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
-	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex2"],["new_deferredlight_fragment2"],"microShaders.xml");
+	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
 	var camera_position = cam.owner.transform.position;
 
 	//console.timeEnd('GetShaders');
@@ -160,8 +160,8 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 	for (var i = 0; i < objects.length ; ++i){
 		var object = objects[i];
-	 	if (!object.objectRenderer)
-			continue;
+		if (!object.enabled) continue;
+	 	if (!object.objectRenderer) continue;
 
 		if (object.objectRenderer.texture)
 			object.objectRenderer.texture.bind(0);
@@ -191,13 +191,21 @@ Renderer.newDeferred = function(objects,lights,cam){
 		texture_albedo.bind(0);
 		texture_normal.bind(1);
 		texture_depth.bind(2);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.enable(gl.DEPTH_TEST);
 
-
+		firstLight = true;
 		for (var l = 0; l < lights.length; l++){
 			light = lights[l];
 			if (!light.enabled || !light.owner.enabled) continue;
-
+			// if(!firstLight){
+			// 	gl.enable( gl.BLEND );
+			// 	gl.blendEquation(gl.FUNC_ADD);
+			// 	gl.blendFunc( gl.ONE, gl.ONE );
+			// }else{
+			// 	gl.disable(gl.BLEND);
+			// 	firstLight = false;
+			// }
 			model = light.owner.transform.globalModel;
 			mat4.scale(model,model,vec4.fromValues(light.far,light.far,light.far,1.0));
 			mat4.multiply( mvp, viewprojection, model );
@@ -230,8 +238,12 @@ Renderer.newDeferred = function(objects,lights,cam){
 					final_shader_quad.uniforms( final_uniforms ).draw( quad );
 				
 			}else{
+				gl.enable(gl.CULL_FACE);
+				gl.cullFace(gl.FRONT);
 				if (final_shader_sphere)
-					final_shader_sphere.uniforms( final_uniforms ).draw( quad );
+					final_shader_sphere.uniforms( final_uniforms ).draw( GL.Mesh.sphere() );
+				gl.cullFace(gl.BACK);
+				gl.disable(gl.CULL_FACE);
 			}
 		}
 		gl.disable(gl.BLEND);

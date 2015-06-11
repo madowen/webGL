@@ -78,9 +78,7 @@ function init(){
 
 	//rendering loop
 	gl.ondraw = function(){
-		console.timeEnd('Render To Render');
 		Renderer.draw(Scene.renderMode,Scene.channel,Scene.objects,Scene.lights,Scene.cameras[Scene.activeCamera]);
-		console.time('Render To Render');
 	};
 
 	//update loop

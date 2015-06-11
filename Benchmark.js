@@ -216,8 +216,8 @@ function BenchmarkLights(n,m,object_mesh){
 			light.intensity = 1.0;
 			light.diffuse = [r,g,b,1.0];
 			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
-			light.near = 0.001;
-			light.far = 0.3;
+			light.near = 0.1;
+			light.far = 0.6;
 			obj.addComponent(light);
 			Scene.addLight(light);
 			Scene.addObject(obj);
@@ -321,7 +321,7 @@ function Temple(){
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 1; j++){
+		for (var j = 0; j < 50; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -340,23 +340,23 @@ function Temple(){
 			Scene.addLight(light);
 			Scene.addObject(obj);
 		}
-			obj = new GameObject("light"+j+1);
-			light = new Light(Light.POINT);
-			r = 1;
-			g = 0;
-			b = 0;
-			x = 0;
-			y = 200;
-			z = 0;
-			obj.transform.position = [x,y,z]
-			light.intensity = 2.0;
-			light.diffuse 	= [r,g,b,1.0];
-			light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
-			light.near 		= 40;
-			light.far 		= 100;
-			obj.addComponent(light);
-			Scene.addLight(light);
-			Scene.addObject(obj);
+			// obj = new GameObject("light"+j+1);
+			// light = new Light(Light.POINT);
+			// r = 1;
+			// g = 0;
+			// b = 0;
+			// x = 0;
+			// y = 200;
+			// z = 0;
+			// obj.transform.position = [x,y,z]
+			// light.intensity = 2.0;
+			// light.diffuse 	= [r,g,b,1.0];
+			// light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+			// light.near 		= 40;
+			// light.far 		= 500;
+			// obj.addComponent(light);
+			// Scene.addLight(light);
+			// Scene.addObject(obj);
 
 		obj = new GameObject("light"+j+2);
 		light = new Light(Light.DIRECTIONAL);
