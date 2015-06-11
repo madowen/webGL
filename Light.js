@@ -22,7 +22,7 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 
 	Object.defineProperty(this, 'direction',{
 		get: function() {
-			if (this.owner.transform)
+			if (this.owner != undefined && this.owner.transform)
 				return vec3.subtract([0,0,0],[0,0,0],this.owner.transform.front);
 			else
 				return [0,0,0];
@@ -30,7 +30,8 @@ function Light(type,ambient,diffuse,specular,intensity,range,spotAngle,spotExpon
 	});
 	Object.defineProperty(this, 'position',{
 		get: function() {
-			if (this.owner.transform)
+
+			if (this.owner != undefined && this.owner.transform)
 				return this.owner.transform.position;
 			else
 				return [0,0,0];

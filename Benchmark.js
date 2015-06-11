@@ -337,26 +337,9 @@ function Temple(){
 			light.near 		= 40;
 			light.far 		= 100;
 			obj.addComponent(light);
-			Scene.addLight(light);
-			Scene.addObject(obj);
+			Scene.addLight(obj);
 		}
-			// obj = new GameObject("light"+j+1);
-			// light = new Light(Light.POINT);
-			// r = 1;
-			// g = 0;
-			// b = 0;
-			// x = 0;
-			// y = 200;
-			// z = 0;
-			// obj.transform.position = [x,y,z]
-			// light.intensity = 2.0;
-			// light.diffuse 	= [r,g,b,1.0];
-			// light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
-			// light.near 		= 40;
-			// light.far 		= 500;
-			// obj.addComponent(light);
-			// Scene.addLight(light);
-			// Scene.addObject(obj);
+
 
 		obj = new GameObject("light"+j+2);
 		light = new Light(Light.DIRECTIONAL);
@@ -364,8 +347,7 @@ function Temple(){
 		light.diffuse 	= [0.5,0.2,0.2,1.0];
 		light.specular 	= [0.5,0.2,0.2,1.0];
 		obj.addComponent(light);
-		Scene.addLight(light);
-		Scene.addObject(obj);
+		Scene.addLight(obj);
 
 	// CAMERA //
 	obj = new GameObject("camera");

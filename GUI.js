@@ -34,11 +34,6 @@ function GUI(){
 		gui.add(this,'Benchmark2x2Lights');
 		gui.add(this,'Benchmark4x4Lights');
 		gui.add(this,'Benchmark10x10Lights');
-		addColor(gui,scene.lights[0].ambient,'Ambient Scene');
-		var guiObjectList = gui.addFolder("Objects");
-		for (var o in scene.objects){
-			GUI.gameObject(guiObjectList,scene.objects[o])
-		}
 	};
 
 	GUI.gameObject = function(gui,gameObject){

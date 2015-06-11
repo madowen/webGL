@@ -39,7 +39,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 		if (!object.enabled) continue;
 		if (!object.objectRenderer) continue;
 		for (var l = 0; l < lights.length; l++){
-			light = lights[l];
+			light = lights[l].light;
 			if (!light.enabled || !light.owner.enabled) continue;
 			if(!firstLight){
 				gl.enable( gl.BLEND );
@@ -120,16 +120,12 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 
 Renderer.newDeferred = function(objects,lights,cam){
-	//console.timeEnd('Render To Render');
-	//console.time('Deferred');
-	//console.time('GetShaders');
 
 	var gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
 	var final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
 	var final_shader_sphere = MicroShaderManager.getShader("deferedlightSphere",["new_gbuffer_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
 	var camera_position = cam.owner.transform.position;
 
-	//console.timeEnd('GetShaders');
 	
 
 	view = cam.view;
@@ -145,7 +141,6 @@ Renderer.newDeferred = function(objects,lights,cam){
 		u_camera_position: camera_position,
 	};
 
-	// console.time('Geometry');
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
 
@@ -171,9 +166,6 @@ Renderer.newDeferred = function(objects,lights,cam){
 		if (gbuffers_shader)
 			gbuffers_shader.uniforms( gbuffer_uniforms ).draw( object.objectRenderer.mesh );
 
-		if (object.objectRenderer.texture)
-			object.objectRenderer.texture.unbind(0);
-
 	}
 
 	fbo.unbind();
@@ -187,25 +179,17 @@ Renderer.newDeferred = function(objects,lights,cam){
 		gl.blendFunc(gl.ONE, gl.ONE);
 
 		var quad = GL.Mesh.getScreenQuad();
-
+		var sphere = GL.Mesh.sphere();
 		texture_albedo.bind(0);
 		texture_normal.bind(1);
 		texture_depth.bind(2);
 		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.enable(gl.DEPTH_TEST);
 
 		firstLight = true;
 		for (var l = 0; l < lights.length; l++){
-			light = lights[l];
+			light = lights[l].light;
 			if (!light.enabled || !light.owner.enabled) continue;
-			// if(!firstLight){
-			// 	gl.enable( gl.BLEND );
-			// 	gl.blendEquation(gl.FUNC_ADD);
-			// 	gl.blendFunc( gl.ONE, gl.ONE );
-			// }else{
-			// 	gl.disable(gl.BLEND);
-			// 	firstLight = false;
-			// }
+
 			model = light.owner.transform.globalModel;
 			mat4.scale(model,model,vec4.fromValues(light.far,light.far,light.far,1.0));
 			mat4.multiply( mvp, viewprojection, model );
@@ -235,19 +219,18 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 			if (light.type == Light.DIRECTIONAL || light.type == Light.AMBIENT){
 				if (final_shader_quad)
-					final_shader_quad.uniforms( final_uniforms ).draw( quad );
+					final_shader_quad.uniforms(final_uniforms).draw( quad );
 				
 			}else{
 				gl.enable(gl.CULL_FACE);
 				gl.cullFace(gl.FRONT);
 				if (final_shader_sphere)
-					final_shader_sphere.uniforms( final_uniforms ).draw( GL.Mesh.sphere() );
+					final_shader_sphere.uniforms(final_uniforms).draw(sphere);
 				gl.cullFace(gl.BACK);
 				gl.disable(gl.CULL_FACE);
 			}
 		}
 		gl.disable(gl.BLEND);
-		gl.disable( gl.DEPTH_TEST );
 	});
 
 
