@@ -86,6 +86,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 		    object.objectRenderer.render(channel,uniforms,light.type);
 
 			firstLight = false;
+
 		}
 	}
 }
@@ -138,7 +139,8 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 	view = cam.view;
 	mat4.invert(inv_v,view);
-	proj = cam.projection;
+	proj = cam.projection;			gl.depthMask(true);
+
 
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
@@ -192,7 +194,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 		texture_albedo.bind(0);
 		texture_normal.bind(1);
 		texture_depth.bind(2);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 		firstLight = true;
 		for (var l = 0; l < lights.length; l++){
@@ -243,6 +245,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 	});
 
 
+			gl.disable(gl.DEPTH_TEST);
 	gl.drawTexture(texture_albedo, 0,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
 	gl.drawTexture(texture_normal, gl.canvas.width * 0.5,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
 	gl.drawTexture(texture_depth, 0, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
