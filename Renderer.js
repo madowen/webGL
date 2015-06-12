@@ -86,6 +86,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 		    object.objectRenderer.render(channel,uniforms,light.type);
 
 			firstLight = false;
+			gl.depthMask(true);
 
 		}
 	}
@@ -139,8 +140,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 
 	view = cam.view;
 	mat4.invert(inv_v,view);
-	proj = cam.projection;			gl.depthMask(true);
-
+	proj = cam.projection;
 
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
