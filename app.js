@@ -60,6 +60,29 @@ function MouseController(horizontalMouseMoveToRotateVector,verticalMouseMoveToRo
 	}
 }
 
+function RandomMovement(sizex,sizey,sizez){
+	if(arguments.length == 3){
+		this.sizex = sizex;
+		this.sizey = sizey;
+		this.sizez = sizez;
+	}else{
+		this.sizex = sizex[0];
+		this.sizey = sizex[1];
+		this.sizez = sizex[2];
+	}
+	this.rx = 1;//generateRandomNumber(-1,1);
+	this.ry = 1;//generateRandomNumber(-1,1);
+	this.rz = 1;//generateRandomNumber(-1,1);
+	RandomMovement.prototype.update = function(dt){
+		var time = getTime()*0.001;
+		this.owner.transform.translate(Math.sin(time*this.rx)*this.sizex*dt,Math.cos(time*this.ry)*this.sizey*dt,Math.cos(time*this.rz)*this.sizez*dt);
+	}
+}
+
+function generateRandomNumber(min,max) {
+    return Math.random() * (max - min) + min;
+};
+
 function init(){
 	MicroShaderManager.loadXML();
 	//create the rendering context

@@ -214,12 +214,16 @@ function BenchmarkLights(n,m,object_mesh){
 			r = generateRandomNumber(0,1);
 			g = generateRandomNumber(0,1);
 			b = generateRandomNumber(0,1);
+			movex = generateRandomNumber(-1,1);
+			movez = generateRandomNumber(-1,1);
 			light.intensity = 1.0;
 			light.diffuse = [r,g,b,1.0];
 			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
 			light.near = 0.1;
 			light.far = 0.6;
 			obj.addComponent(light);
+			var rm = new RandomMovement([movex,0,movez]);
+			obj.addComponent(rm);
 			Scene.addLight(light);
 			Scene.addObject(obj);
 		}
@@ -322,15 +326,18 @@ function Temple(){
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 100; j++){
+		for (var j = 0; j < 50; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
 			g = generateRandomNumber(0,1);
 			b = generateRandomNumber(0,1);
-			x = generateRandomNumber(-250,250);
-			y = generateRandomNumber(100,500);
-			z = generateRandomNumber(-250,250);
+			x = generateRandomNumber(-200,200);
+			y = generateRandomNumber(70,400);
+			z = generateRandomNumber(-200,200);
+			movex = generateRandomNumber(-100,100);
+			movey = generateRandomNumber(-100,100);
+			movez = generateRandomNumber(-100,100);
 			obj.transform.position = [x,y,z]
 			light.intensity = 2.0;
 			light.diffuse 	= [r,g,b,1.0];
@@ -338,10 +345,11 @@ function Temple(){
 			light.near 		= 40;
 			light.far 		= 100;
 			obj.addComponent(light);
+			var rm = new RandomMovement(movex,movey,movez);
+			obj.addComponent(rm);
 			Scene.addLight(light);
 			Scene.addObject(obj);
 		}
-
 
 		obj = new GameObject("light"+j+2);
 		light = new Light(Light.DIRECTIONAL);
@@ -351,6 +359,16 @@ function Temple(){
 		obj.addComponent(light);
 		Scene.addLight(light);
 		Scene.addObject(obj);
+
+	var obj = new GameObject("floor");
+	obj.transform.position = [orig_x,orig_y,orig_z];
+	obj.color = [0.2,0.8,0.2,1.0];
+	var ren = new ObjectRenderer();
+	ren.mesh = GL.Mesh.plane({xz:true});
+	ren.texture = GL.Texture.fromURL("assets/white.png");
+	obj.transform.scale = [3000,1,3000];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
 
 	// CAMERA //
 	obj = new GameObject("camera");
@@ -366,6 +384,3 @@ function Temple(){
 	Scene.addObject(obj);
 }
 
-function generateRandomNumber(min,max) {
-    return Math.random() * (max - min) + min;
-};
