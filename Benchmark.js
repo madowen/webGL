@@ -1,11 +1,21 @@
 var orig_x = 0;
 var orig_y = 0;
 var orig_z = 0;
-var separation = 1;
+var separation = 2;
 
 var r,g,b;
 var obj;
 var light;
+
+var sphere = GL.Mesh.sphere();
+var plane =  GL.Mesh.plane({xz:true});
+var dragon = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
+var sponzaNormal = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh){
+		mesh.computeNormals(gl.STATIC_DRAW);
+	});
+var sponza = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
+var temple = GL.Mesh.fromURL("assets/Basic Temple/Model/Basic Temple.obj");
+var white =  GL.Texture.fromURL("assets/white.png");
 
 function NiceScene(){
 	Scene.objects.splice(0,Scene.objects.length);
@@ -52,7 +62,7 @@ function NiceScene(){
 	var obj = new GameObject("floor");
 	obj.transform.position = [100,100,100];
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
+	ren.mesh = plane;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
@@ -62,7 +72,7 @@ function NiceScene(){
 	obj = new GameObject("leftWall");
 	obj.transform.position = [105,105,100]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
+	ren.mesh = plane;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.rotateLocal(90,[0,0,1]);
@@ -73,7 +83,7 @@ function NiceScene(){
 	obj = new GameObject("rightWall");
 	obj.transform.position = [95,105,100]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
+	ren.mesh = plane;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
@@ -84,7 +94,7 @@ function NiceScene(){
 	obj = new GameObject("frontWall");
 	obj.transform.position = [100,105,105]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
+	ren.mesh = plane;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
 	ren.texture = GL.Texture.fromURL("assets/crate.gif");
 	obj.transform.scale = [10,1,10];
@@ -95,9 +105,9 @@ function NiceScene(){
 	obj = new GameObject("dragon");
 	obj.transform.position = [100,102,100]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/Dragon/Dargon posing2.obj");
+	ren.mesh = dragon;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = white;
 	obj.transform.rotate(135,[0,1,0]);
 	obj.addComponent(ren);
 	Scene.addObject(obj);
@@ -105,9 +115,9 @@ function NiceScene(){
 	obj = new GameObject("sphere");
 	obj.transform.position = [97,103,100]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.sphere();
+	ren.mesh = sphere;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = white;
 	obj.transform.scale = [0.5,0.5,0.5];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
@@ -117,7 +127,7 @@ function NiceScene(){
 	var ren = new ObjectRenderer();
 	ren.mesh = GL.Mesh.cylinder();
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = white;
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
@@ -125,16 +135,17 @@ function NiceScene(){
 	var cam = new Camera();
 	obj.addComponent(cam);
 	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
-	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,20.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	kc.speed = 5;
 	obj.addComponent(kc);
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
 }
 
-function Sponza(){
+function Sponza(N_lights,normal){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
@@ -145,14 +156,17 @@ function Sponza(){
 	// ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh){
 	// 	mesh.computeNormals(gl.STATIC_DRAW);
 	// });
-	ren.mesh = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	if (normal)
+		ren.mesh = sponzaNormal;
+	else
+		ren.mesh = sponza;
+	ren.texture = white;
 	obj.transform.scale = [5,5,5];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 50; j++){
+		for (var j = 0; j < N_lights; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -232,25 +246,16 @@ function BenchmarkLights(n,m,object_mesh){
 	var obj = new GameObject("floor");
 	obj.transform.position = [orig_x,orig_y,orig_z];
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.mesh = plane;
+	ren.texture = white;
 	obj.transform.scale = [n*separation,1,m*separation];
-	obj.addComponent(ren);
-	Scene.addObject(obj);
-
-	var obj = new GameObject("sphere");
-	obj.transform.position = [1,0,0];
-	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.sphere();
-	ren.texture = GL.Texture.fromURL("assets/white.png");
-	obj.transform.scale = [0.2,0.2,0.2];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([0.1,0.6,-0.9],[0,0,0],[0,1,0]);
+	cam.lookAt([0,10,-15],[0,0,0],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,50.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
@@ -265,16 +270,9 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
 
-	// var ambientLight = new Light();
-	// ambientLight.ambient = [0.1, 0.1, 0.1, 1];
-	// ambientLight.diffuse = [0, 0, 0, 1];
-	// ambientLight.specular = [0, 0, 0, 1];
-	// ambientLight.owner = Scene;
-	// Scene.lights.push(ambientLight);
-
 	for (var i = 0; i < n; i++){
 		for (var j = 0; j < m; j++){
-			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y+0.3,orig_z-(j-m/2)*separation-separation/2]);
+			obj = new GameObject("light"+i+"-"+j,[orig_x-(i-n/2)*separation-separation,orig_y,orig_z-(j-m/2)*separation-separation]);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
 			g = generateRandomNumber(0,1);
@@ -282,25 +280,27 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 			light.diffuse = [r,g,b,1.0];
 			light.specular = [r*0.05,g*0.05,b*0.05,1.0];
 			obj.addComponent(light);
+			movex = generateRandomNumber(-1,1);
+			movez = generateRandomNumber(-1,1);
+			var rm = new RandomMovement([movex,0,movez]);
+			obj.addComponent(rm);
 			Scene.addLight(light);
 			Scene.addObject(obj);
 
-			var obj = new GameObject("floor"+i+"-"+j,[orig_x-(i-n/2)*separation-separation/2,orig_y,orig_z-(j-m/2)*separation-separation/2]);
+			var obj = new GameObject("floor"+i+"-"+j,[orig_x-(i-n/2)*separation-separation,orig_y-1,orig_z-(j-m/2)*separation-separation]);
 			var ren = new ObjectRenderer();
-			ren.mesh = GL.Mesh.plane({xz:true});
-			ren.texture = GL.Texture.fromURL("assets/white.png");
-			obj.transform.scale = [1*separation,1,1*separation];
+			ren.mesh = sphere;
+			ren.texture = white;
+			obj.transform.scale = [1,1,1];
 			obj.addComponent(ren);
 			Scene.addObject(obj);
 		}
 	}
 
-	
-
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([orig_x+2,orig_y+6,orig_z-9],[orig_x,orig_y+2,orig_z],[0,1,0]);
+	cam.lookAt([orig_x,orig_y+10,orig_z-15],[orig_x,orig_y,orig_z],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
@@ -310,7 +310,7 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	Scene.addObject(obj);
 }
 
-function Temple(){
+function Temple(N_lights){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
@@ -318,15 +318,15 @@ function Temple(){
 	obj = new GameObject("sphere");
 	obj.transform.position = [0,5,0]
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.fromURL("assets/Basic Temple/Model/Basic Temple.obj");
+	ren.mesh = temple;
 	// ren.shader = GL.Shader.fromURL("light.vert","light.frag");;
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.texture = white;
 	obj.transform.scale = [5,5,5];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
 
 	// LIGHTS //
-		for (var j = 0; j < 50; j++){
+		for (var j = 0; j < N_lights; j++){
 			obj = new GameObject("light"+j);
 			light = new Light(Light.POINT);
 			r = generateRandomNumber(0,1);
@@ -364,8 +364,8 @@ function Temple(){
 	obj.transform.position = [orig_x,orig_y,orig_z];
 	obj.color = [0.2,0.8,0.2,1.0];
 	var ren = new ObjectRenderer();
-	ren.mesh = GL.Mesh.plane({xz:true});
-	ren.texture = GL.Texture.fromURL("assets/white.png");
+	ren.mesh = plane;
+	ren.texture = white;
 	obj.transform.scale = [3000,1,3000];
 	obj.addComponent(ren);
 	Scene.addObject(obj);
@@ -374,7 +374,7 @@ function Temple(){
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([0,430,700],[0,110,0],[0,1,0]);
+	cam.lookAt([0,500,1000],[0,110,0],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,5000.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-10],[-10,0,0]);

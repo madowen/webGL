@@ -2,11 +2,7 @@ var Scene = {
 }
 Scene.FORWARD = 0;
 Scene.DEFERRED = 1;
-
-Scene.FULL = 0;
-Scene.ALBEDO = 1;
-Scene.DEPTH = 2;
-Scene.NORMAL = 3;
+Scene.GBUFFER = 3;
 
 Scene.name = "Scene";
 Scene.enabled = true;
@@ -37,20 +33,8 @@ Scene.update = function(dt){
 }
 
 Scene.onkeydown = function(e){
-	if(gl.keys['U']){
-		this.channel = Scene.FULL;
-	}
-	if(gl.keys['I']){
-		this.channel = Scene.ALBEDO;
-	}
-	if(gl.keys['O']){
-		this.channel = Scene.DEPTH;
-	}
-	if(gl.keys['P']){
-		this.channel = Scene.NORMAL;
-	}
 	if(gl.keys['Y']){
-		this.renderMode = !this.renderMode;
+		this.renderMode = (this.renderMode+1)%3;
 		if (!this.renderMode) console.log("Render Mode: Forward");
 		else console.log("Render Mode: Deferred");
 	}

@@ -91,9 +91,9 @@ function init(){
 	gl.animate();
 	
 	//NiceScene();
-	//BenchmarkLights(2,2);
-	//Sponza();
-	Temple();
+	//BenchmarkLights(1,1);
+	// Sponza(10);
+	Temple(50);
 
 	console.log(Scene.objects);
 

@@ -10,7 +10,7 @@ Renderer.draw = function(renderMode,channel,objects,lights,cam){
 		Renderer.forwardRender(channel,objects,lights,cam);
 	}else{
 		//Renderer.deferredRender(channel,objects,lights,cam);
-		Renderer.newDeferred(objects,lights,cam);
+		Renderer.newDeferred(renderMode,objects,lights,cam);
 	}
 }
 
@@ -95,8 +95,8 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 
 
 	//G Buffer
-	var w = (gl.canvas.width*0.5)|0;
-	var h = (gl.canvas.height*0.5)|0;
+	var w = (gl.canvas.width)|0;
+	var h = (gl.canvas.height)|0;
 	var type = gl.UNSIGNED_BYTE;
 
 	var texture_albedo = new GL.Texture(w,h, { type: type, filter: gl.NEAREST });
@@ -126,12 +126,12 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var camera_position = null;
 
 	var quad = GL.Mesh.getScreenQuad();
-	var sphere = GL.Mesh.sphere();
+	var lightSphere = GL.Mesh.sphere();
 
 	var gbuffer_uniforms = {};
 	var final_uniforms = {};
 
-Renderer.newDeferred = function(objects,lights,cam){
+Renderer.newDeferred = function(renderMode,objects,lights,cam){
 
 	gbuffers_shader = 	MicroShaderManager.getShader("gbuffer",["new_gbuffer_vertex"],["new_gbuffer_fragment"],"microShaders.xml");
 	final_shader_quad = MicroShaderManager.getShader("deferedlightQuad",["new_deferredlight_vertex"],["new_deferredlight_fragment"],"microShaders.xml");
@@ -236,7 +236,7 @@ Renderer.newDeferred = function(objects,lights,cam){
 				gl.enable(gl.CULL_FACE);
 				gl.cullFace(gl.FRONT);
 				if (final_shader_sphere)
-					final_shader_sphere.uniforms(final_uniforms).draw(sphere);
+					final_shader_sphere.uniforms(final_uniforms).draw(lightSphere);
 				gl.cullFace(gl.BACK);
 				gl.disable(gl.CULL_FACE);
 			}
@@ -245,9 +245,13 @@ Renderer.newDeferred = function(objects,lights,cam){
 	});
 
 
-			gl.disable(gl.DEPTH_TEST);
-	gl.drawTexture(texture_albedo, 0,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
-	gl.drawTexture(texture_normal, gl.canvas.width * 0.5,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
-	gl.drawTexture(texture_depth, 0, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
-	gl.drawTexture(texture_final, gl.canvas.width * 0.5, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
+	gl.disable(gl.DEPTH_TEST);
+
+	if (renderMode == 2){
+		gl.drawTexture(texture_albedo, 0,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
+		gl.drawTexture(texture_normal, gl.canvas.width * 0.5,0, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
+		gl.drawTexture(texture_depth, 0, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
+		gl.drawTexture(texture_final, gl.canvas.width * 0.5, gl.canvas.height * 0.5, gl.canvas.width * 0.5, gl.canvas.height * 0.5);
+	}else
+		gl.drawTexture(texture_final, 0, 0, gl.canvas.width, gl.canvas.height);
 };

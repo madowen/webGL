@@ -20,20 +20,36 @@ function GUI(){
 
 	GUI.scene = function(gui,scene){
 		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1,'G-Buffer':2}).name('Render Type').listen();
-		this.NiceScene = NiceScene;
-		this.Sponza = Sponza;
-		this.Temple = Temple;
-		this.Benchmark1x1Lights = function() {BenchmarkLights(1,1);}
-		this.Benchmark2x2Lights = function() {BenchmarkLights(2,2);}
-		this.Benchmark4x4Lights = function() {BenchmarkLights(4,4);}
-		this.Benchmark10x10Lights = function() {BenchmarkLights(10,10);}
+		this.NiceScene = function() {NiceScene();}
+		this.Sponza = function() {Sponza(50);}
+		this.SponzaNormal = function() {Sponza(50,true);}
+		this.Temple = function() {Temple(50);}
+		this.B1x1Lights = function() {BenchmarkLights(1,1);}
+		this.B2x2Lights = function() {BenchmarkLights(2,2);}
+		this.B5x5Lights = function() {BenchmarkLights(5,5);}
+		this.B10x10Lights = function() {BenchmarkLights(10,10);}
+		this.B15x15Lights = function() {BenchmarkLights(15,15);}
+		
+		this.B1x1Objects = function() {BenchmarkLightsObjects(1,1);}
+		this.B2x2Objects = function() {BenchmarkLightsObjects(2,2);}
+		this.B5x5Objects = function() {BenchmarkLightsObjects(5,5);}
+		this.B10x10Objects = function() {BenchmarkLightsObjects(10,10);}
+		this.B15x15Objects = function() {BenchmarkLightsObjects(15,15);}
 		gui.add(this,'NiceScene');
 		gui.add(this,'Sponza');
+		gui.add(this,'SponzaNormal');
 		gui.add(this,'Temple');
-		gui.add(this,'Benchmark1x1Lights');
-		gui.add(this,'Benchmark2x2Lights');
-		gui.add(this,'Benchmark4x4Lights');
-		gui.add(this,'Benchmark10x10Lights');
+		gui.add(this,'B1x1Lights');
+		gui.add(this,'B2x2Lights');
+		gui.add(this,'B5x5Lights');
+		gui.add(this,'B10x10Lights');
+		gui.add(this,'B15x15Lights');
+
+		gui.add(this,'B1x1Objects');
+		gui.add(this,'B2x2Objects');
+		gui.add(this,'B5x5Objects');
+		gui.add(this,'B10x10Objects');
+		gui.add(this,'B15x15Objects');
 	};
 
 	GUI.gameObject = function(gui,gameObject){
