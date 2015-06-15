@@ -24,6 +24,9 @@ function GUI(){
 		this.Sponza = function() {Sponza(50);}
 		this.SponzaNormal = function() {Sponza(50,true);}
 		this.Temple = function() {Temple(50);}
+		this.Checker = function() {Checker(100,100);}
+		this.Dragons = function() {Dragons();}
+
 		this.B1x1Lights = function() {BenchmarkLights(1,1);}
 		this.B2x2Lights = function() {BenchmarkLights(2,2);}
 		this.B5x5Lights = function() {BenchmarkLights(5,5);}
@@ -35,21 +38,25 @@ function GUI(){
 		this.B5x5Objects = function() {BenchmarkLightsObjects(5,5);}
 		this.B10x10Objects = function() {BenchmarkLightsObjects(10,10);}
 		this.B15x15Objects = function() {BenchmarkLightsObjects(15,15);}
+
 		gui.add(this,'NiceScene');
 		gui.add(this,'Sponza');
 		gui.add(this,'SponzaNormal');
 		gui.add(this,'Temple');
-		gui.add(this,'B1x1Lights');
-		gui.add(this,'B2x2Lights');
-		gui.add(this,'B5x5Lights');
-		gui.add(this,'B10x10Lights');
-		gui.add(this,'B15x15Lights');
+		gui.add(this,'Checker');
+		gui.add(this,'Dragons');
 
-		gui.add(this,'B1x1Objects');
-		gui.add(this,'B2x2Objects');
-		gui.add(this,'B5x5Objects');
-		gui.add(this,'B10x10Objects');
-		gui.add(this,'B15x15Objects');
+		gui.add(this,'B1x1Lights').name('1 Light');
+		gui.add(this,'B2x2Lights').name('4 Lights');
+		gui.add(this,'B5x5Lights').name('25 Lights');
+		gui.add(this,'B10x10Lights').name('100 Lights');
+		gui.add(this,'B15x15Lights').name('225 Lights');
+
+		gui.add(this,'B1x1Objects').name('1 Object + 1 Light');
+		gui.add(this,'B2x2Objects').name('4 Objects + 4 Lights');
+		gui.add(this,'B5x5Objects').name('25 Objects + 25 Lights');
+		gui.add(this,'B10x10Objects').name('100 Objects + 100 Lights');
+		gui.add(this,'B15x15Objects').name('225 Objects + 225 Lights');
 	};
 
 	GUI.gameObject = function(gui,gameObject){

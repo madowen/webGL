@@ -93,7 +93,9 @@ function init(){
 	//NiceScene();
 	//BenchmarkLights(1,1);
 	// Sponza(10);
-	Temple(50);
+	// Temple(50);
+	// Checker(100,100);
+	Dragons();
 
 	console.log(Scene.objects);
 

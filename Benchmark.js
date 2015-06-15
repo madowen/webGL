@@ -16,6 +16,7 @@ var sponzaNormal = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj",function(mesh)
 var sponza = GL.Mesh.fromURL("assets/sponza_obj/sponza.obj");
 var temple = GL.Mesh.fromURL("assets/Basic Temple/Model/Basic Temple.obj");
 var white =  GL.Texture.fromURL("assets/white.png");
+var checker =  GL.Texture.fromURL("assets/checkerboard.png");
 
 function NiceScene(){
 	Scene.objects.splice(0,Scene.objects.length);
@@ -383,4 +384,191 @@ function Temple(N_lights){
 	obj.addComponent(mc);
 	Scene.addObject(obj);
 }
+
+function Checker(n,m,object_mesh){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
+
+	for (var i = 0; i < n; i++){
+		for (var j = 0; j < m; j++){
+			var obj = new GameObject("floor"+i+"-"+j,[orig_x-(i-n/2)*separation-separation,orig_y-1,orig_z-(j-m/2)*separation-separation]);
+			var ren = new ObjectRenderer();
+			ren.mesh = plane;
+			ren.texture = checker;
+			obj.transform.scale = [2,1,2];
+			obj.addComponent(ren);
+			Scene.addObject(obj);
+		}
+	}
+		obj = new GameObject("light"+j+2);
+		light = new Light(Light.DIRECTIONAL);
+		obj.transform.lookAt([0,300,-1000],[0,0,0],[0,1,0]);
+		light.diffuse 	= [1,1,1,1.0];
+		light.specular 	= [1,1,1,1.0];
+		obj.addComponent(light);
+		Scene.addLight(light);
+		Scene.addObject(obj);
+
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([0,10,-100],[0,0,0],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+}
+
+function Dragons(){
+	Scene.objects.splice(0,Scene.objects.length);
+	Scene.lights.splice(0,Scene.lights.length);
+	Scene.cameras.splice(0,Scene.cameras.length);
+
+	var obj = new GameObject("sphere",[0,0,0]);
+	var ren = new ObjectRenderer();
+	ren.mesh = sphere;
+	ren.texture = white;
+	obj.transform.scale = [0.1,0.1,0.1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	obj = new GameObject("light");
+	light = new Light(Light.POINT);
+	r = generateRandomNumber(0,1);
+	g = generateRandomNumber(0,1);
+	b = generateRandomNumber(0,1);
+	obj.transform.position = [0,3,0]
+	light.intensity = 2.0;
+	light.diffuse 	= [r,g,b,1.0];
+	light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+	light.near 		= 1;
+	light.far 		= 4;
+	obj.addComponent(light);
+	Scene.addLight(light);
+	Scene.addObject(obj);
+
+	obj = new GameObject("light");
+	light = new Light(Light.POINT);
+	r = generateRandomNumber(0,1);
+	g = generateRandomNumber(0,1);
+	b = generateRandomNumber(0,1);
+	obj.transform.position = [2,0,2]
+	light.intensity = 3.0;
+	light.diffuse 	= [r,g,b,1.0];
+	light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+	light.near 		= 1;
+	light.far 		= 3;
+	obj.addComponent(light);
+	Scene.addLight(light);
+	Scene.addObject(obj);
+
+	obj = new GameObject("light");
+	light = new Light(Light.POINT);
+	r = generateRandomNumber(0,1);
+	g = generateRandomNumber(0,1);
+	b = generateRandomNumber(0,1);
+	obj.transform.position = [2,0,-2]
+	light.intensity = 3.0;
+	light.diffuse 	= [r,g,b,1.0];
+	light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+	light.near 		= 1;
+	light.far 		= 3;
+	obj.addComponent(light);
+	Scene.addLight(light);
+	Scene.addObject(obj);
+
+	obj = new GameObject("light");
+	light = new Light(Light.POINT);
+	r = generateRandomNumber(0,1);
+	g = generateRandomNumber(0,1);
+	b = generateRandomNumber(0,1);
+	obj.transform.position = [-2,0,2]
+	light.intensity = 3.0;
+	light.diffuse 	= [r,g,b,1.0];
+	light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+	light.near 		= 1;
+	light.far 		= 3;
+	obj.addComponent(light);
+	Scene.addLight(light);
+	Scene.addObject(obj);
+
+	obj = new GameObject("light");
+	light = new Light(Light.POINT);
+	r = generateRandomNumber(0,1);
+	g = generateRandomNumber(0,1);
+	b = generateRandomNumber(0,1);
+	obj.transform.position = [-2,0,-2]
+	light.intensity = 3.0;
+	light.diffuse 	= [r,g,b,1.0];
+	light.specular 	= [r*0.05,g*0.05,b*0.05,1.0];
+	light.near 		= 1;
+	light.far 		= 3;
+	obj.addComponent(light);
+	Scene.addLight(light);
+	Scene.addObject(obj);
+
+
+	var obj = new GameObject("dragon1");
+	obj.transform.lookAt([2,0,0],[0,0,0],[0,1,0]);
+	var ren = new ObjectRenderer();
+	ren.mesh = dragon;
+	ren.texture = white;
+	obj.transform.scale = [1,1,1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	var obj = new GameObject("dragon1");
+	obj.transform.lookAt([-2,0,0],[0,0,0],[0,1,0]);
+	var ren = new ObjectRenderer();
+	ren.mesh = dragon;
+	ren.texture = white;
+	obj.transform.scale = [1,1,1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	var obj = new GameObject("dragon1");
+	obj.transform.lookAt([0,0,2],[0,0,0],[0,1,0]);
+	var ren = new ObjectRenderer();
+	ren.mesh = dragon;
+	ren.texture = white;
+	obj.transform.scale = [1,1,1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+	var obj = new GameObject("dragon1");
+	obj.transform.lookAt([0,0,-2],[0,0,0],[0,1,0]);
+	var ren = new ObjectRenderer();
+	ren.mesh = dragon;
+	ren.texture = white;
+	obj.transform.scale = [1,1,1];
+	obj.addComponent(ren);
+	Scene.addObject(obj);
+
+		obj = new GameObject("light");
+		light = new Light(Light.DIRECTIONAL);
+		obj.transform.lookAt([-500,300,-100],[0,0,0],[0,1,0]);
+		light.diffuse 	= [0.1,0.1,0.1,1.0];
+		light.specular 	= [0.1,0.1,0.1,1.0];
+		obj.addComponent(light);
+		// Scene.addLight(light);
+		// Scene.addObject(obj);
+
+	obj = new GameObject("camera");
+	var cam = new Camera();
+	obj.addComponent(cam);
+	cam.lookAt([0,10,-10],[0,0,0],[0,1,0]);
+	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,255.0);
+	Scene.addCamera(cam);
+	var kc = new KeyController([0,0,-1],[-1,0,0]);
+	kc.speed = 5;
+	obj.addComponent(kc);
+	var mc = new MouseController([0,-1,0],[-1,0,0]);
+	obj.addComponent(mc);
+	Scene.addObject(obj);
+}
+
 
