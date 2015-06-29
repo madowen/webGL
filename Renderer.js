@@ -117,7 +117,7 @@ Renderer.forwardRender = function(channel,objects,lights,cam){
 	var temp = mat4.create();
 	var identity = mat4.create();
 
-	gl.clearColor(0.1,0.1,0.1,1);
+	// gl.clearColor(0.1,0.1,0.1,1);
 	gl.enable( gl.DEPTH_TEST );
 
 	var gbuffers_shader = null;
@@ -145,7 +145,7 @@ Renderer.newDeferred = function(renderMode,objects,lights,cam){
 	// GEOMETRY PASS (GBUFFER GENERATION) //
 	fbo.bind(true);
 
-	gl.clearColor(0.1,0.1,0.1,1);
+	// gl.clearColor(0.1,0.1,0.1,1);
  	gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	gl.enable( gl.DEPTH_TEST );
 	gl.disable(gl.BLEND);
