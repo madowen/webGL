@@ -20,7 +20,11 @@ function GUI(){
 
 	GUI.scene = function(gui,scene){
 		gui.add(scene, 'renderMode',{'Forward':0,'Deferred':1,'G-Buffer':2}).name('Render Type').listen();
-		this.NiceScene = function() {NiceScene();}
+		this.NiceScene = function() {NiceScene(0);}
+		this.NiceScene1 = function() {NiceScene(1);}
+		this.NiceScene2 = function() {NiceScene(2);}
+		this.NiceScene3 = function() {NiceScene(3);}
+		this.NiceScene4 = function() {NiceScene(4);}
 		this.Sponza = function() {Sponza(50);}
 		this.SponzaNormal = function() {Sponza(50,true);}
 		this.Temple = function() {Temple(50);}
@@ -40,6 +44,10 @@ function GUI(){
 		this.B15x15Objects = function() {BenchmarkLightsObjects(15,15);}
 
 		gui.add(this,'NiceScene');
+		gui.add(this,'NiceScene1').name('NiceScene Point');
+		gui.add(this,'NiceScene2').name('NiceScene Spot');
+		gui.add(this,'NiceScene3').name('NiceScene Dir');
+		gui.add(this,'NiceScene4').name('G-Buffer');
 		gui.add(this,'Sponza');
 		gui.add(this,'SponzaNormal');
 		gui.add(this,'Temple');

@@ -2,7 +2,7 @@ var Scene = {
 }
 Scene.FORWARD = 0;
 Scene.DEFERRED = 1;
-Scene.GBUFFER = 3;
+Scene.GBUFFER = 2;
 
 Scene.name = "Scene";
 Scene.enabled = true;

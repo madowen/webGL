@@ -18,7 +18,7 @@ var temple = GL.Mesh.fromURL("assets/Basic Temple/Model/Basic Temple.obj");
 var white =  GL.Texture.fromURL("assets/white.png");
 var checker =  GL.Texture.fromURL("assets/checkerboard.png");
 
-function NiceScene(){
+function NiceScene(light_swap){
 	Scene.objects.splice(0,Scene.objects.length);
 	Scene.lights.splice(0,Scene.lights.length);
 	Scene.cameras.splice(0,Scene.cameras.length);
@@ -30,35 +30,41 @@ function NiceScene(){
 	// ambientLight.owner = Scene;
 	// Scene.lights.push(ambientLight);
 
-	var objlight = new GameObject("Point Light",[102,105,102]);
-	var light = new Light(Light.POINT);
-	light.diffuse = [0.8,0.1,0.3,1.0];
-	light.specular = [0.9,0.05,0.15,1.0];
-	light.intensity = 1.5;
-	light.near = 4.5;
-	light.far = 6.0;
-	objlight.addComponent(light);
-	Scene.addLight(light);
-	Scene.addObject(objlight);
+	if (light_swap == 0 || light_swap == 1 || light_swap == 4){
+		var objlight = new GameObject("Point Light",[102,105,102]);
+		var light = new Light(Light.POINT);
+		light.diffuse = [0.8,0.1,0.3,1.0];
+		light.specular = [0.9,0.05,0.15,1.0];
+		light.intensity = 1.5;
+		light.near = 4.5;
+		light.far = 6.0;
+		objlight.addComponent(light);
+		Scene.addLight(light);
+		Scene.addObject(objlight);
+	}
 	
-	var objlight = new GameObject("Spot Light");
-	var light = new Light(Light.SPOT);
-	objlight.addComponent(light);
-	light.lookAt([103,105,103],[100,101,100],[0,1,0]);
-	light.far = 8;
-	Scene.addLight(light);
-	Scene.addObject(objlight);
+	if (light_swap == 0 || light_swap == 2 || light_swap == 4){
+		var objlight = new GameObject("Spot Light");
+		var light = new Light(Light.SPOT);
+		objlight.addComponent(light);
+		light.lookAt([103,105,103],[100,101,100],[0,1,0]);
+		light.far = 8;
+		Scene.addLight(light);
+		Scene.addObject(objlight);
+	}
 
-	var ol3 = new GameObject("Directional Light");
-	var l3 = new Light();
-	ol3.addComponent(l3);
-	l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
-	l3.type = 0;
-	l3.intensity = 0.3;
-	l3.diffuse = [0.8,0.8,0.8,1];
-	l3.specular = [0.8,0.8,0.8,1];
-	Scene.addLight(l3);
-	Scene.addObject(ol3);
+	if (light_swap == 0 || light_swap == 3 || light_swap == 4){
+		var ol3 = new GameObject("Directional Light");
+		var l3 = new Light();
+		ol3.addComponent(l3);
+		l3.lookAt([700,600,0],[70,0,-300],[0,0,1]);
+		l3.type = 0;
+		l3.intensity = 0.3;
+		l3.diffuse = [0.8,0.8,0.8,1];
+		l3.specular = [0.8,0.8,0.8,1];
+		Scene.addLight(l3);
+		Scene.addObject(ol3);
+	}
 	
 	var obj = new GameObject("floor");
 	obj.transform.position = [100,100,100];
@@ -135,7 +141,10 @@ function NiceScene(){
 	obj = new GameObject("camera");
 	var cam = new Camera();
 	obj.addComponent(cam);
-	cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
+	if (light_swap == 4){
+		cam.lookAt( [100.57647705,102.34823608,99.495018005], [100.15442657470703, 102.53095245361328, 99.43574523925781],[0,1,0]);
+	}else
+		cam.lookAt([102,106,91],[100,102,100],[0,1,0]);
 	cam.setPerspective(45 * DEG2RAD,gl.canvas.width/gl.canvas.height,0.01,20.0);
 	Scene.addCamera(cam);
 	var kc = new KeyController([0,0,-1],[-1,0,0]);
@@ -144,6 +153,11 @@ function NiceScene(){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	if (light_swap)
+		Scene.renderMode = 2;
+	else
+		Scene.renderMode = 1;
 }
 
 function Sponza(N_lights,normal){
@@ -208,6 +222,8 @@ function Sponza(N_lights,normal){
 	obj.addComponent(mc);
 	Scene.addObject(obj);
 
+	Scene.renderMode = 1;
+
 }
 
 function BenchmarkLights(n,m,object_mesh){
@@ -264,6 +280,8 @@ function BenchmarkLights(n,m,object_mesh){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	Scene.renderMode = 1;
 }
 
 function BenchmarkLightsObjects(n,m,object_mesh){
@@ -309,6 +327,8 @@ function BenchmarkLightsObjects(n,m,object_mesh){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	Scene.renderMode = 1;
 }
 
 function Temple(N_lights){
@@ -383,6 +403,8 @@ function Temple(N_lights){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	Scene.renderMode = 1;
 }
 
 function Checker(n,m,object_mesh){
@@ -421,6 +443,8 @@ function Checker(n,m,object_mesh){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	Scene.renderMode = 1;
 }
 
 function Dragons(){
@@ -569,6 +593,8 @@ function Dragons(){
 	var mc = new MouseController([0,-1,0],[-1,0,0]);
 	obj.addComponent(mc);
 	Scene.addObject(obj);
+
+	Scene.renderMode = 1;
 }
 
 
