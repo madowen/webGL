@@ -95,8 +95,9 @@ function init(){
 	// Sponza(10);
 	// Temple(50);
 	// Checker(100,100);
-	Dragons();
-
+	//Dragons();
+	BenchmarkLightsObjects(15,15);
+	
 	console.log(Scene.objects);
 
 	gl.clearColor(0.0,0.0,0.0,1);
